@@ -453,3 +453,17 @@ Immutable image:
 The convenience tag is `numeric_v1`; the immutable commit tag is `b1f2225a5ef35a06c6f68e63c4f2c617cf49d300`. The starter-pack anonymous token/manifest check returned HTTP 200, as did all config/layer checks. A real Docker pull passed with an empty temporary credential configuration. The downloaded digest also passed all four official gates offline. The image runs as `runner`, declares no volumes, and contains no evaluation package, vendor tree, or parquet data. Evidence: anonymous-pull.json and published-image-smoke.json.
 
 The package was already Public when published through GitHub Actions; no visibility change or browser login was needed. The verification token was anonymous and never logged. The Docker credential directory was empty and temporary. No competition submission was packed or uploaded.
+
+## Text-layer contract — 2026-10-14
+
+Added `docs/TEXT_LAYER.md` and `t2agent/contracts.py` so the text layer can be
+built in parallel with the numeric engine. The contract is `read_text(unit_dir,
+NumericSummary, CallBudget) -> TextSignal`; the numeric engine applies the
+signal, and `TextSignal.neutral` must reproduce the numeric forecast exactly.
+The budget caps admitted House requests at 20 of the 25 allowed per unit.
+Development House access is closed, so development uses NVIDIA's hosted
+Nemotron 3 Super through the same `MODEL_*` variables; `.env` is gitignored.
+Clamp values are initial and will be set by the practice-proxy ablation.
+`tests/test_contracts.py` covers the neutral signal and budget refusal.
+`numeric_v1.apply_text_signal` already duck-types these types and applies the
+same drift and weight bounds (see `docs/NUMERIC_V1.md`).
