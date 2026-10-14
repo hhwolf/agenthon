@@ -8,3 +8,4 @@
 - Compare M0, the reference CLI, and custom forecasters using historical backtests, practice proxy labels, calibration checks, and official admissibility gates.
 - Reproduce the 2,060-card baseline measurement with pinned dependencies, setup commands, tests, and documented data provenance.
 - Read measured scores, breakdowns, and limitations in the baseline tables and results PDF.
+- Download the complete generated evaluation snapshot with a per-file SHA-256 manifest and restoration instructions.

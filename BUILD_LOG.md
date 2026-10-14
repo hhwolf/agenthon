@@ -1,5 +1,10 @@
 # Phase 0–1 measurement loop
 
+The complete generated evaluation snapshot is published with release v0.1.0.0.
+See [evaluation data](reports/EVALUATION_DATA.md) for download and restoration
+instructions. All 55,005 archived files were verified against a per-file SHA-256
+manifest; preliminary runs remain distinguishable from the final run IDs below.
+
 ## Scope and reference
 
 2026-10-14. Implement measurement and literal M0 only; no forecaster optimization.
