@@ -14,4 +14,4 @@ reference-smoke:
 	$(PYTHON) -m qfbench2_track_forecasting.cli --panels vendor/track2/units/t2-EXAMPLE-ust-curve-1m/panels --text vendor/track2/units/t2-EXAMPLE-ust-curve-1m/text --asof 2024-06-28 --out .context/reference-exemplar/forecast.parquet
 	$(PYTHON) vendor/track2/scoring/scoring.py score --card vendor/track2/units/t2-EXAMPLE-ust-curve-1m/card.toml --forecast .context/reference-exemplar/forecast.parquet
 docker-smoke:
-	$(PYTHON) scripts/docker_smoke.py
+	$(PYTHON) scripts/docker_smoke.py --forecaster $(FORECASTER)

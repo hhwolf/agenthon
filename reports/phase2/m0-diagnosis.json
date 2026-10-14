@@ -1,0 +1,27 @@
+{
+  "cards": 2060,
+  "cells": 5260,
+  "capped": 24,
+  "coverage90": 0.8513307984790874,
+  "coverage98": 0.9408745247148289,
+  "mean_z": 0.019281150360572295,
+  "median_z": 0.0030319903294503017,
+  "rms_z": 1.3824739143669285,
+  "counterfactual_means": {
+    "m0": 1.2146292355326944,
+    "zero_drift": 1.1824551169840867,
+    "width_2": 1.5013312134998742,
+    "center_oracle": 0.5202042353864061,
+    "width_oracle": 0.9732100853541873,
+    "oracle_width": 0.9286407766990291,
+    "center_shapley": 0.7102536034502204,
+    "width_shapley": 0.25724775348243917,
+    "oracle_residual": 0.24712787860003496
+  },
+  "capped_classes": {
+    "regime break": 15,
+    "monthly/vintage issue": 5,
+    "vol spike": 3,
+    "drift extrapolation": 1
+  }
+}

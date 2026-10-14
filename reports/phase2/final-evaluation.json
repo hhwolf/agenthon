@@ -1,0 +1,370 @@
+{
+  "config": {
+    "drift": 0.25,
+    "volatility": "recent",
+    "variance_ratio": false,
+    "tails": "normal",
+    "rates_reversion": false,
+    "monthly": true,
+    "joint": true,
+    "width": 1.0
+  },
+  "primary_cv": {
+    "cards": 1073,
+    "mean": 0.95307731662608,
+    "median": 0.7038351542679397,
+    "capped": 1
+  },
+  "primary_m0": {
+    "cards": 1073,
+    "mean": 1.0333887906892236,
+    "median": 0.7388979938540656,
+    "capped": 1
+  },
+  "holdout": {
+    "cards": 554,
+    "mean": 1.4563629225787686,
+    "median": 0.8086528897319287,
+    "capped": 17
+  },
+  "holdout_m0": {
+    "cards": 554,
+    "mean": 1.4808378217483222,
+    "median": 0.8736019417139339,
+    "capped": 15
+  },
+  "all_frozen": {
+    "cards": 2060,
+    "mean": 1.1542441419028175,
+    "median": 0.7604723958871508,
+    "capped": 23
+  },
+  "all_m0": {
+    "cards": 2060,
+    "mean": 1.2107845454383344,
+    "median": 0.8122074274509905,
+    "capped": 23
+  },
+  "holdout_year_wins": 4,
+  "holdout_years": 6,
+  "holdout_equal_year_delta": -0.03482314931841716,
+  "holdout_year_cluster_se": 0.05055422914407397,
+  "holdout_breakdowns": {
+    "family": [
+      {
+        "group": "T2-F1",
+        "cards": 122,
+        "mean": 2.0609615904781093,
+        "median": 0.8683597806147205,
+        "capped": 12
+      },
+      {
+        "group": "T2-F2",
+        "cards": 144,
+        "mean": 1.2367999166634511,
+        "median": 0.756109267438871,
+        "capped": 1
+      },
+      {
+        "group": "T2-F3",
+        "cards": 121,
+        "mean": 1.4983556219067338,
+        "median": 0.8838229201595474,
+        "capped": 2
+      },
+      {
+        "group": "T2-F4",
+        "cards": 167,
+        "mean": 1.1735780049105191,
+        "median": 0.7861036827849913,
+        "capped": 2
+      }
+    ],
+    "panel": [
+      {
+        "group": "factors_daily",
+        "cards": 77,
+        "mean": 1.084999274638323,
+        "median": 0.7674918507682661,
+        "capped": 1
+      },
+      {
+        "group": "g10_fx_daily",
+        "cards": 183,
+        "mean": 1.08641436898828,
+        "median": 0.732901905142233,
+        "capped": 2
+      },
+      {
+        "group": "g10_fx_daily+rates_daily",
+        "cards": 20,
+        "mean": 1.7232189522454444,
+        "median": 0.979155913256583,
+        "capped": 1
+      },
+      {
+        "group": "macro_monthly",
+        "cards": 26,
+        "mean": 2.014310648473615,
+        "median": 0.8263229216704171,
+        "capped": 2
+      },
+      {
+        "group": "rates_daily",
+        "cards": 248,
+        "mean": 1.7646364094008422,
+        "median": 0.9027905343110952,
+        "capped": 11
+      }
+    ],
+    "horizon_bucket": [
+      {
+        "group": "127+",
+        "cards": 122,
+        "mean": 2.0609615904781093,
+        "median": 0.8683597806147205,
+        "capped": 12
+      },
+      {
+        "group": "1\u201321",
+        "cards": 137,
+        "mean": 1.125822586346846,
+        "median": 0.7715694735383758,
+        "capped": 1
+      },
+      {
+        "group": "22\u201363",
+        "cards": 158,
+        "mean": 1.3110675192767383,
+        "median": 0.7994512904355433,
+        "capped": 1
+      },
+      {
+        "group": "64\u2013126",
+        "cards": 137,
+        "mean": 1.4160684868252988,
+        "median": 0.8169845943251722,
+        "capped": 3
+      }
+    ],
+    "shape": [
+      {
+        "group": "joint",
+        "cards": 236,
+        "mean": 1.7469067370481837,
+        "median": 0.8738759936144486,
+        "capped": 13
+      },
+      {
+        "group": "single",
+        "cards": 318,
+        "mean": 1.2407392112115299,
+        "median": 0.7682978218885579,
+        "capped": 4
+      }
+    ],
+    "year": [
+      {
+        "group": "2019",
+        "cards": 91,
+        "mean": 1.3561420988417607,
+        "median": 0.8370151132138236,
+        "capped": 0
+      },
+      {
+        "group": "2020",
+        "cards": 95,
+        "mean": 1.4570357669916043,
+        "median": 0.8420358812191104,
+        "capped": 1
+      },
+      {
+        "group": "2021",
+        "cards": 110,
+        "mean": 2.042750600074428,
+        "median": 0.8470990103371894,
+        "capped": 12
+      },
+      {
+        "group": "2022",
+        "cards": 119,
+        "mean": 1.7294915291746997,
+        "median": 0.9049088414622225,
+        "capped": 4
+      },
+      {
+        "group": "2023",
+        "cards": 97,
+        "mean": 0.7542454725663496,
+        "median": 0.7167331179881574,
+        "capped": 0
+      },
+      {
+        "group": "2024",
+        "cards": 42,
+        "mean": 0.9839014626410216,
+        "median": 0.7443265066154001,
+        "capped": 0
+      }
+    ]
+  },
+  "holdout_m0_breakdowns": {
+    "family": [
+      {
+        "group": "T2-F1",
+        "cards": 122,
+        "mean": 2.1835735882950758,
+        "median": 1.4058673741884125,
+        "capped": 11
+      },
+      {
+        "group": "T2-F2",
+        "cards": 144,
+        "mean": 1.2690544567976587,
+        "median": 0.7964469209102771,
+        "capped": 2
+      },
+      {
+        "group": "T2-F3",
+        "cards": 121,
+        "mean": 1.4724859827412151,
+        "median": 0.9855346405661652,
+        "capped": 0
+      },
+      {
+        "group": "T2-F4",
+        "cards": 167,
+        "mean": 1.1561289208743801,
+        "median": 0.7865357538416375,
+        "capped": 2
+      }
+    ],
+    "panel": [
+      {
+        "group": "factors_daily",
+        "cards": 77,
+        "mean": 1.1042388930265392,
+        "median": 0.7968878682639867,
+        "capped": 1
+      },
+      {
+        "group": "g10_fx_daily",
+        "cards": 183,
+        "mean": 1.1455197897462388,
+        "median": 0.7216751891950753,
+        "capped": 2
+      },
+      {
+        "group": "g10_fx_daily+rates_daily",
+        "cards": 20,
+        "mean": 1.62920441673374,
+        "median": 1.0306778645597434,
+        "capped": 0
+      },
+      {
+        "group": "macro_monthly",
+        "cards": 26,
+        "mean": 1.6287839348265722,
+        "median": 0.7590167479463396,
+        "capped": 2
+      },
+      {
+        "group": "rates_daily",
+        "cards": 248,
+        "mean": 1.8177224448459666,
+        "median": 1.2298239943248093,
+        "capped": 10
+      }
+    ],
+    "horizon_bucket": [
+      {
+        "group": "127+",
+        "cards": 122,
+        "mean": 2.1835735882950758,
+        "median": 1.4058673741884125,
+        "capped": 11
+      },
+      {
+        "group": "1\u201321",
+        "cards": 137,
+        "mean": 1.0788783312793457,
+        "median": 0.7756618845428984,
+        "capped": 1
+      },
+      {
+        "group": "22\u201363",
+        "cards": 158,
+        "mean": 1.368430006741007,
+        "median": 0.9419743844169723,
+        "capped": 0
+      },
+      {
+        "group": "64\u2013126",
+        "cards": 137,
+        "mean": 1.3866416279286264,
+        "median": 0.866485019992266,
+        "capped": 3
+      }
+    ],
+    "shape": [
+      {
+        "group": "joint",
+        "cards": 236,
+        "mean": 1.7829013522925496,
+        "median": 1.0836648177944614,
+        "capped": 10
+      },
+      {
+        "group": "single",
+        "cards": 318,
+        "mean": 1.2566648871305939,
+        "median": 0.8037819704578887,
+        "capped": 5
+      }
+    ],
+    "year": [
+      {
+        "group": "2019",
+        "cards": 91,
+        "mean": 1.2567638089892437,
+        "median": 0.8737527071636071,
+        "capped": 0
+      },
+      {
+        "group": "2020",
+        "cards": 95,
+        "mean": 1.554801357580644,
+        "median": 1.124268665460026,
+        "capped": 2
+      },
+      {
+        "group": "2021",
+        "cards": 110,
+        "mean": 2.1972274063132473,
+        "median": 1.1018985605873546,
+        "capped": 13
+      },
+      {
+        "group": "2022",
+        "cards": 119,
+        "mean": 1.585999814571655,
+        "median": 1.0216716783191047,
+        "capped": 0
+      },
+      {
+        "group": "2023",
+        "cards": 97,
+        "mean": 0.8454465564470882,
+        "median": 0.7220695324208884,
+        "capped": 0
+      },
+      {
+        "group": "2024",
+        "cards": 42,
+        "mean": 1.0922668822984893,
+        "median": 0.7218289904784756,
+        "capped": 0
+      }
+    ]
+  }
+}

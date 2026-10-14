@@ -1,0 +1,2528 @@
+[
+  {
+    "name": "m0_2000",
+    "previous": null,
+    "accepted": true,
+    "config": {
+      "drift": 1.0,
+      "volatility": "recent",
+      "variance_ratio": false,
+      "tails": "normal",
+      "rates_reversion": false,
+      "monthly": false,
+      "joint": false,
+      "width": 1.0
+    },
+    "cards": 1073,
+    "mean": 1.0333887906892236,
+    "median": 0.7388979938540656,
+    "capped": 1,
+    "breakdowns": {
+      "family": [
+        {
+          "group": "T2-F1",
+          "cards": 234,
+          "mean": 1.0803531779889854,
+          "median": 0.7955583545469214,
+          "capped": 0
+        },
+        {
+          "group": "T2-F2",
+          "cards": 281,
+          "mean": 0.9754975826639631,
+          "median": 0.6904854149059709,
+          "capped": 0
+        },
+        {
+          "group": "T2-F3",
+          "cards": 230,
+          "mean": 1.0738139324697387,
+          "median": 0.8476155749325389,
+          "capped": 0
+        },
+        {
+          "group": "T2-F4",
+          "cards": 328,
+          "mean": 1.021132632815551,
+          "median": 0.6902290335596137,
+          "capped": 1
+        }
+      ],
+      "panel": [
+        {
+          "group": "factors_daily",
+          "cards": 169,
+          "mean": 1.0384816835772817,
+          "median": 0.7092153132163677,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily",
+          "cards": 352,
+          "mean": 1.0834271746216197,
+          "median": 0.7826159193322603,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily+rates_daily",
+          "cards": 63,
+          "mean": 1.0802492627772593,
+          "median": 0.8142883284711112,
+          "capped": 0
+        },
+        {
+          "group": "macro_monthly",
+          "cards": 38,
+          "mean": 1.3662310740458914,
+          "median": 0.8569965691439776,
+          "capped": 0
+        },
+        {
+          "group": "rates_daily",
+          "cards": 451,
+          "mean": 0.9578357384688577,
+          "median": 0.7016892883771638,
+          "capped": 1
+        }
+      ],
+      "horizon_bucket": [
+        {
+          "group": "127+",
+          "cards": 234,
+          "mean": 1.0803531779889854,
+          "median": 0.7955583545469214,
+          "capped": 0
+        },
+        {
+          "group": "1\u201321",
+          "cards": 278,
+          "mean": 1.0056635630417385,
+          "median": 0.6888560338844503,
+          "capped": 0
+        },
+        {
+          "group": "22\u201363",
+          "cards": 302,
+          "mean": 0.9514967444268558,
+          "median": 0.7220055665046243,
+          "capped": 0
+        },
+        {
+          "group": "64\u2013126",
+          "cards": 259,
+          "mean": 1.1162047931181487,
+          "median": 0.8548782584564862,
+          "capped": 1
+        }
+      ],
+      "shape": [
+        {
+          "group": "joint",
+          "cards": 450,
+          "mean": 1.0771402741219884,
+          "median": 0.8365211402803088,
+          "capped": 0
+        },
+        {
+          "group": "single",
+          "cards": 623,
+          "mean": 1.0017865955933256,
+          "median": 0.690895327305461,
+          "capped": 1
+        }
+      ],
+      "year": [
+        {
+          "group": "2009",
+          "cards": 98,
+          "mean": 1.0398217105538186,
+          "median": 0.7437290730935202,
+          "capped": 0
+        },
+        {
+          "group": "2010",
+          "cards": 96,
+          "mean": 0.9433834444245903,
+          "median": 0.7307974133151527,
+          "capped": 0
+        },
+        {
+          "group": "2011",
+          "cards": 125,
+          "mean": 1.055656380908093,
+          "median": 0.8319195011267038,
+          "capped": 0
+        },
+        {
+          "group": "2012",
+          "cards": 105,
+          "mean": 0.8629738770338017,
+          "median": 0.6844628002278415,
+          "capped": 0
+        },
+        {
+          "group": "2013",
+          "cards": 125,
+          "mean": 1.0286159966247324,
+          "median": 0.8163120636230187,
+          "capped": 0
+        },
+        {
+          "group": "2014",
+          "cards": 94,
+          "mean": 1.2907767134054782,
+          "median": 0.9706656342346839,
+          "capped": 0
+        },
+        {
+          "group": "2015",
+          "cards": 119,
+          "mean": 1.0618498469546285,
+          "median": 0.6953123239988712,
+          "capped": 0
+        },
+        {
+          "group": "2016",
+          "cards": 98,
+          "mean": 1.0669466726505612,
+          "median": 0.7311626532524473,
+          "capped": 0
+        },
+        {
+          "group": "2017",
+          "cards": 116,
+          "mean": 0.8524610163275878,
+          "median": 0.6927250115734911,
+          "capped": 0
+        },
+        {
+          "group": "2018",
+          "cards": 97,
+          "mean": 1.1760117027719454,
+          "median": 0.7212878156000258,
+          "capped": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "1_drift_zero",
+    "previous": "m0_2000",
+    "eligible": false,
+    "accepted": false,
+    "reasons": [
+      "panel=macro_monthly worsened >10%"
+    ],
+    "config": {
+      "drift": 0.0,
+      "volatility": "recent",
+      "variance_ratio": false,
+      "tails": "normal",
+      "rates_reversion": false,
+      "monthly": false,
+      "joint": false,
+      "width": 1.0
+    },
+    "cards": 1073,
+    "mean": 0.9638065484435876,
+    "median": 0.7070330270659724,
+    "capped": 1,
+    "delta": -0.06958224224563603,
+    "breakdowns": {
+      "family": [
+        {
+          "group": "T2-F1",
+          "cards": 234,
+          "mean": 1.0111189523102666,
+          "median": 0.7842743857174985,
+          "capped": 0
+        },
+        {
+          "group": "T2-F2",
+          "cards": 281,
+          "mean": 0.9097602032734193,
+          "median": 0.6595163633320795,
+          "capped": 0
+        },
+        {
+          "group": "T2-F3",
+          "cards": 230,
+          "mean": 0.9572927872771592,
+          "median": 0.7502741445038159,
+          "capped": 0
+        },
+        {
+          "group": "T2-F4",
+          "cards": 328,
+          "mean": 0.9809226629444806,
+          "median": 0.6623208576176283,
+          "capped": 1
+        }
+      ],
+      "panel": [
+        {
+          "group": "factors_daily",
+          "cards": 169,
+          "mean": 0.9947150291114166,
+          "median": 0.7171786019015781,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily",
+          "cards": 352,
+          "mean": 1.007551973425904,
+          "median": 0.7124824176488853,
+          "capped": 1
+        },
+        {
+          "group": "g10_fx_daily+rates_daily",
+          "cards": 63,
+          "mean": 1.002933189378334,
+          "median": 0.770890383903067,
+          "capped": 0
+        },
+        {
+          "group": "macro_monthly",
+          "cards": 38,
+          "mean": 1.5683404309971893,
+          "median": 1.2579647510994978,
+          "capped": 0
+        },
+        {
+          "group": "rates_daily",
+          "cards": 451,
+          "mean": 0.8616797441363496,
+          "median": 0.6656634222787405,
+          "capped": 0
+        }
+      ],
+      "horizon_bucket": [
+        {
+          "group": "127+",
+          "cards": 234,
+          "mean": 1.0111189523102666,
+          "median": 0.7842743857174985,
+          "capped": 0
+        },
+        {
+          "group": "1\u201321",
+          "cards": 278,
+          "mean": 0.9898015999938747,
+          "median": 0.6623208576176283,
+          "capped": 1
+        },
+        {
+          "group": "22\u201363",
+          "cards": 302,
+          "mean": 0.9142963411131673,
+          "median": 0.7004857426983859,
+          "capped": 0
+        },
+        {
+          "group": "64\u2013126",
+          "cards": 259,
+          "mean": 0.9508890031849164,
+          "median": 0.6986408586433586,
+          "capped": 0
+        }
+      ],
+      "shape": [
+        {
+          "group": "joint",
+          "cards": 450,
+          "mean": 0.9840658259741912,
+          "median": 0.769277852376936,
+          "capped": 0
+        },
+        {
+          "group": "single",
+          "cards": 623,
+          "mean": 0.9491730413990104,
+          "median": 0.6624544496726597,
+          "capped": 1
+        }
+      ],
+      "year": [
+        {
+          "group": "2009",
+          "cards": 98,
+          "mean": 0.8794480126326795,
+          "median": 0.621696470140643,
+          "capped": 0
+        },
+        {
+          "group": "2010",
+          "cards": 96,
+          "mean": 0.8639776991851368,
+          "median": 0.7103668458122571,
+          "capped": 0
+        },
+        {
+          "group": "2011",
+          "cards": 125,
+          "mean": 0.9843925538252637,
+          "median": 0.7637242278900133,
+          "capped": 0
+        },
+        {
+          "group": "2012",
+          "cards": 105,
+          "mean": 0.7981755073673773,
+          "median": 0.6226309239386052,
+          "capped": 0
+        },
+        {
+          "group": "2013",
+          "cards": 125,
+          "mean": 1.075502014902741,
+          "median": 0.7584907630053728,
+          "capped": 0
+        },
+        {
+          "group": "2014",
+          "cards": 94,
+          "mean": 1.2744115548590778,
+          "median": 0.7978773094968474,
+          "capped": 0
+        },
+        {
+          "group": "2015",
+          "cards": 119,
+          "mean": 0.8975773930730042,
+          "median": 0.6420841562176696,
+          "capped": 1
+        },
+        {
+          "group": "2016",
+          "cards": 98,
+          "mean": 0.9630762282393656,
+          "median": 0.7361853748936052,
+          "capped": 0
+        },
+        {
+          "group": "2017",
+          "cards": 116,
+          "mean": 0.9471062333072982,
+          "median": 0.6930703471166455,
+          "capped": 0
+        },
+        {
+          "group": "2018",
+          "cards": 97,
+          "mean": 0.9576208597120972,
+          "median": 0.7699289614705329,
+          "capped": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "1_drift_shrunk",
+    "previous": "m0_2000",
+    "eligible": true,
+    "accepted": true,
+    "reasons": [],
+    "config": {
+      "drift": 0.25,
+      "volatility": "recent",
+      "variance_ratio": false,
+      "tails": "normal",
+      "rates_reversion": false,
+      "monthly": false,
+      "joint": false,
+      "width": 1.0
+    },
+    "cards": 1073,
+    "mean": 0.9595942153205779,
+    "median": 0.7113422893772665,
+    "capped": 1,
+    "delta": -0.07379457536864575,
+    "breakdowns": {
+      "family": [
+        {
+          "group": "T2-F1",
+          "cards": 234,
+          "mean": 0.9880620981193529,
+          "median": 0.7790877563851324,
+          "capped": 0
+        },
+        {
+          "group": "T2-F2",
+          "cards": 281,
+          "mean": 0.9061574411205398,
+          "median": 0.6768887473709729,
+          "capped": 0
+        },
+        {
+          "group": "T2-F3",
+          "cards": 230,
+          "mean": 0.9629322318005159,
+          "median": 0.7555589178349211,
+          "capped": 0
+        },
+        {
+          "group": "T2-F4",
+          "cards": 328,
+          "mean": 0.9827238042989664,
+          "median": 0.6727766140596859,
+          "capped": 1
+        }
+      ],
+      "panel": [
+        {
+          "group": "factors_daily",
+          "cards": 169,
+          "mean": 0.990235383232015,
+          "median": 0.7213561243970673,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily",
+          "cards": 352,
+          "mean": 1.005687747987768,
+          "median": 0.7298571146011605,
+          "capped": 1
+        },
+        {
+          "group": "g10_fx_daily+rates_daily",
+          "cards": 63,
+          "mean": 0.9952644746863333,
+          "median": 0.7726169150289743,
+          "capped": 0
+        },
+        {
+          "group": "macro_monthly",
+          "cards": 38,
+          "mean": 1.4562012186350148,
+          "median": 1.110042666286923,
+          "capped": 0
+        },
+        {
+          "group": "rates_daily",
+          "cards": 451,
+          "mean": 0.8653113476002339,
+          "median": 0.6692576873242967,
+          "capped": 0
+        }
+      ],
+      "horizon_bucket": [
+        {
+          "group": "127+",
+          "cards": 234,
+          "mean": 0.9880620981193529,
+          "median": 0.7790877563851324,
+          "capped": 0
+        },
+        {
+          "group": "1\u201321",
+          "cards": 278,
+          "mean": 0.9861113748911333,
+          "median": 0.6751659164665991,
+          "capped": 1
+        },
+        {
+          "group": "22\u201363",
+          "cards": 302,
+          "mean": 0.9057680858418592,
+          "median": 0.7001060370899518,
+          "capped": 0
+        },
+        {
+          "group": "64\u2013126",
+          "cards": 259,
+          "mean": 0.9681742777416013,
+          "median": 0.7137432527470493,
+          "capped": 0
+        }
+      ],
+      "shape": [
+        {
+          "group": "joint",
+          "cards": 450,
+          "mean": 0.9779170127381087,
+          "median": 0.7600543274901745,
+          "capped": 0
+        },
+        {
+          "group": "single",
+          "cards": 623,
+          "mean": 0.9463594499307078,
+          "median": 0.673042442472201,
+          "capped": 1
+        }
+      ],
+      "year": [
+        {
+          "group": "2009",
+          "cards": 98,
+          "mean": 0.9043356578560617,
+          "median": 0.6326781726259264,
+          "capped": 0
+        },
+        {
+          "group": "2010",
+          "cards": 96,
+          "mean": 0.8717484514784276,
+          "median": 0.7316059252669004,
+          "capped": 0
+        },
+        {
+          "group": "2011",
+          "cards": 125,
+          "mean": 0.9853066837908065,
+          "median": 0.7557067616613592,
+          "capped": 0
+        },
+        {
+          "group": "2012",
+          "cards": 105,
+          "mean": 0.7971360878748031,
+          "median": 0.6110881647410127,
+          "capped": 0
+        },
+        {
+          "group": "2013",
+          "cards": 125,
+          "mean": 1.0349841006919114,
+          "median": 0.7213561243970673,
+          "capped": 0
+        },
+        {
+          "group": "2014",
+          "cards": 94,
+          "mean": 1.2575609603800741,
+          "median": 0.7943399032600365,
+          "capped": 0
+        },
+        {
+          "group": "2015",
+          "cards": 119,
+          "mean": 0.9040158456683378,
+          "median": 0.6511418559005995,
+          "capped": 1
+        },
+        {
+          "group": "2016",
+          "cards": 98,
+          "mean": 0.974347923806811,
+          "median": 0.7453974755616479,
+          "capped": 0
+        },
+        {
+          "group": "2017",
+          "cards": 116,
+          "mean": 0.9080390755420751,
+          "median": 0.6924067149856167,
+          "capped": 0
+        },
+        {
+          "group": "2018",
+          "cards": 97,
+          "mean": 0.9741130384923232,
+          "median": 0.7790170758926347,
+          "capped": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "2_volatility_ewma",
+    "previous": "1_drift_shrunk",
+    "eligible": false,
+    "accepted": false,
+    "reasons": [
+      "mean did not improve"
+    ],
+    "config": {
+      "drift": 0.25,
+      "volatility": "ewma",
+      "variance_ratio": false,
+      "tails": "normal",
+      "rates_reversion": false,
+      "monthly": false,
+      "joint": false,
+      "width": 1.0
+    },
+    "cards": 1073,
+    "mean": 0.9601149691633893,
+    "median": 0.7140713661933491,
+    "capped": 0,
+    "delta": 0.0005207538428114722,
+    "breakdowns": {
+      "family": [
+        {
+          "group": "T2-F1",
+          "cards": 234,
+          "mean": 0.9816637570450357,
+          "median": 0.7721548512335801,
+          "capped": 0
+        },
+        {
+          "group": "T2-F2",
+          "cards": 281,
+          "mean": 0.9161220349655224,
+          "median": 0.6745185865692056,
+          "capped": 0
+        },
+        {
+          "group": "T2-F3",
+          "cards": 230,
+          "mean": 0.9739347843515254,
+          "median": 0.7660588513003278,
+          "capped": 0
+        },
+        {
+          "group": "T2-F4",
+          "cards": 328,
+          "mean": 0.9727400931024868,
+          "median": 0.683329734704246,
+          "capped": 0
+        }
+      ],
+      "panel": [
+        {
+          "group": "factors_daily",
+          "cards": 169,
+          "mean": 0.9804669789607585,
+          "median": 0.7241844024688107,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily",
+          "cards": 352,
+          "mean": 1.0131179863963231,
+          "median": 0.7433991348506336,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily+rates_daily",
+          "cards": 63,
+          "mean": 0.9971605141037997,
+          "median": 0.763522257525142,
+          "capped": 0
+        },
+        {
+          "group": "macro_monthly",
+          "cards": 38,
+          "mean": 1.4353394376461768,
+          "median": 1.0684346885789107,
+          "capped": 0
+        },
+        {
+          "group": "rates_daily",
+          "cards": 451,
+          "mean": 0.8659044351160723,
+          "median": 0.6702222237798179,
+          "capped": 0
+        }
+      ],
+      "horizon_bucket": [
+        {
+          "group": "127+",
+          "cards": 234,
+          "mean": 0.9816637570450357,
+          "median": 0.7721548512335801,
+          "capped": 0
+        },
+        {
+          "group": "1\u201321",
+          "cards": 278,
+          "mean": 0.9771845194033525,
+          "median": 0.6835422046103793,
+          "capped": 0
+        },
+        {
+          "group": "22\u201363",
+          "cards": 302,
+          "mean": 0.906836592789511,
+          "median": 0.7067034438355619,
+          "capped": 0
+        },
+        {
+          "group": "64\u2013126",
+          "cards": 259,
+          "mean": 0.9844482445838374,
+          "median": 0.7432971122307105,
+          "capped": 0
+        }
+      ],
+      "shape": [
+        {
+          "group": "joint",
+          "cards": 450,
+          "mean": 0.9814385417604969,
+          "median": 0.770603547227295,
+          "capped": 0
+        },
+        {
+          "group": "single",
+          "cards": 623,
+          "mean": 0.9447127096630707,
+          "median": 0.679911731884866,
+          "capped": 0
+        }
+      ],
+      "year": [
+        {
+          "group": "2009",
+          "cards": 98,
+          "mean": 0.8406877968532123,
+          "median": 0.6091079911090159,
+          "capped": 0
+        },
+        {
+          "group": "2010",
+          "cards": 96,
+          "mean": 0.8518801966127983,
+          "median": 0.7250862212775034,
+          "capped": 0
+        },
+        {
+          "group": "2011",
+          "cards": 125,
+          "mean": 1.0048013523568615,
+          "median": 0.7839983273397624,
+          "capped": 0
+        },
+        {
+          "group": "2012",
+          "cards": 105,
+          "mean": 0.7554735924267926,
+          "median": 0.5901459264853129,
+          "capped": 0
+        },
+        {
+          "group": "2013",
+          "cards": 125,
+          "mean": 1.0637440866868693,
+          "median": 0.7608934143214201,
+          "capped": 0
+        },
+        {
+          "group": "2014",
+          "cards": 94,
+          "mean": 1.2994239340150462,
+          "median": 0.7996588160694704,
+          "capped": 0
+        },
+        {
+          "group": "2015",
+          "cards": 119,
+          "mean": 0.9290964732529958,
+          "median": 0.6875242634556691,
+          "capped": 0
+        },
+        {
+          "group": "2016",
+          "cards": 98,
+          "mean": 0.970475989941354,
+          "median": 0.7491628454681905,
+          "capped": 0
+        },
+        {
+          "group": "2017",
+          "cards": 116,
+          "mean": 0.9101058273365612,
+          "median": 0.6699869263321162,
+          "capped": 0
+        },
+        {
+          "group": "2018",
+          "cards": 97,
+          "mean": 0.9768587501111237,
+          "median": 0.7830546893366004,
+          "capped": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "2_volatility_blend",
+    "previous": "1_drift_shrunk",
+    "eligible": false,
+    "accepted": false,
+    "reasons": [
+      "mean did not improve",
+      "family=T2-F1 worsened >10%",
+      "panel=rates_daily worsened >10%",
+      "horizon_bucket=127+ worsened >10%"
+    ],
+    "config": {
+      "drift": 0.25,
+      "volatility": "blend",
+      "variance_ratio": false,
+      "tails": "normal",
+      "rates_reversion": false,
+      "monthly": false,
+      "joint": false,
+      "width": 1.0
+    },
+    "cards": 1073,
+    "mean": 1.0256946427329199,
+    "median": 0.8231741366498145,
+    "capped": 0,
+    "delta": 0.06610042741234201,
+    "breakdowns": {
+      "family": [
+        {
+          "group": "T2-F1",
+          "cards": 234,
+          "mean": 1.1434796510280532,
+          "median": 0.9257200479241057,
+          "capped": 0
+        },
+        {
+          "group": "T2-F2",
+          "cards": 281,
+          "mean": 0.94808172319315,
+          "median": 0.7789671617040441,
+          "capped": 0
+        },
+        {
+          "group": "T2-F3",
+          "cards": 230,
+          "mean": 0.9901651703315402,
+          "median": 0.8439320405652098,
+          "capped": 0
+        },
+        {
+          "group": "T2-F4",
+          "cards": 328,
+          "mean": 1.0330706095071014,
+          "median": 0.7933293017224229,
+          "capped": 0
+        }
+      ],
+      "panel": [
+        {
+          "group": "factors_daily",
+          "cards": 169,
+          "mean": 1.0645498776225495,
+          "median": 0.8570079898529932,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily",
+          "cards": 352,
+          "mean": 0.9938892081600343,
+          "median": 0.7781118096760287,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily+rates_daily",
+          "cards": 63,
+          "mean": 0.9997742386995693,
+          "median": 0.8276236281630004,
+          "capped": 0
+        },
+        {
+          "group": "macro_monthly",
+          "cards": 38,
+          "mean": 1.4562012186350148,
+          "median": 1.1100426662869234,
+          "capped": 0
+        },
+        {
+          "group": "rates_daily",
+          "cards": 451,
+          "mean": 1.0033059816312122,
+          "median": 0.8419539105950192,
+          "capped": 0
+        }
+      ],
+      "horizon_bucket": [
+        {
+          "group": "127+",
+          "cards": 234,
+          "mean": 1.1434796510280532,
+          "median": 0.9257200479241057,
+          "capped": 0
+        },
+        {
+          "group": "1\u201321",
+          "cards": 278,
+          "mean": 1.029857775861533,
+          "median": 0.7932491366422263,
+          "capped": 0
+        },
+        {
+          "group": "22\u201363",
+          "cards": 302,
+          "mean": 0.9449455650676785,
+          "median": 0.7847896046108844,
+          "capped": 0
+        },
+        {
+          "group": "64\u2013126",
+          "cards": 259,
+          "mean": 1.0089656022081606,
+          "median": 0.8258672895663974,
+          "capped": 0
+        }
+      ],
+      "shape": [
+        {
+          "group": "joint",
+          "cards": 450,
+          "mean": 1.0676158437984709,
+          "median": 0.8809651348640326,
+          "capped": 0
+        },
+        {
+          "group": "single",
+          "cards": 623,
+          "mean": 0.9954144814496168,
+          "median": 0.7903244328702432,
+          "capped": 0
+        }
+      ],
+      "year": [
+        {
+          "group": "2009",
+          "cards": 98,
+          "mean": 0.880335758490446,
+          "median": 0.5713974361563806,
+          "capped": 0
+        },
+        {
+          "group": "2010",
+          "cards": 96,
+          "mean": 0.8753795469237788,
+          "median": 0.7508429756358809,
+          "capped": 0
+        },
+        {
+          "group": "2011",
+          "cards": 125,
+          "mean": 1.0522702038544762,
+          "median": 0.8387986784010668,
+          "capped": 0
+        },
+        {
+          "group": "2012",
+          "cards": 105,
+          "mean": 0.9239432496184807,
+          "median": 0.7560628182171749,
+          "capped": 0
+        },
+        {
+          "group": "2013",
+          "cards": 125,
+          "mean": 1.2119144231596573,
+          "median": 0.9511964353782533,
+          "capped": 0
+        },
+        {
+          "group": "2014",
+          "cards": 94,
+          "mean": 1.323561351829195,
+          "median": 1.0014602717350574,
+          "capped": 0
+        },
+        {
+          "group": "2015",
+          "cards": 119,
+          "mean": 1.0026083115460518,
+          "median": 0.8056066863925129,
+          "capped": 0
+        },
+        {
+          "group": "2016",
+          "cards": 98,
+          "mean": 1.0184639263742405,
+          "median": 0.8253867851419703,
+          "capped": 0
+        },
+        {
+          "group": "2017",
+          "cards": 116,
+          "mean": 0.9220786417642729,
+          "median": 0.7898518952492772,
+          "capped": 0
+        },
+        {
+          "group": "2018",
+          "cards": 97,
+          "mean": 1.0281252356052957,
+          "median": 0.9138559254129641,
+          "capped": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "2_horizon_empirical_ratio",
+    "previous": "1_drift_shrunk",
+    "eligible": false,
+    "accepted": false,
+    "reasons": [
+      "mean did not improve"
+    ],
+    "config": {
+      "drift": 0.25,
+      "volatility": "recent",
+      "variance_ratio": true,
+      "tails": "normal",
+      "rates_reversion": false,
+      "monthly": false,
+      "joint": false,
+      "width": 1.0
+    },
+    "cards": 1073,
+    "mean": 0.9645665053734304,
+    "median": 0.7118043039642632,
+    "capped": 1,
+    "delta": 0.0049722900528524905,
+    "breakdowns": {
+      "family": [
+        {
+          "group": "T2-F1",
+          "cards": 234,
+          "mean": 1.0067927912882109,
+          "median": 0.7969019759789087,
+          "capped": 0
+        },
+        {
+          "group": "T2-F2",
+          "cards": 281,
+          "mean": 0.909654950332041,
+          "median": 0.6769105369878484,
+          "capped": 0
+        },
+        {
+          "group": "T2-F3",
+          "cards": 230,
+          "mean": 0.9641059362736836,
+          "median": 0.7501672453291961,
+          "capped": 0
+        },
+        {
+          "group": "T2-F4",
+          "cards": 328,
+          "mean": 0.9818077460914593,
+          "median": 0.679176823981106,
+          "capped": 1
+        }
+      ],
+      "panel": [
+        {
+          "group": "factors_daily",
+          "cards": 169,
+          "mean": 1.0031569392407211,
+          "median": 0.709096107098463,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily",
+          "cards": 352,
+          "mean": 1.0063145751920715,
+          "median": 0.7290632780810793,
+          "capped": 1
+        },
+        {
+          "group": "g10_fx_daily+rates_daily",
+          "cards": 63,
+          "mean": 0.9936158670861376,
+          "median": 0.7722065637584314,
+          "capped": 0
+        },
+        {
+          "group": "macro_monthly",
+          "cards": 38,
+          "mean": 1.4718517428626996,
+          "median": 1.0808234668175083,
+          "capped": 0
+        },
+        {
+          "group": "rates_daily",
+          "cards": 451,
+          "mean": 0.8707215991378945,
+          "median": 0.6832426906714358,
+          "capped": 0
+        }
+      ],
+      "horizon_bucket": [
+        {
+          "group": "127+",
+          "cards": 234,
+          "mean": 1.0067927912882109,
+          "median": 0.7969019759789087,
+          "capped": 0
+        },
+        {
+          "group": "1\u201321",
+          "cards": 278,
+          "mean": 0.9843166038519289,
+          "median": 0.6792980621302631,
+          "capped": 1
+        },
+        {
+          "group": "22\u201363",
+          "cards": 302,
+          "mean": 0.9077318686752647,
+          "median": 0.6987152133008021,
+          "capped": 0
+        },
+        {
+          "group": "64\u2013126",
+          "cards": 259,
+          "mean": 0.9714876714034104,
+          "median": 0.7183013006217177,
+          "capped": 0
+        }
+      ],
+      "shape": [
+        {
+          "group": "joint",
+          "cards": 450,
+          "mean": 0.9868378491749574,
+          "median": 0.7740481582857348,
+          "capped": 0
+        },
+        {
+          "group": "single",
+          "cards": 623,
+          "mean": 0.9484796599309148,
+          "median": 0.6816508189186996,
+          "capped": 1
+        }
+      ],
+      "year": [
+        {
+          "group": "2009",
+          "cards": 98,
+          "mean": 0.8992689582306195,
+          "median": 0.6446270713952021,
+          "capped": 0
+        },
+        {
+          "group": "2010",
+          "cards": 96,
+          "mean": 0.8768380268602706,
+          "median": 0.7328117888288457,
+          "capped": 0
+        },
+        {
+          "group": "2011",
+          "cards": 125,
+          "mean": 1.0093494992678833,
+          "median": 0.793221170368098,
+          "capped": 0
+        },
+        {
+          "group": "2012",
+          "cards": 105,
+          "mean": 0.7949894594145994,
+          "median": 0.6377897528460419,
+          "capped": 0
+        },
+        {
+          "group": "2013",
+          "cards": 125,
+          "mean": 1.047749332937414,
+          "median": 0.7278797243589152,
+          "capped": 0
+        },
+        {
+          "group": "2014",
+          "cards": 94,
+          "mean": 1.2506673983109189,
+          "median": 0.7951139713713358,
+          "capped": 0
+        },
+        {
+          "group": "2015",
+          "cards": 119,
+          "mean": 0.9100311588798967,
+          "median": 0.649499953954715,
+          "capped": 1
+        },
+        {
+          "group": "2016",
+          "cards": 98,
+          "mean": 0.9855768371918651,
+          "median": 0.744416719896629,
+          "capped": 0
+        },
+        {
+          "group": "2017",
+          "cards": 116,
+          "mean": 0.9115361008757181,
+          "median": 0.6936634142623805,
+          "capped": 0
+        },
+        {
+          "group": "2018",
+          "cards": 97,
+          "mean": 0.9678623033194723,
+          "median": 0.7731024357644694,
+          "capped": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "3_tails_student5",
+    "previous": "1_drift_shrunk",
+    "eligible": false,
+    "accepted": false,
+    "reasons": [
+      "mean did not improve"
+    ],
+    "config": {
+      "drift": 0.25,
+      "volatility": "recent",
+      "variance_ratio": false,
+      "tails": "student",
+      "rates_reversion": false,
+      "monthly": false,
+      "joint": false,
+      "width": 1.0
+    },
+    "cards": 1073,
+    "mean": 0.9999897772940718,
+    "median": 0.7969984432012207,
+    "capped": 0,
+    "delta": 0.04039556197349392,
+    "breakdowns": {
+      "family": [
+        {
+          "group": "T2-F1",
+          "cards": 234,
+          "mean": 1.0478265947279446,
+          "median": 0.8698707506157832,
+          "capped": 0
+        },
+        {
+          "group": "T2-F2",
+          "cards": 281,
+          "mean": 0.9494409178608296,
+          "median": 0.7573208496359662,
+          "capped": 0
+        },
+        {
+          "group": "T2-F3",
+          "cards": 230,
+          "mean": 0.9954385559890165,
+          "median": 0.8343577310960273,
+          "capped": 0
+        },
+        {
+          "group": "T2-F4",
+          "cards": 328,
+          "mean": 1.0123592746153445,
+          "median": 0.7593689084263103,
+          "capped": 0
+        }
+      ],
+      "panel": [
+        {
+          "group": "factors_daily",
+          "cards": 169,
+          "mean": 1.0201399032732519,
+          "median": 0.8032228292902044,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily",
+          "cards": 352,
+          "mean": 1.0350980800607257,
+          "median": 0.815417133729953,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily+rates_daily",
+          "cards": 63,
+          "mean": 1.0281984609579125,
+          "median": 0.8680808312450645,
+          "capped": 0
+        },
+        {
+          "group": "macro_monthly",
+          "cards": 38,
+          "mean": 1.4315798343596269,
+          "median": 1.1718498069202306,
+          "capped": 0
+        },
+        {
+          "group": "rates_daily",
+          "cards": 451,
+          "mean": 0.9247324311662297,
+          "median": 0.7566515275677249,
+          "capped": 0
+        }
+      ],
+      "horizon_bucket": [
+        {
+          "group": "127+",
+          "cards": 234,
+          "mean": 1.0478265947279446,
+          "median": 0.8698707506157832,
+          "capped": 0
+        },
+        {
+          "group": "1\u201321",
+          "cards": 278,
+          "mean": 1.0166206833263334,
+          "median": 0.7649330234717844,
+          "capped": 0
+        },
+        {
+          "group": "22\u201363",
+          "cards": 302,
+          "mean": 0.9469360727311948,
+          "median": 0.7775052752233087,
+          "capped": 0
+        },
+        {
+          "group": "64\u2013126",
+          "cards": 259,
+          "mean": 1.0007813279562099,
+          "median": 0.7969984432012207,
+          "capped": 0
+        }
+      ],
+      "shape": [
+        {
+          "group": "joint",
+          "cards": 450,
+          "mean": 1.0253596724690486,
+          "median": 0.8539330814485185,
+          "capped": 0
+        },
+        {
+          "group": "single",
+          "cards": 623,
+          "mean": 0.9816648128819696,
+          "median": 0.7581522476127447,
+          "capped": 0
+        }
+      ],
+      "year": [
+        {
+          "group": "2009",
+          "cards": 98,
+          "mean": 0.9512348825362485,
+          "median": 0.7321333782006361,
+          "capped": 0
+        },
+        {
+          "group": "2010",
+          "cards": 96,
+          "mean": 0.9306622579440894,
+          "median": 0.8084146115428685,
+          "capped": 0
+        },
+        {
+          "group": "2011",
+          "cards": 125,
+          "mean": 1.0373074344362252,
+          "median": 0.8515751136813248,
+          "capped": 0
+        },
+        {
+          "group": "2012",
+          "cards": 105,
+          "mean": 0.8718597507970061,
+          "median": 0.7147794944440402,
+          "capped": 0
+        },
+        {
+          "group": "2013",
+          "cards": 125,
+          "mean": 1.0539790293063784,
+          "median": 0.8005054494512522,
+          "capped": 0
+        },
+        {
+          "group": "2014",
+          "cards": 94,
+          "mean": 1.2351996698489653,
+          "median": 0.8816947564415212,
+          "capped": 0
+        },
+        {
+          "group": "2015",
+          "cards": 119,
+          "mean": 0.954387285236637,
+          "median": 0.7393945944298986,
+          "capped": 0
+        },
+        {
+          "group": "2016",
+          "cards": 98,
+          "mean": 1.0191104390123427,
+          "median": 0.8071102360245823,
+          "capped": 0
+        },
+        {
+          "group": "2017",
+          "cards": 116,
+          "mean": 0.9486056148937042,
+          "median": 0.7697608611570992,
+          "capped": 0
+        },
+        {
+          "group": "2018",
+          "cards": 97,
+          "mean": 1.0090352961237234,
+          "median": 0.8627669460920661,
+          "capped": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "3_tails_mixture5pct",
+    "previous": "1_drift_shrunk",
+    "eligible": false,
+    "accepted": false,
+    "reasons": [
+      "mean did not improve"
+    ],
+    "config": {
+      "drift": 0.25,
+      "volatility": "recent",
+      "variance_ratio": false,
+      "tails": "mixture",
+      "rates_reversion": false,
+      "monthly": false,
+      "joint": false,
+      "width": 1.0
+    },
+    "cards": 1073,
+    "mean": 0.9731083892515667,
+    "median": 0.7449616854557448,
+    "capped": 0,
+    "delta": 0.01351417393098886,
+    "breakdowns": {
+      "family": [
+        {
+          "group": "T2-F1",
+          "cards": 234,
+          "mean": 1.0111555672939894,
+          "median": 0.8221146189061512,
+          "capped": 0
+        },
+        {
+          "group": "T2-F2",
+          "cards": 281,
+          "mean": 0.9222066435190279,
+          "median": 0.7088334555367177,
+          "capped": 0
+        },
+        {
+          "group": "T2-F3",
+          "cards": 230,
+          "mean": 0.9726875422738079,
+          "median": 0.7867347307278489,
+          "capped": 0
+        },
+        {
+          "group": "T2-F4",
+          "cards": 328,
+          "mean": 0.9898679797814485,
+          "median": 0.7131371822418623,
+          "capped": 0
+        }
+      ],
+      "panel": [
+        {
+          "group": "factors_daily",
+          "cards": 169,
+          "mean": 0.9942695231671193,
+          "median": 0.7468075041630573,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily",
+          "cards": 352,
+          "mean": 1.014371611685618,
+          "median": 0.7642955119952168,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily+rates_daily",
+          "cards": 63,
+          "mean": 1.0068933883629763,
+          "median": 0.8053371065698272,
+          "capped": 0
+        },
+        {
+          "group": "macro_monthly",
+          "cards": 38,
+          "mean": 1.4374418148757881,
+          "median": 1.1228232321918377,
+          "capped": 0
+        },
+        {
+          "group": "rates_daily",
+          "cards": 451,
+          "mean": 0.8891305377077675,
+          "median": 0.7068456450067585,
+          "capped": 0
+        }
+      ],
+      "horizon_bucket": [
+        {
+          "group": "127+",
+          "cards": 234,
+          "mean": 1.0111555672939894,
+          "median": 0.8221146189061512,
+          "capped": 0
+        },
+        {
+          "group": "1\u201321",
+          "cards": 278,
+          "mean": 0.9939397683165101,
+          "median": 0.7152568849684382,
+          "capped": 0
+        },
+        {
+          "group": "22\u201363",
+          "cards": 302,
+          "mean": 0.9206365371534992,
+          "median": 0.7307253771212215,
+          "capped": 0
+        },
+        {
+          "group": "64\u2013126",
+          "cards": 259,
+          "mean": 0.9775575641227461,
+          "median": 0.7456341924800838,
+          "capped": 0
+        }
+      ],
+      "shape": [
+        {
+          "group": "joint",
+          "cards": 450,
+          "mean": 0.9947772072137359,
+          "median": 0.8015012368648353,
+          "capped": 0
+        },
+        {
+          "group": "single",
+          "cards": 623,
+          "mean": 0.9574567550894868,
+          "median": 0.7098954568755489,
+          "capped": 0
+        }
+      ],
+      "year": [
+        {
+          "group": "2009",
+          "cards": 98,
+          "mean": 0.9224896770027067,
+          "median": 0.6808479585993755,
+          "capped": 0
+        },
+        {
+          "group": "2010",
+          "cards": 96,
+          "mean": 0.8969821656042392,
+          "median": 0.7658935423048097,
+          "capped": 0
+        },
+        {
+          "group": "2011",
+          "cards": 125,
+          "mean": 1.0024085317380875,
+          "median": 0.8015476506490524,
+          "capped": 0
+        },
+        {
+          "group": "2012",
+          "cards": 105,
+          "mean": 0.8270202921977327,
+          "median": 0.6478476771483698,
+          "capped": 0
+        },
+        {
+          "group": "2013",
+          "cards": 125,
+          "mean": 1.0406517680280971,
+          "median": 0.7530448631950082,
+          "capped": 0
+        },
+        {
+          "group": "2014",
+          "cards": 94,
+          "mean": 1.2387812009900723,
+          "median": 0.8497615732673776,
+          "capped": 0
+        },
+        {
+          "group": "2015",
+          "cards": 119,
+          "mean": 0.9228937758321272,
+          "median": 0.6892467773096074,
+          "capped": 0
+        },
+        {
+          "group": "2016",
+          "cards": 98,
+          "mean": 0.9890045646306259,
+          "median": 0.7504276356371475,
+          "capped": 0
+        },
+        {
+          "group": "2017",
+          "cards": 116,
+          "mean": 0.9204515713328273,
+          "median": 0.7314583659979803,
+          "capped": 0
+        },
+        {
+          "group": "2018",
+          "cards": 97,
+          "mean": 0.9839869633569561,
+          "median": 0.8129582390069146,
+          "capped": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "4_rates_mean_reversion",
+    "previous": "1_drift_shrunk",
+    "eligible": false,
+    "accepted": false,
+    "reasons": [
+      "mean did not improve"
+    ],
+    "config": {
+      "drift": 0.25,
+      "volatility": "recent",
+      "variance_ratio": false,
+      "tails": "normal",
+      "rates_reversion": true,
+      "monthly": false,
+      "joint": false,
+      "width": 1.0
+    },
+    "cards": 1073,
+    "mean": 0.9637093903697576,
+    "median": 0.7197825939689233,
+    "capped": 1,
+    "delta": 0.004115175049179687,
+    "breakdowns": {
+      "family": [
+        {
+          "group": "T2-F1",
+          "cards": 234,
+          "mean": 1.006268581845769,
+          "median": 0.7927434507387086,
+          "capped": 0
+        },
+        {
+          "group": "T2-F2",
+          "cards": 281,
+          "mean": 0.9174275711982897,
+          "median": 0.6774981954626007,
+          "capped": 0
+        },
+        {
+          "group": "T2-F3",
+          "cards": 230,
+          "mean": 0.9564698272524417,
+          "median": 0.7567751602298071,
+          "capped": 0
+        },
+        {
+          "group": "T2-F4",
+          "cards": 328,
+          "mean": 0.9780735364026188,
+          "median": 0.6759440248333408,
+          "capped": 1
+        }
+      ],
+      "panel": [
+        {
+          "group": "factors_daily",
+          "cards": 169,
+          "mean": 0.990235383232015,
+          "median": 0.7213561243970673,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily",
+          "cards": 352,
+          "mean": 1.005687747987768,
+          "median": 0.7298571146011605,
+          "capped": 1
+        },
+        {
+          "group": "g10_fx_daily+rates_daily",
+          "cards": 63,
+          "mean": 0.9943056369424842,
+          "median": 0.7726169150289743,
+          "capped": 0
+        },
+        {
+          "group": "macro_monthly",
+          "cards": 38,
+          "mean": 1.4562012186350148,
+          "median": 1.110042666286923,
+          "capped": 0
+        },
+        {
+          "group": "rates_daily",
+          "cards": 451,
+          "mean": 0.8752359365262484,
+          "median": 0.681242569360224,
+          "capped": 0
+        }
+      ],
+      "horizon_bucket": [
+        {
+          "group": "127+",
+          "cards": 234,
+          "mean": 1.006268581845769,
+          "median": 0.7927434507387086,
+          "capped": 0
+        },
+        {
+          "group": "1\u201321",
+          "cards": 278,
+          "mean": 0.9861113748911333,
+          "median": 0.6751659164665991,
+          "capped": 1
+        },
+        {
+          "group": "22\u201363",
+          "cards": 302,
+          "mean": 0.9057680858418592,
+          "median": 0.7001060370899518,
+          "capped": 0
+        },
+        {
+          "group": "64\u2013126",
+          "cards": 259,
+          "mean": 0.9687737589608627,
+          "median": 0.7318572686380237,
+          "capped": 0
+        }
+      ],
+      "shape": [
+        {
+          "group": "joint",
+          "cards": 450,
+          "mean": 0.9818192463622015,
+          "median": 0.7824642482776856,
+          "capped": 0
+        },
+        {
+          "group": "single",
+          "cards": 623,
+          "mean": 0.9506284349980084,
+          "median": 0.681242569360224,
+          "capped": 1
+        }
+      ],
+      "year": [
+        {
+          "group": "2009",
+          "cards": 98,
+          "mean": 0.9017954288448381,
+          "median": 0.6349972484528019,
+          "capped": 0
+        },
+        {
+          "group": "2010",
+          "cards": 96,
+          "mean": 0.8855806987663227,
+          "median": 0.7864330395970232,
+          "capped": 0
+        },
+        {
+          "group": "2011",
+          "cards": 125,
+          "mean": 1.0257610647943738,
+          "median": 0.8082304737018337,
+          "capped": 0
+        },
+        {
+          "group": "2012",
+          "cards": 105,
+          "mean": 0.8053324229541972,
+          "median": 0.6271173963393484,
+          "capped": 0
+        },
+        {
+          "group": "2013",
+          "cards": 125,
+          "mean": 1.0084305134024465,
+          "median": 0.7197825939689233,
+          "capped": 0
+        },
+        {
+          "group": "2014",
+          "cards": 94,
+          "mean": 1.2564948004986176,
+          "median": 0.789790993476424,
+          "capped": 0
+        },
+        {
+          "group": "2015",
+          "cards": 119,
+          "mean": 0.9031617492585952,
+          "median": 0.6431965060849753,
+          "capped": 1
+        },
+        {
+          "group": "2016",
+          "cards": 98,
+          "mean": 0.9786787166130332,
+          "median": 0.7591554511951031,
+          "capped": 0
+        },
+        {
+          "group": "2017",
+          "cards": 116,
+          "mean": 0.9389915036210411,
+          "median": 0.7013573863853366,
+          "capped": 0
+        },
+        {
+          "group": "2018",
+          "cards": 97,
+          "mean": 0.9424158455343782,
+          "median": 0.7856951625766834,
+          "capped": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "5_monthly_log_trend_persistence",
+    "previous": "1_drift_shrunk",
+    "eligible": true,
+    "accepted": true,
+    "reasons": [],
+    "config": {
+      "drift": 0.25,
+      "volatility": "recent",
+      "variance_ratio": false,
+      "tails": "normal",
+      "rates_reversion": false,
+      "monthly": true,
+      "joint": false,
+      "width": 1.0
+    },
+    "cards": 1073,
+    "mean": 0.9535055893197188,
+    "median": 0.7065128112906016,
+    "capped": 1,
+    "delta": -0.006088626000859021,
+    "breakdowns": {
+      "family": [
+        {
+          "group": "T2-F1",
+          "cards": 234,
+          "mean": 0.9858989683003151,
+          "median": 0.7758910991586192,
+          "capped": 0
+        },
+        {
+          "group": "T2-F2",
+          "cards": 281,
+          "mean": 0.9061574411205398,
+          "median": 0.6768887473709729,
+          "capped": 0
+        },
+        {
+          "group": "T2-F3",
+          "cards": 230,
+          "mean": 0.9629322318005159,
+          "median": 0.7555589178349211,
+          "capped": 0
+        },
+        {
+          "group": "T2-F4",
+          "cards": 328,
+          "mean": 0.9643490380755926,
+          "median": 0.6622163171832585,
+          "capped": 1
+        }
+      ],
+      "panel": [
+        {
+          "group": "factors_daily",
+          "cards": 169,
+          "mean": 0.990235383232015,
+          "median": 0.7213561243970673,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily",
+          "cards": 352,
+          "mean": 1.005687747987768,
+          "median": 0.7298571146011605,
+          "capped": 1
+        },
+        {
+          "group": "g10_fx_daily+rates_daily",
+          "cards": 63,
+          "mean": 0.9952644746863333,
+          "median": 0.7726169150289743,
+          "capped": 0
+        },
+        {
+          "group": "macro_monthly",
+          "cards": 38,
+          "mean": 1.284277647610765,
+          "median": 0.9186850767523713,
+          "capped": 0
+        },
+        {
+          "group": "rates_daily",
+          "cards": 451,
+          "mean": 0.8653113476002339,
+          "median": 0.6692576873242967,
+          "capped": 0
+        }
+      ],
+      "horizon_bucket": [
+        {
+          "group": "127+",
+          "cards": 234,
+          "mean": 0.9858989683003151,
+          "median": 0.7758910991586192,
+          "capped": 0
+        },
+        {
+          "group": "1\u201321",
+          "cards": 278,
+          "mean": 0.9644317945988073,
+          "median": 0.6623800284585617,
+          "capped": 1
+        },
+        {
+          "group": "22\u201363",
+          "cards": 302,
+          "mean": 0.9057680858418592,
+          "median": 0.7001060370899518,
+          "capped": 0
+        },
+        {
+          "group": "64\u2013126",
+          "cards": 259,
+          "mean": 0.9681742777416013,
+          "median": 0.7137432527470493,
+          "capped": 0
+        }
+      ],
+      "shape": [
+        {
+          "group": "joint",
+          "cards": 450,
+          "mean": 0.9767921852322091,
+          "median": 0.7567751602298071,
+          "capped": 0
+        },
+        {
+          "group": "single",
+          "cards": 623,
+          "mean": 0.9366854157071658,
+          "median": 0.6636267756550946,
+          "capped": 1
+        }
+      ],
+      "year": [
+        {
+          "group": "2009",
+          "cards": 98,
+          "mean": 0.889566459966118,
+          "median": 0.6311024349596552,
+          "capped": 0
+        },
+        {
+          "group": "2010",
+          "cards": 96,
+          "mean": 0.8663395769635335,
+          "median": 0.7316059252669004,
+          "capped": 0
+        },
+        {
+          "group": "2011",
+          "cards": 125,
+          "mean": 0.9989831151287827,
+          "median": 0.7828977018669181,
+          "capped": 0
+        },
+        {
+          "group": "2012",
+          "cards": 105,
+          "mean": 0.7776571408736573,
+          "median": 0.5949873993538243,
+          "capped": 0
+        },
+        {
+          "group": "2013",
+          "cards": 125,
+          "mean": 1.0276007999243286,
+          "median": 0.708861831470187,
+          "capped": 0
+        },
+        {
+          "group": "2014",
+          "cards": 94,
+          "mean": 1.2580488848788147,
+          "median": 0.7943399032600365,
+          "capped": 0
+        },
+        {
+          "group": "2015",
+          "cards": 119,
+          "mean": 0.8994883160792685,
+          "median": 0.6511418559005995,
+          "capped": 1
+        },
+        {
+          "group": "2016",
+          "cards": 98,
+          "mean": 0.9641181608851771,
+          "median": 0.703821744252804,
+          "capped": 0
+        },
+        {
+          "group": "2017",
+          "cards": 116,
+          "mean": 0.9019133215396904,
+          "median": 0.6841452995178334,
+          "capped": 0
+        },
+        {
+          "group": "2018",
+          "cards": 97,
+          "mean": 0.9627542870527187,
+          "median": 0.7646783526041085,
+          "capped": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "6_joint_long_shrinkage_paths",
+    "previous": "5_monthly_log_trend_persistence",
+    "eligible": true,
+    "accepted": true,
+    "reasons": [],
+    "config": {
+      "drift": 0.25,
+      "volatility": "recent",
+      "variance_ratio": false,
+      "tails": "normal",
+      "rates_reversion": false,
+      "monthly": true,
+      "joint": true,
+      "width": 1.0
+    },
+    "cards": 1073,
+    "mean": 0.95307731662608,
+    "median": 0.7038351542679397,
+    "capped": 1,
+    "delta": -0.0004282726936388759,
+    "breakdowns": {
+      "family": [
+        {
+          "group": "T2-F1",
+          "cards": 234,
+          "mean": 0.985919137587155,
+          "median": 0.7742635627711056,
+          "capped": 0
+        },
+        {
+          "group": "T2-F2",
+          "cards": 281,
+          "mean": 0.906712238185005,
+          "median": 0.6768887473709729,
+          "capped": 0
+        },
+        {
+          "group": "T2-F3",
+          "cards": 230,
+          "mean": 0.9594734539090681,
+          "median": 0.761933621412572,
+          "capped": 0
+        },
+        {
+          "group": "T2-F4",
+          "cards": 328,
+          "mean": 0.9648836866320654,
+          "median": 0.663615471630498,
+          "capped": 1
+        }
+      ],
+      "panel": [
+        {
+          "group": "factors_daily",
+          "cards": 169,
+          "mean": 0.992253199970709,
+          "median": 0.7213561243970673,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily",
+          "cards": 352,
+          "mean": 1.004275460796508,
+          "median": 0.7281824913808002,
+          "capped": 1
+        },
+        {
+          "group": "g10_fx_daily+rates_daily",
+          "cards": 63,
+          "mean": 0.9889451652700635,
+          "median": 0.7834519405992146,
+          "capped": 0
+        },
+        {
+          "group": "macro_monthly",
+          "cards": 38,
+          "mean": 1.2830214703624343,
+          "median": 0.9296225846270525,
+          "capped": 0
+        },
+        {
+          "group": "rates_daily",
+          "cards": 451,
+          "mean": 0.8656271540101477,
+          "median": 0.6747086678685303,
+          "capped": 0
+        }
+      ],
+      "horizon_bucket": [
+        {
+          "group": "127+",
+          "cards": 234,
+          "mean": 0.985919137587155,
+          "median": 0.7742635627711056,
+          "capped": 0
+        },
+        {
+          "group": "1\u201321",
+          "cards": 278,
+          "mean": 0.9650626029675953,
+          "median": 0.6643357915398407,
+          "capped": 1
+        },
+        {
+          "group": "22\u201363",
+          "cards": 302,
+          "mean": 0.9044558814211203,
+          "median": 0.6964910550908711,
+          "capped": 0
+        },
+        {
+          "group": "64\u2013126",
+          "cards": 259,
+          "mean": 0.9672347595761377,
+          "median": 0.7085436814577523,
+          "capped": 0
+        }
+      ],
+      "shape": [
+        {
+          "group": "joint",
+          "cards": 450,
+          "mean": 0.9757709927871545,
+          "median": 0.7670362285276201,
+          "capped": 0
+        },
+        {
+          "group": "single",
+          "cards": 623,
+          "mean": 0.9366854157071658,
+          "median": 0.6636267756550946,
+          "capped": 1
+        }
+      ],
+      "year": [
+        {
+          "group": "2009",
+          "cards": 98,
+          "mean": 0.8897857144780783,
+          "median": 0.6349972484528019,
+          "capped": 0
+        },
+        {
+          "group": "2010",
+          "cards": 96,
+          "mean": 0.8690765578065515,
+          "median": 0.7316059252669004,
+          "capped": 0
+        },
+        {
+          "group": "2011",
+          "cards": 125,
+          "mean": 0.999813984457775,
+          "median": 0.7678877116425313,
+          "capped": 0
+        },
+        {
+          "group": "2012",
+          "cards": 105,
+          "mean": 0.7761897682153827,
+          "median": 0.6010708067681766,
+          "capped": 0
+        },
+        {
+          "group": "2013",
+          "cards": 125,
+          "mean": 1.0265543355584161,
+          "median": 0.7084541932392779,
+          "capped": 0
+        },
+        {
+          "group": "2014",
+          "cards": 94,
+          "mean": 1.2524342321676696,
+          "median": 0.789790993476424,
+          "capped": 0
+        },
+        {
+          "group": "2015",
+          "cards": 119,
+          "mean": 0.9011080114010763,
+          "median": 0.6430854879401143,
+          "capped": 1
+        },
+        {
+          "group": "2016",
+          "cards": 98,
+          "mean": 0.95887464312719,
+          "median": 0.7001166411800877,
+          "capped": 0
+        },
+        {
+          "group": "2017",
+          "cards": 116,
+          "mean": 0.9026044326674214,
+          "median": 0.6841452995178334,
+          "capped": 0
+        },
+        {
+          "group": "2018",
+          "cards": 97,
+          "mean": 0.9648777846442215,
+          "median": 0.774020304325346,
+          "capped": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "7_width_fold_fitted",
+    "previous": "6_joint_long_shrinkage_paths",
+    "accepted": false,
+    "reasons": [
+      "mean did not improve"
+    ],
+    "fold_widths": {
+      "2009": 1.2,
+      "2010": 1.1,
+      "2011": 1.1,
+      "2012": 1.1,
+      "2013": 1.0,
+      "2014": 1.0,
+      "2015": 1.0,
+      "2016": 1.0,
+      "2017": 1.0,
+      "2018": 1.0
+    },
+    "final_width": 1.0,
+    "cards": 1073,
+    "mean": 0.9669270974936124,
+    "median": 0.725949870207518,
+    "capped": 1,
+    "delta": 0.013849780867532413,
+    "breakdowns": {
+      "family": [
+        {
+          "group": "T2-F1",
+          "cards": 234,
+          "mean": 1.0091882345949579,
+          "median": 0.7974914660922632,
+          "capped": 0
+        },
+        {
+          "group": "T2-F2",
+          "cards": 281,
+          "mean": 0.9193992472349075,
+          "median": 0.6855283780147485,
+          "capped": 0
+        },
+        {
+          "group": "T2-F3",
+          "cards": 230,
+          "mean": 0.9751809794258376,
+          "median": 0.7803106724546611,
+          "capped": 0
+        },
+        {
+          "group": "T2-F4",
+          "cards": 328,
+          "mean": 0.971707057849007,
+          "median": 0.6942280559790845,
+          "capped": 1
+        }
+      ],
+      "panel": [
+        {
+          "group": "factors_daily",
+          "cards": 169,
+          "mean": 0.9911250585023498,
+          "median": 0.7365779004593316,
+          "capped": 0
+        },
+        {
+          "group": "g10_fx_daily",
+          "cards": 352,
+          "mean": 1.0203503729521557,
+          "median": 0.7625948185770641,
+          "capped": 1
+        },
+        {
+          "group": "g10_fx_daily+rates_daily",
+          "cards": 63,
+          "mean": 1.0042064526002117,
+          "median": 0.8039888100015999,
+          "capped": 0
+        },
+        {
+          "group": "macro_monthly",
+          "cards": 38,
+          "mean": 1.2545666684045538,
+          "median": 0.9296225846270525,
+          "capped": 0
+        },
+        {
+          "group": "rates_daily",
+          "cards": 451,
+          "mean": 0.8867201098257291,
+          "median": 0.6935716843828821,
+          "capped": 0
+        }
+      ],
+      "horizon_bucket": [
+        {
+          "group": "127+",
+          "cards": 234,
+          "mean": 1.0091882345949579,
+          "median": 0.7974914660922632,
+          "capped": 0
+        },
+        {
+          "group": "1\u201321",
+          "cards": 278,
+          "mean": 0.972876315842655,
+          "median": 0.6966455385817185,
+          "capped": 1
+        },
+        {
+          "group": "22\u201363",
+          "cards": 302,
+          "mean": 0.9188009517524631,
+          "median": 0.7137093927636863,
+          "capped": 0
+        },
+        {
+          "group": "64\u2013126",
+          "cards": 259,
+          "mean": 0.9784757740614827,
+          "median": 0.7445080767357104,
+          "capped": 0
+        }
+      ],
+      "shape": [
+        {
+          "group": "joint",
+          "cards": 450,
+          "mean": 0.9963476699775143,
+          "median": 0.794229370922163,
+          "capped": 0
+        },
+        {
+          "group": "single",
+          "cards": 623,
+          "mean": 0.9456762826978564,
+          "median": 0.6922926049233542,
+          "capped": 1
+        }
+      ],
+      "year": [
+        {
+          "group": "2009",
+          "cards": 98,
+          "mean": 0.9476276201083779,
+          "median": 0.7280903533264903,
+          "capped": 0
+        },
+        {
+          "group": "2010",
+          "cards": 96,
+          "mean": 0.8932748139647061,
+          "median": 0.7634348398638758,
+          "capped": 0
+        },
+        {
+          "group": "2011",
+          "cards": 125,
+          "mean": 1.0223416629031876,
+          "median": 0.8353272946935414,
+          "capped": 0
+        },
+        {
+          "group": "2012",
+          "cards": 105,
+          "mean": 0.8147927750937981,
+          "median": 0.6523155407990717,
+          "capped": 0
+        },
+        {
+          "group": "2013",
+          "cards": 125,
+          "mean": 1.0265543355584161,
+          "median": 0.7084541932392779,
+          "capped": 0
+        },
+        {
+          "group": "2014",
+          "cards": 94,
+          "mean": 1.2524342321676696,
+          "median": 0.789790993476424,
+          "capped": 0
+        },
+        {
+          "group": "2015",
+          "cards": 119,
+          "mean": 0.9011080114010763,
+          "median": 0.6430854879401143,
+          "capped": 1
+        },
+        {
+          "group": "2016",
+          "cards": 98,
+          "mean": 0.95887464312719,
+          "median": 0.7001166411800877,
+          "capped": 0
+        },
+        {
+          "group": "2017",
+          "cards": 116,
+          "mean": 0.9026044326674214,
+          "median": 0.6841452995178334,
+          "capped": 0
+        },
+        {
+          "group": "2018",
+          "cards": 97,
+          "mean": 0.9648777846442215,
+          "median": 0.774020304325346,
+          "capped": 0
+        }
+      ]
+    }
+  }
+]

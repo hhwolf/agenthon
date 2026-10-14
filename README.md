@@ -1,7 +1,10 @@
 # Track 2 measurement loop
 
 This workspace implements the published M0 baseline and local evaluation for
-Agenthon 2026 Track 2. It does not optimize the forecaster or use text yet.
+Agenthon 2026 Track 2, plus the Phase 2 `numeric_v1` forecaster.
+Numeric_v1 improves mean scores, but its paired capped-card reduction gate is
+still unmet. It makes no text/LLM calls. See the [Phase 2 results](reports/phase2/RESULTS.md)
+and [numeric engine guide](docs/NUMERIC_V1.md).
 See [BUILD_LOG.md](BUILD_LOG.md) for provenance, ambiguities and measured results.
 
 Use Python 3.13 or newer and the pinned upstream checkout:
@@ -29,6 +32,10 @@ make eval-practice FORECASTER=m0
 make eval-practice FORECASTER=reference
 make admissibility FORECASTER=m0
 make admissibility FORECASTER=reference
+make backtest FORECASTER=numeric_v1
+make eval-practice FORECASTER=numeric_v1
+make admissibility FORECASTER=numeric_v1
+make docker-smoke FORECASTER=numeric_v1
 ```
 
 Measured results are in [BASELINES.md](BASELINES.md) and the
@@ -113,6 +120,7 @@ For the submission command:
   --asof YYYY-MM-DD --out /output/forecast.parquet
 ```
 
-The image exposes this as `forecast` on PATH. Its context is allowlisted to runtime
+The image exposes this as `forecast` on PATH, defaulting to numeric_v1 with
+2,000 draws. Use `--forecaster m0` for the original baseline. Its context is allowlisted to runtime
 source and dependencies. It contains no vendor tree, evaluation package, panels,
 realized values, practice unit IDs or lookup tables.
