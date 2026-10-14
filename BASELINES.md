@@ -52,4 +52,3 @@ M0 Gaussian calibration: one outcome/card **0.951098**; 20 additional outcome re
 |---|---:|---:|---:|
 | joint | 860 | 1.353166 | 1.723316 |
 | single | 1200 | 1.115344 | 1.158615 |
-

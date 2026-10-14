@@ -199,3 +199,23 @@ one. To distinguish sampling variation from a systematic normalization error,
 Historical scores remain unchanged and are reported separately. No scoring math
 was reimplemented, and no forecast was tuned. Status: **DONE_WITH_CONCERNS**;
 the historical-data, practice-date and M0-document ambiguities above remain.
+
+## Pre-push validation — 2026-10-14
+
+The release check passed **41 tests**, including 16 additional boundary and
+recovery cases in `tests/test_ship_review.py`. `pip check` again reported no
+broken requirements. This supplements the original 25-test measurement snapshot
+above and in the dated PDF; the historical scores were not rerun or replaced.
+
+`make docker-smoke` rebuilt all three images for linux/amd64 and passed g0–g3
+on the exemplar with `--network=none`. The rebuilt image IDs are:
+
+| Image | Pre-push image ID |
+|---|---|
+| `t2-upstream:local` | `sha256:8782f4eb41da40524072b1599471e3df1adc153db00a944a206da797b72ce3dc` |
+| `t2-pinned:local` | `sha256:c0ff5ad0e4f0dc308b68ad20cabc216655c079538b95cc00b5c55c6c2f620311` |
+| `t2-m0:local` | `sha256:368990f40002b1f5bbb3175b08b3ef62e6a47eeb1a33bc5f8d617abc1c4f41e9` |
+
+The latest local evidence is `.context/ship-docker-smoke.log` and
+`.context/docker-results.json`; the earlier image IDs above remain the record
+of the initial measurement run.

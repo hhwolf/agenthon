@@ -13,7 +13,7 @@ code { font-size: 9pt; overflow-wrap: anywhere; }
 
 # Agenthon 2026 · Track 2 results
 
-**Phase 0–1: environment and backtest harness**  
+**Phase 0–1: environment and backtest harness**<br>
 Measured October 14, 2026 · Local evaluation · Lower scores are better
 
 ## Main results

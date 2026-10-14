@@ -36,6 +36,7 @@ Measured results are in [BASELINES.md](BASELINES.md) and the
 ([Markdown source](reports/Agenthon_Track2_Results_2026-10-14.md)). For an optional repeated
 Gaussian-outcome diagnostic, run `scripts/calibration_diagnostic.py` with the M0
 backtest report directory and `--replicates 20`; BUILD_LOG records the exact command.
+Release history is in [CHANGELOG.md](CHANGELOG.md).
 
 `backtest` generates **2,060 historical pseudo-cards** by default (20 for each
 practice template), then prints normalized score tables. `CARDS=...` changes the
