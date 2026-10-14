@@ -1,0 +1,13 @@
+.context/
+.venv/
+vendor/
+.eval/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+*.parquet
+realized*
+.DS_Store
+.gstack/

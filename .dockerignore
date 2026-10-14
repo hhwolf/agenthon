@@ -1,0 +1,10 @@
+# Allowlist: evaluation code, data, vendor and reports never enter an image.
+**
+!Dockerfile
+!pyproject.toml
+!requirements-runtime.txt
+!t2agent/
+!t2agent/**
+t2agent/**/__pycache__/
+t2agent/**/*.parquet
+t2agent/**/realized*
