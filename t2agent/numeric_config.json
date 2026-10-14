@@ -1,0 +1,10 @@
+{
+  "drift": 0.25,
+  "volatility": "recent",
+  "variance_ratio": false,
+  "tails": "normal",
+  "rates_reversion": false,
+  "monthly": true,
+  "joint": true,
+  "width": 1.0
+}

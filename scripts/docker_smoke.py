@@ -4,6 +4,11 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import argparse
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--forecaster', choices=['m0', 'numeric_v1'], default='m0')
+args = parser.parse_args()
 
 ROOT = Path(__file__).resolve().parents[1]
 os.chdir(ROOT)
@@ -34,7 +39,7 @@ def run(args, log):
 
 
 results = []
-for label, version, context in [("upstream",None,stage),("pinned","2.6.0",stage),("m0",None,ROOT)]:
+for label, version, context in [("upstream",None,stage),("pinned","2.6.0",stage),(args.forecaster,None,ROOT)]:
     if context == stage:
         text = original if version is None else original.replace("v2.6.1.tar.gz","v2.6.0.tar.gz")
         (stage / "Dockerfile").write_text(text)
@@ -47,8 +52,10 @@ for label, version, context in [("upstream",None,stage),("pinned","2.6.0",stage)
     out = ROOT / f".context/docker-{label}-output"
     out.mkdir(exist_ok=True)
     run(["docker","run","--rm","--platform","linux/amd64","--network=none","--cpus=4","--memory=4g",
+         "--read-only","--tmpfs","/tmp:rw,noexec,nosuid,size=64m",
          "-v",f"{unit}:/input:ro","-v",f"{out}:/output",tag,"forecast","--panels","/input/panels",
-         "--text","/input/text","--asof","2024-06-28","--out","/output/forecast.parquet"],
+         "--text","/input/text","--asof","2024-06-28","--out","/output/forecast.parquet"]
+        + (["--forecaster",args.forecaster] if context == ROOT else []),
         ROOT / f".context/docker-{label}-run.log")
     from t2eval.official import score
     payload = score(unit / "card.toml",out / "forecast.parquet")

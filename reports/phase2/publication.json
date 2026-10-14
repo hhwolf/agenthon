@@ -1,0 +1,13 @@
+{
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:25ffda44821a0493ba5ba69aeb570ec009a5e1081cd54d5e615fa3d51ac70a01",
+  "visibility": "public",
+  "package_url": "https://github.com/hhwolf/agenthon/pkgs/container/agenthon-numeric-v1",
+  "source_commit": "b1f2225a5ef35a06c6f68e63c4f2c617cf49d300",
+  "workflow_url": "https://github.com/hhwolf/agenthon/actions/runs/38650043739",
+  "linux_tests": 52,
+  "linux_admissible": 104,
+  "linux_max_forecast_seconds": 0.174,
+  "anonymous_pull": true,
+  "published_digest_offline_smoke": true,
+  "report": "The package [agenthon-numeric-v1](https://github.com/hhwolf/agenthon/pkgs/container/agenthon-numeric-v1) is **Public**. GitHub Actions completed 52 tests, 104/104 admissibility gates (maximum Linux forecast time 0.174 seconds), an amd64 build, and the offline smoke test before publishing. [Successful workflow](https://github.com/hhwolf/agenthon/actions/runs/38650043739).\n\nImmutable image:\n\n`ghcr.io/hhwolf/agenthon-numeric-v1@sha256:25ffda44821a0493ba5ba69aeb570ec009a5e1081cd54d5e615fa3d51ac70a01`\n\nThe convenience tag is `numeric_v1`; the immutable commit tag is `b1f2225a5ef35a06c6f68e63c4f2c617cf49d300`. The starter-pack anonymous token/manifest check returned HTTP 200, as did all config/layer checks. A real Docker pull passed with an empty temporary credential configuration. The downloaded digest also passed all four official gates offline. The image runs as `runner`, declares no volumes, and contains no evaluation package, vendor tree, or parquet data. Evidence: anonymous-pull.json and published-image-smoke.json."
+}

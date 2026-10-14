@@ -1,0 +1,67 @@
+{
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:25ffda44821a0493ba5ba69aeb570ec009a5e1081cd54d5e615fa3d51ac70a01",
+  "checked_at": "2026-10-14T22:50:30.680148+00:00",
+  "token_request": "anonymous; no credentials",
+  "manifests": [
+    {
+      "digest": "sha256:25ffda44821a0493ba5ba69aeb570ec009a5e1081cd54d5e615fa3d51ac70a01",
+      "http_status": 200
+    }
+  ],
+  "blobs": [
+    {
+      "digest": "sha256:61213555c00e8bbb9ade6540e95a62a79246beb824074dd985e04a750358f379",
+      "http_status": 200,
+      "bytes": 8021
+    },
+    {
+      "digest": "sha256:56d14e8ac0f63e3493f7ebeff7526ecd2517aebd1260a98cf7b4af110b542115",
+      "http_status": 200,
+      "bytes": 29166224
+    },
+    {
+      "digest": "sha256:29a6e787b2e07b2b8a2c88b600812f9f7588374cf74e6f17d696695c8984d900",
+      "http_status": 200,
+      "bytes": 3342349
+    },
+    {
+      "digest": "sha256:aded561bdc17f79b65ec824282d38146fac0eb9d8951b9a7a4ca462bbea8c21d",
+      "http_status": 200,
+      "bytes": 14892797
+    },
+    {
+      "digest": "sha256:29d8700fe216d98a8d918ecf891265355e2ca697f9c11e8290d00813caaed60d",
+      "http_status": 200,
+      "bytes": 250
+    },
+    {
+      "digest": "sha256:e63e298fb4a0db5abb4c13845f27f76565e80118a07e6c01bafadc56dd12038e",
+      "http_status": 200,
+      "bytes": 93
+    },
+    {
+      "digest": "sha256:e3df3e40c1e231e3ceff91b43143ed89d3a3dd552b71e572863336a6e6171334",
+      "http_status": 200,
+      "bytes": 183
+    },
+    {
+      "digest": "sha256:f735ae6fdc17e48bcb945023e84818de6e8021b580b719d86d8576707e9ec300",
+      "http_status": 200,
+      "bytes": 84140448
+    },
+    {
+      "digest": "sha256:b09f99b27a1f69a434058313a9614d3d0ba94a3098a716e0ecc9628a2cf7d9a4",
+      "http_status": 200,
+      "bytes": 9366
+    },
+    {
+      "digest": "sha256:8e4afed9fbc20dd5182de7f3f64d0742c292b67952f644c4f06cdaa261d698c3",
+      "http_status": 200,
+      "bytes": 3402
+    }
+  ],
+  "docker_pull": "passed with fresh empty DOCKER_CONFIG",
+  "architecture": "linux/amd64",
+  "user": "runner",
+  "volumes": null
+}

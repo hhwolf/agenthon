@@ -1,0 +1,28 @@
+{
+  "config": {
+    "drift": 0.25,
+    "volatility": "recent",
+    "variance_ratio": false,
+    "tails": "normal",
+    "rates_reversion": false,
+    "monthly": true,
+    "joint": true,
+    "width": 1.0
+  },
+  "winner": "6_joint_long_shrinkage_paths",
+  "source_signature": "6b1ea18f830d",
+  "n_draws": 2000,
+  "protocol_sha256": "86afc4f9894263259c90a3de9b6c9e247f244174c1d174fbf30f7013d476b671",
+  "primary_cv": {
+    "cards": 1073,
+    "mean": 0.95307731662608,
+    "median": 0.7038351542679397,
+    "capped": 1
+  },
+  "width_options": [
+    0.9,
+    1.0,
+    1.1,
+    1.2
+  ]
+}

@@ -1,5 +1,6 @@
 FROM python:3.13-slim-bookworm
 LABEL qfbench2.interface_version="2.0" qfbench2.track="forecasting" qfbench2.verb="forecast"
+LABEL org.opencontainers.image.source="https://github.com/hhwolf/agenthon"
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
 WORKDIR /app
 COPY requirements-runtime.txt /app/requirements-runtime.txt
