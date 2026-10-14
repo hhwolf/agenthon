@@ -42,6 +42,7 @@ Reserved-year wins: **4 of 6**. The equal-year mean paired delta is **−0.03482
 with year-cluster standard error **0.050554** (only six years). This uncertainty
 includes zero improvement. The primary CV winner was selected using the same
 development CV scores, so its CV result may be optimistic.
+Reserved monthly macro also worsens from **1.6288 to 2.0143 (+23.7%)** on 26 cards.
 
 ## Validation protocol
 
@@ -70,10 +71,15 @@ for monthly macro. Every candidate and its full breakdowns are retained.
 |---|---:|---:|---:|---:|---|
 ''')
     breakdown=[]
-    for row in ablations:
+    labels=['M0 control','Zero drift','25% drift','EWMA volatility','Recent/history blend',
+            'Empirical variance ratio','Student-t, df 5','5% volatility mixture',
+            'Rates mean reversion','Monthly trend/persistence','Joint shrinkage/paths','Fold-fitted width']
+    for label,row in zip(labels,ablations,strict=True):
         reason='Kept' if row['accepted'] else '; '.join(row.get('reasons',[])) or 'Other eligible candidate preferred'
         if row['name']=='m0_2000':reason='Control'
-        lines.append(f"| {row['name']} | {row['mean']:.6f} | {row['median']:.6f} | {row['capped']} | {row.get('delta',0):+.6f} | {reason} |\n")
+        if not row['accepted']:
+            reason='Reject: mean + groups' if len(row.get('reasons',[]))>1 else 'Reject: group regression' if 'worsened >10%' in reason else 'Reject: mean'
+        lines.append(f"| {label} | {row['mean']:.6f} | {row['median']:.6f} | {row['capped']} | {row.get('delta',0):+.6f} | {reason} |\n")
         for dimension,groups in row['breakdowns'].items():
             for group in groups:breakdown.append({'candidate':row['name'],'previous':row['previous'],'dimension':dimension,**group})
     pd.DataFrame(breakdown).to_csv(out/'ablation-breakdowns.csv',index=False)

@@ -5,6 +5,8 @@ Agenthon 2026 Track 2, plus the Phase 2 `numeric_v1` forecaster.
 Numeric_v1 improves mean scores, but its paired capped-card reduction gate is
 still unmet. It makes no text/LLM calls. See the [Phase 2 results](reports/phase2/RESULTS.md)
 and [numeric engine guide](docs/NUMERIC_V1.md).
+The [Phase 2 PDF](reports/phase2/Agenthon_Track2_Phase2_Results.pdf) includes the
+ablation table, held-out results, and public-image verification.
 See [BUILD_LOG.md](BUILD_LOG.md) for provenance, ambiguities and measured results.
 
 Use Python 3.13 or newer and the pinned upstream checkout:

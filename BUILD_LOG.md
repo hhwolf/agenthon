@@ -441,3 +441,15 @@ images pass offline smoke tests with read-only root and non-executable /tmp.
 Source/evaluation/report data stay out of the runtime context except t2agent.
 The new image is an evaluated candidate, not a claim that every accuracy gate
 passed. No competition pack/upload has been performed.
+
+## Phase 2 — GHCR publication and anonymous verification
+
+The package [agenthon-numeric-v1](https://github.com/hhwolf/agenthon/pkgs/container/agenthon-numeric-v1) is **Public**. GitHub Actions completed 52 tests, 104/104 admissibility gates (maximum Linux forecast time 0.174 seconds), an amd64 build, and the offline smoke test before publishing. [Successful workflow](https://github.com/hhwolf/agenthon/actions/runs/38650043739).
+
+Immutable image:
+
+`ghcr.io/hhwolf/agenthon-numeric-v1@sha256:25ffda44821a0493ba5ba69aeb570ec009a5e1081cd54d5e615fa3d51ac70a01`
+
+The convenience tag is `numeric_v1`; the immutable commit tag is `b1f2225a5ef35a06c6f68e63c4f2c617cf49d300`. The starter-pack anonymous token/manifest check returned HTTP 200, as did all config/layer checks. A real Docker pull passed with an empty temporary credential configuration. The downloaded digest also passed all four official gates offline. The image runs as `runner`, declares no volumes, and contains no evaluation package, vendor tree, or parquet data. Evidence: anonymous-pull.json and published-image-smoke.json.
+
+The package was already Public when published through GitHub Actions; no visibility change or browser login was needed. The verification token was anonymous and never logged. The Docker credential directory was empty and temporary. No competition submission was packed or uploaded.

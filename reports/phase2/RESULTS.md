@@ -29,6 +29,7 @@ Reserved-year wins: **4 of 6**. The equal-year mean paired delta is **−0.03482
 with year-cluster standard error **0.050554** (only six years). This uncertainty
 includes zero improvement. The primary CV winner was selected using the same
 development CV scores, so its CV result may be optimistic.
+Reserved monthly macro also worsens from **1.6288 to 2.0143 (+23.7%)** on 26 cards.
 
 ## Validation protocol
 
@@ -55,18 +56,18 @@ for monthly macro. Every candidate and its full breakdowns are retained.
 
 | Candidate | CV mean | Median | Caps | Change in mean | Decision |
 |---|---:|---:|---:|---:|---|
-| m0_2000 | 1.033389 | 0.738898 | 1 | +0.000000 | Control |
-| 1_drift_zero | 0.963807 | 0.707033 | 1 | -0.069582 | panel=macro_monthly worsened >10% |
-| 1_drift_shrunk | 0.959594 | 0.711342 | 1 | -0.073795 | Kept |
-| 2_volatility_ewma | 0.960115 | 0.714071 | 0 | +0.000521 | mean did not improve |
-| 2_volatility_blend | 1.025695 | 0.823174 | 0 | +0.066100 | mean did not improve; family=T2-F1 worsened >10%; panel=rates_daily worsened >10%; horizon_bucket=127+ worsened >10% |
-| 2_horizon_empirical_ratio | 0.964567 | 0.711804 | 1 | +0.004972 | mean did not improve |
-| 3_tails_student5 | 0.999990 | 0.796998 | 0 | +0.040396 | mean did not improve |
-| 3_tails_mixture5pct | 0.973108 | 0.744962 | 0 | +0.013514 | mean did not improve |
-| 4_rates_mean_reversion | 0.963709 | 0.719783 | 1 | +0.004115 | mean did not improve |
-| 5_monthly_log_trend_persistence | 0.953506 | 0.706513 | 1 | -0.006089 | Kept |
-| 6_joint_long_shrinkage_paths | 0.953077 | 0.703835 | 1 | -0.000428 | Kept |
-| 7_width_fold_fitted | 0.966927 | 0.725950 | 1 | +0.013850 | mean did not improve |
+| M0 control | 1.033389 | 0.738898 | 1 | +0.000000 | Control |
+| Zero drift | 0.963807 | 0.707033 | 1 | -0.069582 | Reject: group regression |
+| 25% drift | 0.959594 | 0.711342 | 1 | -0.073795 | Kept |
+| EWMA volatility | 0.960115 | 0.714071 | 0 | +0.000521 | Reject: mean |
+| Recent/history blend | 1.025695 | 0.823174 | 0 | +0.066100 | Reject: mean + groups |
+| Empirical variance ratio | 0.964567 | 0.711804 | 1 | +0.004972 | Reject: mean |
+| Student-t, df 5 | 0.999990 | 0.796998 | 0 | +0.040396 | Reject: mean |
+| 5% volatility mixture | 0.973108 | 0.744962 | 0 | +0.013514 | Reject: mean |
+| Rates mean reversion | 0.963709 | 0.719783 | 1 | +0.004115 | Reject: mean |
+| Monthly trend/persistence | 0.953506 | 0.706513 | 1 | -0.006089 | Kept |
+| Joint shrinkage/paths | 0.953077 | 0.703835 | 1 | -0.000428 | Kept |
+| Fold-fitted width | 0.966927 | 0.725950 | 1 | +0.013850 | Reject: mean |
 
 The kept rules are 25% trailing drift, monthly positive-index log trend over
 12 changes with UNRATE persistence, and 20% correlation shrinkage using up to
@@ -148,7 +149,13 @@ in [DIAGNOSIS.md](DIAGNOSIS.md). The CSV files retain all values and PIT bins.
 
 ## Image publication
 
-GHCR publication and anonymous-pull verification are pending.
+The package [agenthon-numeric-v1](https://github.com/hhwolf/agenthon/pkgs/container/agenthon-numeric-v1) is **Public**. GitHub Actions completed 52 tests, 104/104 admissibility gates (maximum Linux forecast time 0.174 seconds), an amd64 build, and the offline smoke test before publishing. [Successful workflow](https://github.com/hhwolf/agenthon/actions/runs/38650043739).
+
+Immutable image:
+
+`ghcr.io/hhwolf/agenthon-numeric-v1@sha256:25ffda44821a0493ba5ba69aeb570ec009a5e1081cd54d5e615fa3d51ac70a01`
+
+The convenience tag is `numeric_v1`; the immutable commit tag is `b1f2225a5ef35a06c6f68e63c4f2c617cf49d300`. The starter-pack anonymous token/manifest check returned HTTP 200, as did all config/layer checks. A real Docker pull passed with an empty temporary credential configuration. The downloaded digest also passed all four official gates offline. The image runs as `runner`, declares no volumes, and contains no evaluation package, vendor tree, or parquet data. Evidence: anonymous-pull.json and published-image-smoke.json.
 
 ## Artifacts and reproduction
 

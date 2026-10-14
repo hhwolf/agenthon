@@ -1,0 +1,12 @@
+{
+  "card_id": "t2-EXAMPLE-ust-curve-1m",
+  "admissible": true,
+  "gates": {
+    "g0_integrity": "pass",
+    "g1_schema": "pass",
+    "g2_cutoff_resource": "pass",
+    "g3_domain_semantics": "pass"
+  },
+  "scored": false,
+  "note": "no --realized supplied: gates only, no score"
+}
