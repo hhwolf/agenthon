@@ -53,7 +53,7 @@ class TextSignal:
     labels: dict = field(default_factory=dict)  # Phase 3 categorical labels; text_map turns them into numbers
 
     tail_signs: dict[str, int] = field(default_factory=dict)  # named adverse side; absent = symmetric
-    branch_mixture: bool = False  # fixed +/-1-sd binary branches permit a 0.6-sd weighted mean
+    branch_mixture: bool = False  # fixed binary shifts bypass the generic mean cap; each branch remains within +/-1 sd
 
     @staticmethod
     def neutral(assets: tuple[str, ...], reason: str | None = None) -> TextSignal:

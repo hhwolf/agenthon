@@ -870,3 +870,11 @@ change selection or publish an image. See docs/PHASE4_TEXT.md.
 Validation so far: 223 tests passed; 104/104 host admissibility checks passed;
 linux/amd64 image builds. The default candidate uses zero model requests.
 Container verification and its exact local image IDs are recorded below.
+
+
+A subsequent branch-rule regression check found rise-versus-hold labels (+1/0
+at 80/20) were incorrectly rescaled by the assumed 0.6-SD binary mean cap.
+Corrected this before any model-label scoring: fixed branch shifts now retain
++/-1 SD by sign; their natural mean bound is 1 SD, while opposing +/-1 branches
+still imply a 0.6-SD maximum. The protocol's correction appendix records why.
+Card-notes branch signs are zero, so this leaves its measured scores unchanged.

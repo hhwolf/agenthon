@@ -63,8 +63,9 @@ the numerical coefficients. No coefficient was fitted in Phase 4.
 
 The inherited event width floor 1.15 and binary tail scale 1.25 are retained.
 Lambda scales drift and excess volatility/tail scale above one. Generic mean
-drift is capped at 0.5 SD; the explicit binary branches allow 0.6 SD, the mean of
-80/20 opposite +/-1-SD branches. One branch is sampled for the entire draw,
+drift is capped at 0.5 SD; fixed binary shifts keep their specified magnitudes,
+with an implied mean bound of 1 SD. Opposite +/-1 branches imply a 0.6-SD maximum
+mean; rise-versus-hold (+1/0) can imply 0.8 SD at 80/20. One branch is sampled for the entire draw,
 including every asset and horizon. Asset signs come from the validated text;
 the card-only pre-pass cannot invent them, so its event branches have zero drift.
 

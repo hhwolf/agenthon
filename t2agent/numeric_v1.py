@@ -224,10 +224,11 @@ def apply_text_signal(samples, card, signal, seed):
     drift = np.clip(drift, -1.5, 1.5)
     # Preserve relative scenario directions while bounding aggregate drift.
     overall = weights @ drift
+    from .text_map import BINARY_MEAN_DRIFT_LIMIT
     binary = (bool(_get(signal, 'branch_mixture', False)) and len(scenarios) == 2
               and np.all(weights >= .2-1e-12) and np.all(weights <= .8+1e-12)
               and np.all(abs(drift) <= 1.))
-    mean_limit = .6 if binary else .5
+    mean_limit = BINARY_MEAN_DRIFT_LIMIT if binary else .5
     drift *= np.minimum(1., mean_limit/np.maximum(abs(overall), 1e-12))[None,:]
     established = any(bool(_get(e, 'established', False)) for e in _get(signal, 'evidence', ()))
     vol = np.clip(vol, .8 if established else 1., 2.)

@@ -42,7 +42,7 @@ evidence are supported. One scenario is selected for the complete joint draw.
 
 There are 1–4 scenarios; weights must be finite and at least 0.05 before
 normalization. Drift is bounded at ±1.5 SD per scenario and aggregate drift at
-±0.5 SD per asset (±0.6 for the explicit Phase 4 binary branches). Volatility is bounded at 0.8–2, with narrowing allowed only
+±0.5 SD per asset. Fixed Phase 4 binary branches retain their specified +/-1-SD-by-sign shifts (opposing branches imply at most 0.6-SD mean drift). Volatility is bounded at 0.8–2, with narrowing allowed only
 with established evidence. Tail scaling is 1–2 and affects only the outer 5% of
 numeric draws. A neutral signal returns the original samples without consuming
 RNG; sample bytes remain identical. An invalid signal leaves numeric samples unchanged and records the problem in the rationale. Current engines can read text after sampling; the provisional Phase 4 card-notes choice makes zero House calls.

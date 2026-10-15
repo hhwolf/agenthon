@@ -13,7 +13,7 @@ EVENT_TAIL = {"none": 1.0, "scheduled_binary": 1.25, "ongoing": 1.0}
 DIRECTION_DRIFT = {"strong_down": -0.5, "down": -0.25, "none": 0.0, "up": 0.25, "strong_up": 0.5}
 BINARY_BRANCH_DRIFT = 1.0
 BRANCH_PROB_CLIP = (0.2, 0.8)
-BINARY_MEAN_DRIFT_LIMIT = 0.6
+BINARY_MEAN_DRIFT_LIMIT = 1.0  # implied by fixed branch magnitudes; opposite branches imply <=0.6
 DISAGREEMENT_VOL_FLOOR = 1.15
 F4_TAIL_MULT = 1.5
 TAIL_QUANTILE = 0.95

@@ -117,7 +117,7 @@ read_text(unit_dir: Path, summary: NumericSummary, budget: CallBudget) -> TextSi
 | Quantity | Range |
 |---|---|
 | per-scenario `drift_sd` | [-1.5, 1.5] |
-| weighted mean drift per asset | [-0.5, 0.5]; fixed binary +/-1-SD branches allow [-0.6, 0.6] |
+| weighted mean drift per asset | [-0.5, 0.5]; fixed binary shifts retain their +/-1-SD-by-sign magnitudes (opposing branches imply mean [-0.6, 0.6]) |
 | `vol_mult` | [0.8, 2.0]; **< 1.0 only if backed by `established=True` evidence** |
 | `tail_mult` | [1.0, 2.0] |
 | scenario weight | each ≥ 0.05 |

@@ -58,6 +58,19 @@ def test_binary_branches_are_shared_across_assets_and_horizons(lam):
     np.testing.assert_array_equal(out, old.apply_text_signal(samples, card, signal, 12))
 
 
+def test_binary_rise_versus_unchanged_retains_the_fixed_branch_shift():
+    labels = _labelled(event_in_horizon='scheduled_binary',
+        branches=[{'prob':.8, 'signs':{'GBP':1}}, {'prob':.2, 'signs':{'GBP':0}}])
+    signal = apply_text_map(labels, make_summary(), 1.)
+    assert [s.drift_sd['GBP'] for s in signal.scenarios] == [1., 0.]
+    signal = replace(signal, scenarios=tuple(replace(s,vol_mult=1) for s in signal.scenarios),tail_mult=1)
+    samples = np.linspace(-3,3,2000)[:,None]
+    result = old.apply_text_signal(samples, {'targets':{'asset_ids':['GBP'],'horizons':[1]}},signal,1)
+    shifts = (result-samples)/samples.std(ddof=1)
+    assert np.isclose(shifts,1).sum() > 1500
+    assert np.isclose(shifts,0).sum() > 300
+
+
 @pytest.mark.parametrize('family,regime', [('T2-F1','crisis'),('T2-F4','elevated')])
 def test_named_crisis_or_f4_tail_expands_only_adverse_side(family, regime):
     summary = make_summary(family=family)

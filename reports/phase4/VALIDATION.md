@@ -58,3 +58,13 @@ Check deterministic/neutral behavior, shared branch signs, asymmetric tails,
 no-network B4, evidence writing, malformed text fallback, and all 104 public
 units for admissibility. Keep labels, caches, outcomes and evaluation outputs
 out of the runtime image. Do not pack or upload a competition submission.
+
+## Implementation correction before any model-label scoring
+
+A regression test exposed a non-opposing binary case: an 80/20 rise-versus-hold
+label (+1/0 signs) was rescaled to +0.75/0 by the proposed 0.6-SD mean limit.
+The user's fixed +/-1-by-sign rule takes precedence. Binary branches now allow
+their implied maximum weighted mean of 1 SD; opposing +/-1 branches still imply
+at most 0.6 SD under the probability clips. Generic non-binary signals retain
+the 0.5-SD mean cap. This correction changes no card-notes scores (its signs are
+all zero), and neither model-label arm has been scored. No value was fitted.
