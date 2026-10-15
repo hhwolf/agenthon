@@ -99,14 +99,13 @@ def test_chaos_failures_and_timeouts_still_charge(tmp_path):
 
 
 def test_replay_uses_teammates_exact_cache_key_and_fails_closed(tmp_path):
-    from t2agent.text_layer.client import ResponseCache
+    from t2agent.text_layer.client import ResponseCache, request_key
     cache = ResponseCache(tmp_path / "cache")
     params = {"model": "dev-model", "messages": [{"role": "user", "content": "hello"}],
               "max_tokens": 4000, "temperature": 0, "top_p": 1, "seed": 20261014,
               "extra_body": {"chat_template_kwargs": {"enable_thinking": False}}}
-    key = cache.key("unit", "dev-model", params)
-    assert key == request_hash("unit", "dev-model", params)
-    cache.put("unit", key, {"model": "dev-model", "text": "cached answer", "finish_reason": "stop"})
+    key = request_key(params)
+    cache.put(key, {"unit_id": "unit", "model": "dev-model", "text": "cached answer", "finish_reason": "stop"})
     wire = dict(params, model="house")
     wire.update(wire.pop("extra_body"))
     state = state_at(tmp_path, "replay", replay_dir=cache.directory)
@@ -121,13 +120,13 @@ def test_replay_uses_teammates_exact_cache_key_and_fails_closed(tmp_path):
 
 
 def test_replay_preserves_long_text_finish_reason_and_usage(tmp_path):
-    from t2agent.text_layer.client import ResponseCache
+    from t2agent.text_layer.client import ResponseCache, request_key
     cache = ResponseCache(tmp_path / "cache")
     params = {"model": "dev", "messages": [], "max_tokens": 4000}
     content = "longword " * 2500  # More than the canned four-character estimate.
     usage = {"prompt_tokens": 9, "completion_tokens": 2500, "total_tokens": 2509}
-    cache.put("unit", cache.key("unit", "dev", params),
-              {"model": "dev", "text": content, "finish_reason": "stop", "usage": usage})
+    cache.put(request_key(params),
+              {"unit_id": "unit", "model": "dev", "text": content, "finish_reason": "stop", "usage": usage})
     state = state_at(tmp_path, "replay", replay_dir=cache.directory)
     with serving(house_handler(state)) as port:
         status, raw = call(port)

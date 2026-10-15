@@ -45,7 +45,7 @@ def to_contract_evidence(items: list[RawEvidence]) -> tuple[Evidence, ...]:
 
 
 def clamp_scenarios(raw: RawSignal, assets: tuple[str, ...], has_established: bool,
-                    ledger: Ledger) -> tuple[list[Scenario], float]:
+                    ledger: Ledger, *, mean_limit: float = C.DRIFT_MEAN_LIMIT) -> tuple[list[Scenario], float]:
     """Apply the §5 clamps. Returns (scenarios, tail_mult)."""
     cands = [s for s in raw.scenarios if s.weight > 0]
     if not cands:
@@ -78,11 +78,11 @@ def clamp_scenarios(raw: RawSignal, assets: tuple[str, ...], has_established: bo
         drifts.append(d)
     for a in assets:
         mean = sum(w * d[a] for w, d in zip(weights, drifts))
-        if abs(mean) > C.DRIFT_MEAN_LIMIT:
-            factor = (C.DRIFT_MEAN_LIMIT - _ROUNDING_MARGIN) / abs(mean)
+        if abs(mean) > mean_limit + 1e-12:
+            factor = (mean_limit - _ROUNDING_MARGIN) / abs(mean)
             for d in drifts:
                 d[a] = round(d[a] * factor, _DRIFT_DECIMALS)
-            ledger.clamps.append(f"{a}: weighted mean drift {mean:+.3f} exceeds +/-{C.DRIFT_MEAN_LIMIT}; "
+            ledger.clamps.append(f"{a}: weighted mean drift {mean:+.3f} exceeds +/-{mean_limit}; "
                                  f"all scenario drifts for {a} rescaled by {factor:.3f}")
     vols: list[float] = []
     for s in cands:
@@ -114,8 +114,8 @@ def clamp_scenarios(raw: RawSignal, assets: tuple[str, ...], has_established: bo
         scenarios[heaviest] = Scenario(s.label, round(s.weight + residual, 6), s.drift_sd, s.vol_mult)
     for a in assets:  # defensive: the bound must hold exactly after all rounding
         mean = sum(s.weight * s.drift_sd[a] for s in scenarios)
-        if abs(mean) > C.DRIFT_MEAN_LIMIT:
-            factor = (C.DRIFT_MEAN_LIMIT - _ROUNDING_MARGIN) / abs(mean)
+        if abs(mean) > mean_limit + 1e-12:
+            factor = (mean_limit - _ROUNDING_MARGIN) / abs(mean)
             scenarios = [Scenario(s.label, s.weight, {**s.drift_sd, a: round(s.drift_sd[a] * factor, _DRIFT_DECIMALS)}, s.vol_mult)
                          for s in scenarios]
     return scenarios, round(tail, 4)

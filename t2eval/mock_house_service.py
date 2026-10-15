@@ -42,6 +42,26 @@ def request_hash(unit_id: str, model: str, params: dict) -> str:
 
 
 def replay_response(directory: Path, unit_id: str, body: dict) -> tuple[dict | None, str | None]:
+    # Phase 3 flat cache, keyed by the exact OpenAI request fields. Keep legacy
+    # per-unit caches below so previously published Phase M fixtures still replay.
+    for path in sorted(directory.glob("*.json")):
+        try:
+            record = json.loads(path.read_text())
+            if not isinstance(record, dict) or record.get("unit_id") != unit_id:
+                continue
+            model = record.get("model")
+            if not isinstance(model, str) or not isinstance(record.get("text"), str):
+                continue
+            params = dict(body, model=model)
+            if "chat_template_kwargs" in params:
+                params["extra_body"] = {"chat_template_kwargs": params.pop("chat_template_kwargs")}
+            fields = ("model", "messages", "temperature", "top_p", "seed", "max_tokens", "extra_body")
+            blob = json.dumps({k: params.get(k) for k in fields}, sort_keys=True, ensure_ascii=False)
+            key = hashlib.sha256(blob.encode("utf-8")).hexdigest()
+            if path.name == key + ".json":
+                return record, key
+        except (OSError, ValueError):
+            continue
     folder = directory / (re.sub(r"[^A-Za-z0-9._-]+", "_", unit_id) or "unit")
     models = set()
     for path in folder.glob("*.json"):

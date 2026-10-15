@@ -111,9 +111,9 @@ class _Pipeline:
         self._lock = threading.Lock()
 
     # -- corpus + pre-pass -----------------------------------------------------------------------
-    def prepare(self) -> None:
+    def prepare(self, *, card_only=False) -> None:
         s = self.summary
-        docs = load_corpus(self.unit_dir, s.asof, self.ledger.notes)
+        docs = [] if card_only else load_corpus(self.unit_dir, s.asof, self.ledger.notes)
         keywords = card_keywords(s.card_description, s.card_text_notes, assets=s.assets)
         relevance = score_documents({d.doc_id: d.text for d in docs}, s.assets, keywords) if docs else {}
         self.prepass = run_prepass(s, docs, relevance)
@@ -277,10 +277,13 @@ def read_text(unit_dir: Path | str, summary: NumericSummary, budget: CallBudget,
     pipeline: _Pipeline | None = None
     try:
         pipeline = _Pipeline(Path(unit_dir), summary, budget, None, ledger, deadline, max(1, n_runs))
-        pipeline.prepare()
+        pipeline.prepare(card_only=mode == "card_notes_only")
         assert pipeline.prepass is not None
-        if mode == C.MODE_NOTES_ONLY:
+        if mode in (C.MODE_NOTES_ONLY, "card_notes_only"):
             labels = labels_from_prepass(pipeline.prepass, summary)
+            if mode == "card_notes_only":
+                labels["mode"] = mode
+                ledger.notes.append("Only card description and text.notes read; no corpus or model calls.")
             ledger.elapsed_s = time.monotonic() - t0
             return _signal(summary, labels, [], ledger, 0)
         house = HouseClient(budget, deadline, env=environment, cache=cache_from_env(environment), client=client,

@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 
 from mock_house import MockHouse, delay, error, ok
-from t2agent import numeric_v1, text_v1
+from t2agent import numeric_v1, numeric_v1_1, text_v1
 from t2agent.contracts import CallBudget, NumericSummary, TextSignal
 from t2agent.text_layer import constants as C
 from t2agent.text_layer import read_text
@@ -22,7 +22,7 @@ from t2agent.text_layer.labels import AssetLabel, Branch, Labels, parse_labels, 
 from t2agent.text_layer.parse import ParseError, RawEvidence, extract_json
 from t2agent.text_layer.prepass import find_events, horizon_window, run_prepass
 from t2agent.text_layer.relevance import score_documents
-from t2agent.text_map import apply_text_map
+from t2agent.text_overlay import apply_text_map
 
 ROOT = Path(__file__).resolve().parents[1]
 ASOF = date(2016, 6, 17)
@@ -523,14 +523,14 @@ def test_text_map_table_values_and_lambda():
     binary = apply_text_map(_labelled(event_in_horizon="scheduled_binary", regime="elevated",
                                       branches=[{"label": "leave", "prob": 0.9, "signs": {"GBP": -1}}, {"label": "remain", "prob": 0.1, "signs": {"GBP": 1}}]), s, 1.0)
     assert [round(x.weight, 2) for x in binary.scenarios] == [0.8, 0.2]
-    # branch drifts start at -1.0/+1.0 (mean -0.6) and are rescaled to keep |mean| <= 0.5, preserving the sign split
-    assert binary.scenarios[0].drift_sd["GBP"] == pytest.approx(-0.8333, abs=1e-3) and binary.scenarios[1].drift_sd["GBP"] > 0
-    assert abs(sum(x.weight * x.drift_sd["GBP"] for x in binary.scenarios)) <= 0.5 + 1e-9 and binary.tail_mult == 1.25
+    # Explicit Phase 4 branches retain +/-1 sd at the clipped 80/20 weights.
+    assert [x.drift_sd["GBP"] for x in binary.scenarios] == [-1., 1.]
+    assert abs(sum(x.weight * x.drift_sd["GBP"] for x in binary.scenarios)) <= 0.6 + 1e-9 and binary.tail_mult == 1.25
     even = apply_text_map(_labelled(event_in_horizon="scheduled_binary", regime="elevated",
                                     branches=[{"label": "a", "prob": 0.5, "signs": {"GBP": -1}}, {"label": "b", "prob": 0.5, "signs": {"GBP": 1}}]), s, 1.0)
     assert [x.drift_sd["GBP"] for x in even.scenarios] == [-1.0, 1.0] and [x.vol_mult for x in even.scenarios] == [1.25, 1.25]
     shock = apply_text_map(_labelled(regime="crisis", assets={"GBP": {"direction": "down", "evidence": [1]}}), s, 1.0)
-    assert len(shock.scenarios) == 2 and shock.scenarios[1].weight == 0.2 and shock.scenarios[1].drift_sd["GBP"] == -0.5
+    assert len(shock.scenarios) == 1 and shock.tail_signs == {"GBP": -1} and shock.tail_mult == 1.5
     assert apply_text_map(_labelled(regime="crisis"), s, 0.0).scenarios[0].vol_mult == 1.0            # λ = 0 -> numeric only
     neutral = TextSignal.neutral(("GBP",), reason="offline")
     assert apply_text_map(neutral, s, 1.0) is neutral
@@ -550,7 +550,7 @@ def test_text_v1_forecaster_modes(unit, server, monkeypatch):
         monkeypatch.setenv(k, v)
     monkeypatch.setenv("TEXT_LAYER_LAMBDA", "0.5")
     text = text_v1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
-    numeric = numeric_v1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)
+    numeric = numeric_v1_1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)
     assert not np.allclose(text.value.to_numpy(), numeric.value.to_numpy()) and len(server.requests) == 4
     assert "Label -> number mapping" in text.attrs["rationale"] and "### Labels" in text.attrs["rationale"]
     monkeypatch.setenv("QFBENCH_NETWORK", "none")

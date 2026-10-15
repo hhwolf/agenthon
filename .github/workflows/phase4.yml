@@ -1,0 +1,57 @@
+name: Phase 4 text integration
+on:
+  pull_request:
+    paths:
+      - 't2agent/**'
+      - 't2eval/phase4.py'
+      - 'tests/**'
+      - 'requirements-runtime.txt'
+      - 'pyproject.toml'
+      - 'Dockerfile'
+      - '.github/workflows/phase4.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - name: Pinned environment and tests
+        run: |
+          bash scripts/setup.sh
+          make test
+          QFBENCH_NETWORK=none make admissibility FORECASTER=numeric_v1_1
+      - name: Build current candidate for amd64
+        run: |
+          docker buildx build --platform linux/amd64 --load -t agenthon-phase4:ci .
+          docker run --rm --network=none agenthon-phase4:ci python -c \
+            'import importlib.metadata as m, importlib.util, pathlib; assert m.version("openai") == "3.31.0"; assert importlib.util.find_spec("t2eval") is None; assert not list(pathlib.Path("/app").rglob("*.parquet"))'
+      - name: Current candidate all 104 units, offline and restricted mock House
+        run: |
+          .venv/bin/python -m t2eval.mock_final --image agenthon-phase4:ci --allow-local-image --units practice --network none --no-proxy-scores --out .eval/mock-final/phase4-none
+          .venv/bin/python -m t2eval.mock_final --image agenthon-phase4:ci --allow-local-image --units practice --network restricted --no-proxy-scores --out .eval/mock-final/phase4-restricted
+      - name: Verify selected text route and summarize
+        run: |
+          .venv/bin/python - <<'PY'
+          import json, os
+          from pathlib import Path
+          mode = json.loads(Path('t2agent/text_config.json').read_text())['mode']
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              for network in ('none', 'restricted'):
+                  root = Path('.eval/mock-final') / ('phase4-' + network) / 'a'
+                  report = json.loads((root/'summary.json').read_text())
+                  assert report['statuses'] == {'passed':104}, report
+                  if mode != 'labels' or network == 'none':
+                      assert report['requests_used'] == 0, report
+                  rationales = list(root.glob('*/output/forecast_rationale.md'))
+                  assert len(rationales) == 104
+                  if mode == 'card_notes_only':
+                      assert all('mode card_notes_only' in p.read_text() for p in rationales)
+                  assert all('Text hook ignored' not in p.read_text() for p in rationales)
+                  out.write(f"{network}: 104/104, requests {report['requests_used']}, mode {mode}\n\n")
+          PY

@@ -799,3 +799,74 @@ per token on these corpora (one extraction prompt reached 68,818 real tokens aga
 `CHARS_PER_TOKEN` is now 2.8 (≈ 48K real tokens per request, 5 extraction calls for the largest corpora, 8 requests worst case);
 and extraction replies truncated at 3,000 output tokens, so extraction now uses the 4,000 cap with at most 18 items per chunk and
 quotes of ≤ 200 characters. The first three units will be re-labelled by the sweep because the prompts changed.
+
+
+## Phase 4 — text integration and provisional ship decision (2026-10-15)
+
+Integrated the existing Phase M, numeric_v1.1 and teammate Phase 3 branches on
+`hhwolf/phase4-text-integration`. The protocol was committed as `27c4402` before
+any Phase 4 score was computed; see reports/phase4/VALIDATION.md. The Phase 2
+numeric config and frozen selection remain unchanged, as does numeric_v1.1's
+frozen numeric config.
+
+The constants-only t2agent/text_map.py holds the user's fixed starting values;
+text_overlay.py performs the mapping. SOLVER-PLAYBOOK §§3–5 supplies the design
+principles, not those exact coefficients. Corrected binary drift surviving the
+disagreement rule, removed the extra inherited crisis-shock mixture, and added
+named-side tail expansion for crisis/F4. Binary probabilities normalize then
+clip to 20–80%; one branch covers every asset/horizon of a draw. The explicit
++/-1-SD binary branches permit a 0.6-SD weighted mean at 80/20; other signals keep
+the 0.5-SD mean bound. Lambda scales drift and excess vol/tail width. The existing
+event vol floor 1.15 and binary tail 1.25 are retained without fitting.
+
+Both numeric_v1.forecast and numeric_v1_1.forecast now invoke read_text between
+sampling and apply_text_signal. The text summary uses the actual completed
+draws' standard deviations. Text errors preserve numeric draws; explicit
+already-mapped hooks still work. Rationale writing appends doc_ids, timestamps,
+established/inferred status and the mapping ledger. Optional contract additions
+are tail_signs and branch_mixture with neutral defaults. Runtime openai==3.31.0
+was already pinned and remains pinned. The wheel includes text_config.json;
+evaluation artifacts remain outside the allowlisted Docker context.
+
+The strict B4 arm reads only card description and text.notes, retaining the
+inherited B4 v2 numeric volatility guard; it never reads corpus text or calls a
+model. Legacy notes_only still supports the corpus pre-pass explicitly. The
+inherited B4 rules had already seen practice results in Phase 3, so these are
+development measurements and not an untouched holdout.
+
+Replayed-label cache status: **0/88 artifacts available**. No cache directory
+exists in this workspace or the inspected sibling workspaces; the teammate's
+PR still lists the full dev sweep as unfinished. Requested the cache path or
+artifact link. No live provider requests were sent and no mock responses were
+used as accuracy evidence. Full-label lambda 0.5/1 means and caps are unavailable,
+not neutral-filled measurements. The runner accepts validated Phase 3 dev/replay
+per-unit artifacts and rejects mock, failed, mismatched and future-evidence rows.
+The mock Final service now supports both old per-unit and new flat request caches.
+
+Available 88-card comparison, official scorer and existing M0 normalization,
+2,000 draws, card-derived seeds:
+
+| arm | mean | median | caps |
+|---|---:|---:|---:|
+| numeric_v1.1 | 2.415744 | 1.365856 | 9 |
+| card-notes-only, lambda 0.5 | 2.378141 | 1.355453 | 9 |
+| cached labels, lambda 0.5 | unavailable | unavailable | unavailable |
+| cached labels, lambda 1 | unavailable | unavailable | unavailable |
+
+Paired year-block bootstrap (10,000 resamples, seed 20261015): mean delta
+-0.037603, 95% CI [-0.068127, -0.013183]. Family means: F1 0.841566→0.842977,
+F2 2.033922→1.974978, F3 1.277705→1.276660, F4 4.529173→4.459123. No capped
+cards were added or removed. Per-card deltas, family rows, source/input hashes,
+cap changes and exact decision are tracked under reports/phase4/.
+
+**Decision: provisionally select card-notes-only at lambda 0.5.** It satisfies
+the available-arm mean/cap rule; full LLM-label selection remains pending all
+88 cached labels. t2agent/text_config.json records the provisional choice.
+No new GHCR image, competition pack or submission upload has been published.
+Reproduce with `.venv/bin/python -m t2eval.phase4`; add `--labels-dir PATH` when
+the teammate's validated sweep artifacts arrive. This does not automatically
+change selection or publish an image. See docs/PHASE4_TEXT.md.
+
+Validation so far: 223 tests passed; 104/104 host admissibility checks passed;
+linux/amd64 image builds. The default candidate uses zero model requests.
+Container verification and its exact local image IDs are recorded below.

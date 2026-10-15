@@ -2,7 +2,7 @@
 
 Phase 2.5 keeps the Phase 2 engine and freeze intact. The separate module
 `t2agent.numeric_v1_1` loads `numeric_v1_1_config.json`. The CLI defaults to this
-version; `--forecaster numeric_v1` and `--forecaster m0` remain available.
+version; `--forecaster numeric_v1` and `--forecaster m0` remain available. Phase 4 adds a provisional card-notes overlay after sampling; use `--text-mode numeric_only` to reproduce this numeric freeze. See [Phase 4 integration](PHASE4_TEXT.md).
 It is text-free, with the same optional keyword-only `text_signal` hook.
 Neutral signals preserve output bytes. Seeds follow explicit argument,
 QFBENCH_SEED, then CRC32(unit_id). Default draws: 2,000.
@@ -55,7 +55,7 @@ the runtime image through the Docker allowlist.
 make test
 make admissibility FORECASTER=numeric_v1_1
 make backtest FORECASTER=numeric_v1_1
-make eval-practice FORECASTER=numeric_v1_1
+TEXT_LAYER_MODE=numeric_only make eval-practice FORECASTER=numeric_v1_1
 make docker-smoke FORECASTER=numeric_v1_1
 ```
 

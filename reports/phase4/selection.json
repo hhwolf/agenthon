@@ -1,0 +1,30 @@
+{
+  "decision": {
+    "selected": "card_notes_l05",
+    "provisional": true,
+    "mode": "card_notes_only",
+    "lambda": 0.5
+  },
+  "protocol_commit": "27c4402",
+  "source_sha256": "5279960c2fb615fc77a00bd0b12031e38edeaa2d556df5cc57ec74f961a44820",
+  "input_sha256": "6cc7a88e3126f981535b13be51d63ce4fc45cc27df9a6cf7186d4a6c7ff34fd1",
+  "n_draws": 2000,
+  "available_cached_labels": 0,
+  "arms": {
+    "numeric_v1_1": {
+      "cards": 88,
+      "mean": 2.415744063385565,
+      "median": 1.365855760616008,
+      "caps": 9,
+      "failures": 0
+    },
+    "card_notes_l05": {
+      "cards": 88,
+      "mean": 2.3781408196192855,
+      "median": 1.3554526997004412,
+      "caps": 9,
+      "failures": 0
+    }
+  },
+  "not_published": true
+}

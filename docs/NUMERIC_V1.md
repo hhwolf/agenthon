@@ -14,10 +14,9 @@ frame = forecast(card, panels, None, asof, n_draws=2000, seed=7)
 ```
 
 The six existing positional arguments remain compatible. The Phase 2 image defaults to numeric_v1 and 2,000 draws. The newer CLI/image
-default to numeric_v1_1; use `--forecaster numeric_v1` for this unchanged freeze; `--forecaster m0` preserves the
+default to numeric_v1_1; use `--forecaster numeric_v1 --text-mode numeric_only` for this numeric freeze; `--forecaster m0` preserves the
 500-draw baseline. Explicit seed wins over `QFBENCH_SEED`, otherwise CRC32 of the
-unit identifier supplies a deterministic seed. Inference never opens text files,
-evaluation artifacts, realized values, or per-unit answer tables.
+unit identifier supplies a deterministic seed. Numeric sampling never opens text or evaluation artifacts. Phase 4 optionally reads text after sampling; see [the integration guide](PHASE4_TEXT.md). Inference never opens realized values or per-unit answer tables.
 
 The frozen JSON configuration retains 25% of the trailing drift, 300-observation
 volatility, square-root time scaling, and Gaussian innovations. Positive monthly
@@ -43,12 +42,10 @@ evidence are supported. One scenario is selected for the complete joint draw.
 
 There are 1–4 scenarios; weights must be finite and at least 0.05 before
 normalization. Drift is bounded at ±1.5 SD per scenario and aggregate drift at
-±0.5 SD per asset. Volatility is bounded at 0.8–2, with narrowing allowed only
+±0.5 SD per asset (±0.6 for the explicit Phase 4 binary branches). Volatility is bounded at 0.8–2, with narrowing allowed only
 with established evidence. Tail scaling is 1–2 and affects only the outer 5% of
 numeric draws. A neutral signal returns the original samples without consuming
-RNG; all three output files are byte-identical. An invalid signal leaves numeric
-samples unchanged and records the problem in the rationale. No House/LLM calls
-are made by this phase.
+RNG; sample bytes remain identical. An invalid signal leaves numeric samples unchanged and records the problem in the rationale. Current engines can read text after sampling; the provisional Phase 4 card-notes choice makes zero House calls.
 
 ## Recovery and output
 
@@ -73,7 +70,7 @@ make setup
 .venv/bin/python -m t2eval.ablations develop
 .venv/bin/python -m t2eval.ablations holdout
 make backtest FORECASTER=numeric_v1
-make eval-practice FORECASTER=numeric_v1
+TEXT_LAYER_MODE=numeric_only make eval-practice FORECASTER=numeric_v1
 make admissibility FORECASTER=numeric_v1
 make docker-smoke FORECASTER=numeric_v1
 ```

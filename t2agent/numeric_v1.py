@@ -224,7 +224,11 @@ def apply_text_signal(samples, card, signal, seed):
     drift = np.clip(drift, -1.5, 1.5)
     # Preserve relative scenario directions while bounding aggregate drift.
     overall = weights @ drift
-    drift *= np.minimum(1., .5/np.maximum(abs(overall), 1e-12))[None,:]
+    binary = (bool(_get(signal, 'branch_mixture', False)) and len(scenarios) == 2
+              and np.all(weights >= .2-1e-12) and np.all(weights <= .8+1e-12)
+              and np.all(abs(drift) <= 1.))
+    mean_limit = .6 if binary else .5
+    drift *= np.minimum(1., mean_limit/np.maximum(abs(overall), 1e-12))[None,:]
     established = any(bool(_get(e, 'established', False)) for e in _get(signal, 'evidence', ()))
     vol = np.clip(vol, .8 if established else 1., 2.)
     tail = np.clip(tail, 1., 2.)
@@ -232,10 +236,20 @@ def apply_text_signal(samples, card, signal, seed):
     labels = rng.choice(len(scenarios), len(samples), p=weights)
     center = samples.mean(axis=0); sd = samples.std(axis=0, ddof=1)
     residual = samples-center
-    # Tail multiplier only affects the outer 5%, with one indicator per draw.
-    extreme = np.max(abs(residual)/np.maximum(sd, 1e-12), axis=1)
-    tail_scale = np.where(extreme > np.quantile(extreme, .95), tail, 1.)
-    return center + residual*vol[labels,None]*tail_scale[:,None] + drift[labels]*sd
+    # One extreme-path indicator preserves joint shocks. Named sides expand
+    # only residuals on that side; the other side and central body are unchanged.
+    from .text_map import TAIL_QUANTILE
+    signs_by_asset = _get(signal, 'tail_signs', {}) or {}
+    if any(v not in (-1, 0, 1) for v in signs_by_asset.values()):
+        raise ValueError('Invalid adverse tail sign')
+    signs = np.array([signs_by_asset.get(a, 0) for a in grid_assets])
+    z = residual/np.maximum(sd, 1e-12)
+    risk = np.where(signs, z*signs, abs(z))
+    extreme = np.max(risk, axis=1)
+    selected = extreme > np.quantile(extreme, TAIL_QUANTILE)
+    side = (signs == 0) | (residual*signs > 0)
+    tail_scale = np.where(selected[:, None] & side, tail, 1.)
+    return center + residual*vol[labels,None]*tail_scale + drift[labels]*sd
 
 
 def _wide_random_walk(card, panels, asof, n_draws, seed):
@@ -266,21 +280,63 @@ def _wide_random_walk(card, panels, asof, n_draws, seed):
     return sample_frame(card, draws)
 
 
-def forecast(card, panels, text_dir, asof, n_draws=2000, seed=None, *, text_signal=None):
-    """Numeric → M0 → wide random walk; no text or realized data is opened."""
+def read_forecast_text(card, panels, text_dir, asof, samples, *, text_signal=None,
+                       text_mode=None, text_lambda=None):
+    """Called only after numeric sampling; failures cannot change those draws."""
+    signal = text_signal
+    if signal is None:
+        if text_dir is None:
+            return None, 'Text layer disabled; numeric draws unchanged.'
+        import os
+        from .text_overlay import apply_text_map, lambda_from_env
+        settings = json.loads(Path(__file__).with_name('text_config.json').read_text())
+        mode = text_mode or os.environ.get('TEXT_LAYER_MODE') or settings['mode']
+        lam = (text_lambda if text_lambda is not None else lambda_from_env()
+               if 'TEXT_LAYER_LAMBDA' in os.environ else settings['lambda'])
+        if mode == 'numeric_only':
+            return None, 'Text layer disabled; numeric draws unchanged.'
+        if mode not in ('labels', 'notes_only', 'card_notes_only'):
+            raise ValueError(f'Unknown text mode: {mode}')
+        if not np.isfinite(lam) or not 0 <= lam <= 1:
+            raise ValueError('Text lambda must be finite and in [0,1]')
+        if lam == 0:
+            return None, 'Text lambda is zero; numeric draws unchanged; zero model requests.'
+        from .text_layer.summary import numeric_summary_from
+        from .contracts import CallBudget
+        from .text_layer import read_text
+        summary = numeric_summary_from(card, panels, asof, samples=samples)
+        signal = read_text(Path(text_dir).parent, summary, CallBudget(), mode=mode)
+        signal = apply_text_map(signal, summary, lam)
+    # Explicit signals retain the established numeric-hook semantics: already mapped.
+    note = str(_get(signal, 'rationale_md', '')).rstrip()
+    if _get(signal, 'evidence') is not None:
+        from .text_overlay import evidence_ledger
+        note += '\n\n' + evidence_ledger(signal)
+    return signal, note or 'Text layer disabled; numeric draws unchanged.'
+
+
+def forecast(card, panels, text_dir, asof, n_draws=2000, seed=None, *, text_signal=None,
+             text_mode=None, text_lambda=None):
+    """Numeric → optional text overlay; numeric failures → M0 → wide random walk."""
     seed = m0.resolve_seed(card, seed)
     n_draws = max(200, int(n_draws), card.get('scoring', {}).get('params', {}).get('n_draws_min', 200))
     reasons = []
+    text_note = 'No text overlay applied.'
+    signal = None
     try:
         config = selected_config()
         prepared = prepare(card, panels, asof)
         samples = sample(prepared, config, n_draws, seed)
         try:
-            adjusted = apply_text_signal(samples, card, text_signal, seed)
+            signal, text_note = read_forecast_text(card, panels, text_dir, asof, samples,
+                text_signal=text_signal, text_mode=text_mode, text_lambda=text_lambda)
+            adjusted = apply_text_signal(samples, card, signal, seed)
             if not np.isfinite(adjusted).all():
                 raise ValueError('Nonfinite text result')
             samples = adjusted
         except Exception as exc:
+            signal = None
+            text_note = 'Text overlay failed; completed numeric draws preserved.'
             reasons.append(f'Text hook ignored: {type(exc).__name__}: {exc}')
         frame = sample_frame(card, samples)
         method = f'numeric_v1; rules={config}'
@@ -303,5 +359,7 @@ def forecast(card, panels, text_dir, asof, n_draws=2000, seed=None, *, text_sign
         'from the last released observation. Numeric inference reads no text. '
         'Any supplied text signal adjusts completed numeric draws; neutral is identical.\n\n'
         + ('\n'.join(reasons) if reasons else 'No fallback was required.'))
+    frame.attrs['rationale'] += '\n\n' + text_note + '\n'
+    frame.attrs['text_signal'] = signal
     frame.attrs['fallback'] = method if method.endswith('fallback') or method.startswith('last-resort') else None
     return frame

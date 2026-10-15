@@ -4,6 +4,10 @@
 
 ### Added
 
+- Apply fixed text labels after numeric sampling, with shared binary branches, named adverse tails, and a cited evidence ledger.
+- Compare cached labels and a strict card-prose-only arm against numeric_v1.1; provisionally select card notes at lambda 0.5 while full model-label replay is unavailable.
+- Verify current Phase 4 candidate containers in both offline and restricted mock Final modes in CI.
+
 - Rehearse published image digests against the public Final contract with isolated inputs, resource deadlines, and complete output-tree checks.
 - Exercise text clients against a restricted mock House proxy with request budgets, canned failures, and exact dev-cache replay.
 - Compare two digests using official scores on local practice proxies, alongside request counts and platform-clock projections.
