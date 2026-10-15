@@ -4,6 +4,8 @@
 Final contract, then calls the official scorer and the existing M0 normalization
 code. It emulates the documented runner; it does not certify private CodaBench
 infrastructure, GPU behavior, or sealed Final scores.
+See the [measured verification results](../reports/phase_m/RESULTS.md) and
+[Phase M plan](../reports/phase_m/PLAN.md) for the checked digests and scope.
 
 ```sh
 make mock-final \
@@ -63,6 +65,8 @@ inspecting outputs; terminating the Docker CLI alone would leave it running.
 The remaining 43,200-second ingestion budget further limits each unit. Cleanup
 and output checking are recorded in wall time. Official scoring runs only after
 ingestion, on its separate clock.
+Use `--timeout SECONDS` and `--platform-clock SECONDS` for shorter test budgets;
+both must be positive and cannot exceed 1,800 and 43,200 seconds, respectively.
 
 `--pull-policy missing` uses an existing local image or pulls the first time it
 is needed. `always` performs a registry pull for the first unit even if cached.
@@ -172,7 +176,7 @@ the same unit roster, seed policy and network mode, and writes `COMPARISON.md`,
 `comparison.csv`, and `comparison.json` with paired score/time/request rows.
 
 ```sh
-.venv/bin/python -m pytest tests/test_mock_final.py tests/test_mock_house_service.py
+.venv/bin/python -m pytest tests/test_mock_final.py tests/test_mock_final_audit.py tests/test_mock_house_service.py
 .venv/bin/python scripts/verify_mock_final.py
 ```
 
