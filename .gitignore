@@ -11,3 +11,4 @@ dist/
 realized*
 .DS_Store
 .gstack/
+.env

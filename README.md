@@ -51,6 +51,7 @@ The complete generated evaluation snapshot is available as a
 See [evaluation data](reports/EVALUATION_DATA.md) for its contents, checksums,
 and restoration commands.
 Release history is in [CHANGELOG.md](CHANGELOG.md).
+The text-layer contract and House model rules are in [docs/TEXT_LAYER.md](docs/TEXT_LAYER.md).
 
 `backtest` generates **2,060 historical pseudo-cards** by default (20 for each
 practice template), then prints normalized score tables. `CARDS=...` changes the
