@@ -1,0 +1,44 @@
+{
+  "units": 104,
+  "statuses": {
+    "passed": 104
+  },
+  "requests_used": 0,
+  "scored_units": 88,
+  "mean": 2.4157440633855654,
+  "caps": 9,
+  "proxy_units": 88,
+  "proxy_mean": 2.4157440633855654,
+  "proxy_caps": 9,
+  "sum_unit_wall_seconds": 157.25847975048237,
+  "mean_unit_wall_seconds": 1.5121007668315611,
+  "pull_seconds": 0.20960512501187623,
+  "projection_104_seconds": 157.25847975048237,
+  "platform_clock_seconds": 43200,
+  "over_half_platform_clock": false,
+  "score_denominator": "resolved practice proxies plus all failures; successful unlabeled units excluded",
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:f3ec5167b28f0172004a78e336d84a4ecd423d27da42d942693e51cfc085c507",
+  "network": "none",
+  "house_mode": "canned",
+  "limits": {
+    "cpus": 4,
+    "memory_bytes": 6645681356,
+    "tmpfs_bytes": 67108864,
+    "platform": "linux/amd64"
+  },
+  "helper_image_id": null,
+  "host": {
+    "NCPU": 4,
+    "MemTotal": 8307101696,
+    "Architecture": "aarch64",
+    "ServerVersion": "29.5.2"
+  },
+  "infrastructure_seconds": 3.875000402331352e-06,
+  "ingestion_seconds": 157.30602062505204,
+  "scoring_seconds": 1.8232897500274703,
+  "image_cached_before": true,
+  "pull_policy": "always",
+  "unit_timeout_seconds": 1800,
+  "vendor_commit": "b9c663d239a0e6b86ebd3f3f2d5aead88516067d",
+  "source_commit": "f3fb5068dc0a3abec9ca8d32bb59f8e953472f5a"
+}

@@ -1,0 +1,557 @@
+{
+  "failures": [
+    {
+      "unit_id": "t2-EXAMPLE-ust-curve-1m",
+      "unit": "vendor/track2/units/t2-EXAMPLE-ust-curve-1m",
+      "network": "none",
+      "house_mode": "canned",
+      "seed": 795546941,
+      "pull_seconds": 0.0,
+      "image_cached_before": true,
+      "requests_used": 0,
+      "exit_code": 17,
+      "timed_out": false,
+      "oom_killed": false,
+      "score": 8.0,
+      "reason": "missing: forecast.parquet, forecast_meta.json, forecast_rationale.md",
+      "input_sha256": "d2f18a9359f8ef4458a8b34c64d734c6d718c3c097757e49592509a7e0c4e92b",
+      "image_id": "sha256:e9d28d3fe88fe88f1e0f97e462eacf44e2f714ffcc4699f3093c8a831302251d",
+      "setup_seconds": 0.46231479092966765,
+      "execution_seconds": 0.23678074998315424,
+      "output_tree": {
+        "valid": true,
+        "files": 1,
+        "entries": 1,
+        "bytes": 38,
+        "reason": ""
+      },
+      "status": "container_crashed",
+      "wall_seconds": 0.734050125000067,
+      "output": ".eval/mock-final/phase-m-verification-final/crash/t2-EXAMPLE-ust-curve-1m/output",
+      "proxy_available": false,
+      "date_basis": "unresolved"
+    },
+    {
+      "unit_id": "t2-EXAMPLE-ust-curve-1m",
+      "unit": "vendor/track2/units/t2-EXAMPLE-ust-curve-1m",
+      "network": "none",
+      "house_mode": "canned",
+      "seed": 795546941,
+      "pull_seconds": 0.0,
+      "image_cached_before": true,
+      "requests_used": 0,
+      "exit_code": 137,
+      "timed_out": true,
+      "oom_killed": false,
+      "score": 8.0,
+      "reason": "unit or remaining platform deadline exceeded",
+      "input_sha256": "d2f18a9359f8ef4458a8b34c64d734c6d718c3c097757e49592509a7e0c4e92b",
+      "image_id": "sha256:df0d8d562122607b273996afa04b2ea8f8a8d8563d480eebc19dea25bff940e2",
+      "setup_seconds": 0.02497775002848357,
+      "execution_seconds": 0.9825307079590857,
+      "output_tree": {
+        "valid": false,
+        "files": 0,
+        "entries": 0,
+        "bytes": 0,
+        "reason": "no files"
+      },
+      "status": "resource_timeout",
+      "wall_seconds": 1.0844105000142008,
+      "output": ".eval/mock-final/phase-m-verification-final/timeout/t2-EXAMPLE-ust-curve-1m/output",
+      "proxy_available": false,
+      "date_basis": "unresolved"
+    },
+    {
+      "unit_id": "t2-EXAMPLE-ust-curve-1m",
+      "unit": "vendor/track2/units/t2-EXAMPLE-ust-curve-1m",
+      "network": "none",
+      "house_mode": "canned",
+      "seed": 795546941,
+      "pull_seconds": 0.0,
+      "image_cached_before": true,
+      "requests_used": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "oom_killed": false,
+      "score": 8.0,
+      "reason": "file or total bytes exceed 64 MiB",
+      "input_sha256": "d2f18a9359f8ef4458a8b34c64d734c6d718c3c097757e49592509a7e0c4e92b",
+      "image_id": "sha256:564dedf5e4c3c32a6647486a3d2662084f8d56dac00f89a34b5b9b654618c59c",
+      "setup_seconds": 0.02756433398462832,
+      "execution_seconds": 0.33801154093816876,
+      "output_tree": {
+        "valid": false,
+        "files": 1,
+        "entries": 1,
+        "bytes": 67108865,
+        "reason": "file or total bytes exceed 64 MiB"
+      },
+      "status": "no_output",
+      "wall_seconds": 0.4075842499732971,
+      "output": ".eval/mock-final/phase-m-verification-final/oversized/t2-EXAMPLE-ust-curve-1m/output",
+      "proxy_available": false,
+      "date_basis": "unresolved"
+    },
+    {
+      "unit_id": "t2-EXAMPLE-ust-curve-1m",
+      "unit": "vendor/track2/units/t2-EXAMPLE-ust-curve-1m",
+      "network": "none",
+      "house_mode": "canned",
+      "seed": 795546941,
+      "pull_seconds": 0.0,
+      "image_cached_before": true,
+      "requests_used": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "oom_killed": false,
+      "score": 8.0,
+      "reason": "official admissibility gate failed",
+      "input_sha256": "d2f18a9359f8ef4458a8b34c64d734c6d718c3c097757e49592509a7e0c4e92b",
+      "image_id": "sha256:2741a7b1f4c6a97e53a445f9070538a5245026dc70b4302fbfcdb857bbbb4fea",
+      "setup_seconds": 0.02991712500806898,
+      "execution_seconds": 0.2957117090700194,
+      "output_tree": {
+        "valid": true,
+        "files": 3,
+        "entries": 3,
+        "bytes": 54,
+        "reason": ""
+      },
+      "status": "schema_invalid",
+      "wall_seconds": 0.3661681250669062,
+      "output": ".eval/mock-final/phase-m-verification-final/schema/t2-EXAMPLE-ust-curve-1m/output",
+      "proxy_available": false,
+      "date_basis": "unresolved",
+      "official": {
+        "card_id": "t2-EXAMPLE-ust-curve-1m",
+        "admissible": false,
+        "gates": {
+          "g0_integrity": "pass",
+          "g1_schema": "fail"
+        },
+        "scored": false,
+        "note": "no --realized supplied: gates only, no score",
+        "detail": {
+          "code": "schema_invalid"
+        }
+      }
+    }
+  ],
+  "network_probes": [
+    {
+      "mode": "canned",
+      "checks": {
+        "unauthenticated": true,
+        "missing_v1": true,
+        "n_refused": true,
+        "other_origin_blocked": true,
+        "connect_blocked": true,
+        "direct_house_blocked": true,
+        "internet_blocked": true,
+        "quota": true
+      },
+      "statuses": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        429
+      ],
+      "house_stats": {
+        "units": {
+          "probe": 25
+        },
+        "events": [
+          {
+            "unit_id": "probe",
+            "admitted": 1,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 2,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 3,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 4,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 5,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 6,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 7,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 8,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 9,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 10,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 11,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 12,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 13,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 14,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 15,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 16,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 17,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 18,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 19,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 20,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 21,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 22,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 23,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 24,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 25,
+            "mode": "canned",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          }
+        ]
+      },
+      "internal_networks": [
+        true,
+        true
+      ]
+    },
+    {
+      "mode": "chaos",
+      "checks": {
+        "unauthenticated": true,
+        "missing_v1": true,
+        "n_refused": true,
+        "other_origin_blocked": true,
+        "connect_blocked": true,
+        "direct_house_blocked": true,
+        "internet_blocked": true,
+        "malformed_json": true,
+        "chaos": true,
+        "slow": true
+      },
+      "slow_seconds": 0.21830610000324668,
+      "statuses": [
+        503,
+        "timeout",
+        200,
+        200,
+        200,
+        200
+      ],
+      "house_stats": {
+        "units": {
+          "probe": 6
+        },
+        "events": [
+          {
+            "unit_id": "probe",
+            "admitted": 1,
+            "mode": "chaos",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "5xx",
+            "status": 503
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 2,
+            "mode": "chaos",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "timeout"
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 3,
+            "mode": "chaos",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "slow",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 4,
+            "mode": "chaos",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "malformed_json",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 5,
+            "mode": "chaos",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "malformed_content",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 6,
+            "mode": "chaos",
+            "request_hash": "659896fbb58f295e1017347ce83fbb99bfeaa62ec156773b2fa24f4bcabbf4be",
+            "max_tokens": 4000,
+            "behavior": "canned",
+            "status": 200
+          }
+        ]
+      },
+      "internal_networks": [
+        true,
+        true
+      ]
+    },
+    {
+      "mode": "replay",
+      "checks": {
+        "unauthenticated": true,
+        "missing_v1": true,
+        "n_refused": true,
+        "other_origin_blocked": true,
+        "connect_blocked": true,
+        "direct_house_blocked": true,
+        "internet_blocked": true,
+        "exact_replay": true,
+        "replay_miss": true
+      },
+      "house_stats": {
+        "units": {
+          "probe": 2
+        },
+        "events": [
+          {
+            "unit_id": "probe",
+            "admitted": 1,
+            "mode": "replay",
+            "request_hash": "6b69f38b5c45bbd046584703bebbef52a0558cc1dac5e002ac86a969b75fc8c9",
+            "max_tokens": 4000,
+            "replay_hit": true,
+            "cache_hash": "29b801c58fe9787a13dd66770eb97c0017ae63a33cd81af06122e8f5c568d9ed",
+            "behavior": "replay",
+            "status": 200
+          },
+          {
+            "unit_id": "probe",
+            "admitted": 2,
+            "mode": "replay",
+            "request_hash": "6a7442b3567d8acde1ec95a81074efd183a0d532a6cc0d32ed7da4d66a6310a1",
+            "max_tokens": 4000,
+            "replay_hit": false,
+            "cache_hash": null,
+            "behavior": "replay_miss",
+            "status": 503
+          }
+        ]
+      },
+      "internal_networks": [
+        true,
+        true
+      ]
+    }
+  ],
+  "helper_image_id": "sha256:f3d81c7a9aeb14d8859f7a5468142fa2e39c560ad07ef74215e0122e5d3dde8b",
+  "replay_fixture": "Synthetic response in teammate's exact ResponseCache format; no actual dev cache supplied."
+}

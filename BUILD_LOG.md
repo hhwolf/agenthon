@@ -584,3 +584,27 @@ This is an internal evaluation-tool addition; VERSION and published model/data
 release identities remain unchanged. CHANGELOG records it under Unreleased.
 All per-unit runtime artifacts stay in ignored .eval; only compact measurement
 reports are committed. No submission archive is packed or uploaded.
+
+Measured local results (public digest execution, 2000 image-default draws):
+
+| Image / network | Passed | House requests | Proxy mean (88) | Caps | Ingestion |
+|---|---:|---:|---:|---:|---:|
+| numeric_v1 / none | 104/104 | 0 | 2.435740611 | 9 | 145.07 s |
+| numeric_v1 / restricted | 104/104 | 0 | 2.435740611 | 9 | 159.89 s |
+| numeric_v1.1 / none | 104/104 | 0 | 2.415744063 | 9 | 157.31 s |
+
+All 104 numeric_v1 output triplets and staged input fingerprints match byte for
+byte across network modes. Largest output tree: 418,931 bytes. The local CPU/
+memory caps were 4 CPUs / 6,645,681,356 bytes; all projections are below 21,600 s.
+All local images were cached, so measured registry pulls are not cold downloads.
+The local sweeps were measured while implementation was being finalized; the
+restricted report includes its exact source hashes and dirty-checkout flag.
+The dedicated Linux CI validates the final committed runner on all 104 units
+in both modes. See reports/phase_m/RESULTS.md and the compact JSON/CSV evidence.
+
+Final committed-code Docker verification reproduced container_crashed,
+resource_timeout, no_output (64 MiB + 1 byte), and schema_invalid, each at 8.0.
+All 27 network-probe assertions passed across canned/chaos/replay; admitted
+request counts were 25, 6, and 2 respectively. No Docker networks or containers
+from the harness remain after cleanup. Full logs and outputs are in
+.eval/mock-final/phase-m-{offline-comparison,restricted,verification-final}/.

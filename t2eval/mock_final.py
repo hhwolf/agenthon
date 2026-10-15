@@ -447,7 +447,7 @@ def aggregate(rows, platform_clock=43200):
 
 def write_csv(path, rows, fields):
     with path.open("w", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=fields, extrasaction="ignore")
+        writer = csv.DictWriter(stream, fieldnames=fields, extrasaction="ignore", lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
