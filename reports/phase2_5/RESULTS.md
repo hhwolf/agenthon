@@ -7,6 +7,8 @@ Phase 2.5 • 15 October 2026 • 2,000 draws • Lower scores are better
 Frozen selection: **A1_fhs5**. CV mean improves by **0.21%** versus numeric_v1.
 The fixed C1 rule and held-out major-group veto determine acceptance, with no added candidates after scoring.
 Practice proxies participate in selection; they are not independent validation.
+**The gain is not statistically established: every paired 95% CI includes zero.**
+Historical caps rise from 23 to 24; the known monthly and rate-trend weaknesses remain unresolved.
 
 | Partition | Cards | numeric_v1 | numeric_v1.1 | Caps v1 → v1.1 | v1.1 median |
 | --- | --- | --- | --- | --- | --- |
@@ -158,7 +160,7 @@ The protocol was committed as da26396 before scores. All 55,005 archived evaluat
 
 ## Operational validation
 
-Operational validation is pending; this draft is not a completed delivery.
+133 tests pass; pip check passes. 104/104 official admissibility checks pass at 2,000 draws (maximum host forecast time 0.072 s). All three linux/amd64 images pass the offline smoke test with read-only root. The full official scorer matches all 2,060 historical scores within 8.9e-16 and all 88 practice scores within 2.3e-16; zero inference failures. The ten-asset output triplet is 418,902 bytes, well below 64 MiB.
 
 Image publication and anonymous-pull verification are pending.
 

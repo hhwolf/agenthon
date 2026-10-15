@@ -1,7 +1,9 @@
 """Precommitted Phase 2.5 ablations; only calls the pinned official score math."""
 from dataclasses import asdict, replace
 import hashlib
+from importlib.metadata import version
 import json
+import os
 from pathlib import Path
 import warnings
 
@@ -26,7 +28,30 @@ def partitions(frame):
             'heldout':hist.loc[hist.year.between(2019, 2024)], 'historical':hist}
 
 
+def validate_pair(candidate, previous):
+    """Never hide failed/missing cards through an inner join or changed groups."""
+    for frame in (candidate, previous):
+        if not frame.unit_id.is_unique or frame.unit_id.isna().any():
+            raise ValueError('Comparison requires unique, nonmissing unit IDs')
+        if not np.isfinite(frame.score).all():
+            raise ValueError('Comparison requires finite scores for every card')
+    if set(candidate.unit_id) != set(previous.unit_id):
+        raise ValueError('Paired comparison requires the identical card roster')
+    columns = [c for c in ('dataset', 'year', *GROUPS) if c in candidate or c in previous]
+    try:
+        pd.testing.assert_frame_equal(candidate.set_index('unit_id')[columns].sort_index(),
+                                      previous.set_index('unit_id')[columns].sort_index(), check_dtype=False)
+    except (AssertionError, KeyError) as exc:
+        raise ValueError('Paired comparison requires identical card metadata') from exc
+
+
+def cache_signature(source, inputs, seed):
+    return hashlib.sha256(json.dumps({'source':source, 'inputs':inputs, 'QFBENCH_SEED':seed},
+                                    sort_keys=True).encode()).hexdigest()
+
+
 def bootstrap(candidate, previous):
+    validate_pair(candidate, previous)
     paired = candidate.merge(previous[['unit_id', 'score']], on='unit_id', suffixes=('', '_old'), validate='one_to_one')
     paired['delta'] = paired.score-paired.score_old
     years = paired.groupby('year').delta.agg(['sum', 'size'])
@@ -52,6 +77,8 @@ def regressions(candidate, previous, limit):
 
 
 def gates(candidate, previous, baseline):
+    validate_pair(candidate, previous)
+    validate_pair(candidate, baseline)
     c, p, b = partitions(candidate), partitions(previous), partitions(baseline)
     cm, pm = metrics(c['cv']), metrics(p['cv'])
     caps = cm['capped']+metrics(c['practice'])['capped']
@@ -91,16 +118,27 @@ class Evaluation:
     def __init__(self):
         frames = []; self.prepared = {}
         fingerprint = hashlib.sha256(PROTOCOL.read_bytes())
-        for name in ('t2agent/numeric_v1.py', 't2agent/numeric_v1_1.py', __file__):
+        for name in ('t2agent/numeric_v1.py', 't2agent/numeric_v1_1.py', 't2agent/m0.py',
+                     't2agent/io.py', 't2eval/scales.py', 't2eval/ablations.py',
+                     'constraints-eval.txt', 'requirements-runtime.txt', _composite.__code__.co_filename, __file__):
             fingerprint.update(Path(name).read_bytes())
-        self.signature = fingerprint.hexdigest()
+        fingerprint.update(json.dumps({p:version(p) for p in ('qfbench2-common', 'qfbench2-track-forecasting',
+                                                               'numpy', 'pandas', 'scipy', 'pyarrow')}, sort_keys=True).encode())
+        source_signature = fingerprint.hexdigest()
+        inputs = hashlib.sha256()
         for dataset, run in RUNS.items():
+            inputs.update((run/'cards.csv').read_bytes())
+            inputs.update((run/'roster.json').read_bytes())
             rows = pd.read_csv(run/'cards.csv')
             roster = {Path(r['unit']).name:r for r in json.loads((run/'roster.json').read_text())}
             rows = rows[['unit_id', 'asof', 'family', 'panel', 'horizon_bucket', 'shape', 'horizons']].copy()
             rows['year'] = pd.to_datetime(rows['asof']).dt.year; rows['dataset'] = dataset
             for n, row in enumerate(rows.itertuples()):
                 case = roster[row.unit_id]; unit = Path(case['unit'])
+                input_paths = [unit/'card.toml', *sorted((unit/'panels').glob('*.parquet')), Path(case['realized'])]
+                if (unit/'forecast_spec.json').exists(): input_paths.append(unit/'forecast_spec.json')
+                for path in input_paths:
+                    inputs.update(str(path).encode()); inputs.update(path.read_bytes())
                 card = read_card(unit/'card.toml')
                 with warnings.catch_warnings():
                     warnings.simplefilter('ignore', RuntimeWarning)
@@ -111,6 +149,8 @@ class Evaluation:
                 if (n+1)%400 == 0: print(f'Prepared {dataset}: {n+1}/{len(rows)}', flush=True)
             frames.append(rows)
         self.rows = pd.concat(frames, ignore_index=True)
+        self.input_signature = inputs.hexdigest()
+        self.signature = cache_signature(source_signature, self.input_signature, os.environ.get('QFBENCH_SEED'))
         assert self.rows.unit_id.is_unique
         assert {k:len(v) for k, v in partitions(self.rows).items()} == {'cv':1073, 'practice':88, 'heldout':554, 'historical':2060}
 
@@ -141,12 +181,14 @@ def main():
     evaluation = Evaluation(); configs = {}; frames = {}; records = []
     baseline = evaluation.evaluate(nv.Config())
     # Reproduction check before selecting; original output used the same draws/seeds.
-    for part, path in [('cv', 'reports/phase2/development-final-runtime.csv'),
-                       ('heldout', 'reports/phase2/holdout-numeric_v1.csv'),
-                       ('practice', str(RUNS['practice']/'cards.csv'))]:
-        expected = pd.read_csv(path).set_index('unit_id').score
-        actual = partitions(baseline)[part].set_index('unit_id').score
-        assert np.allclose(actual, expected.reindex(actual.index), atol=1e-12, rtol=0), part
+    # Stored Phase 2 scores use implicit per-unit seeds, not an explicit override.
+    if os.environ.get('QFBENCH_SEED') is None:
+        for part, path in [('cv', 'reports/phase2/development-final-runtime.csv'),
+                           ('heldout', 'reports/phase2/holdout-numeric_v1.csv'),
+                           ('practice', str(RUNS['practice']/'cards.csv'))]:
+            expected = pd.read_csv(path).set_index('unit_id').score
+            actual = partitions(baseline)[part].set_index('unit_id').score
+            assert np.allclose(actual, expected.reindex(actual.index), atol=1e-12, rtol=0), part
     best_name = 'numeric_v1'; best = nv.Config(); previous = baseline
 
     def record(name, config, frame, prev_name, prev):

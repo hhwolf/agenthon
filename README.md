@@ -1,12 +1,18 @@
 # Track 2 measurement loop
 
 This workspace implements the published M0 baseline and local evaluation for
-Agenthon 2026 Track 2, plus the Phase 2 `numeric_v1` forecaster.
+Agenthon 2026 Track 2, including the Phase 2 `numeric_v1` and Phase 2.5 `numeric_v1_1` forecasters.
 Numeric_v1 improves mean scores, but its paired capped-card reduction gate is
 still unmet. It makes no text/LLM calls. See the [Phase 2 results](reports/phase2/RESULTS.md)
 and [numeric engine guide](docs/NUMERIC_V1.md).
 The [Phase 2 PDF](reports/phase2/Agenthon_Track2_Phase2_Results.pdf) includes the
 ablation table, held-out results, and public-image verification.
+The [Phase 2.5 results](reports/phase2_5/RESULTS.md) and
+[new engine guide](docs/NUMERIC_V1_1.md) document the separately frozen v1.1
+candidate. It passes the precommitted C1 rule with small mean improvements;
+confidence intervals include zero and historical caps rise from 23 to 24.
+The [five-page Phase 2.5 PDF](reports/phase2_5/Agenthon_Track2_Phase2_5_Results.pdf)
+contains every ablation and the delivery checks.
 See [BUILD_LOG.md](BUILD_LOG.md) for provenance, ambiguities and measured results.
 
 Use Python 3.13 or newer and the pinned upstream checkout:
@@ -38,6 +44,9 @@ make backtest FORECASTER=numeric_v1
 make eval-practice FORECASTER=numeric_v1
 make admissibility FORECASTER=numeric_v1
 make docker-smoke FORECASTER=numeric_v1
+make admissibility FORECASTER=numeric_v1_1
+make backtest FORECASTER=numeric_v1_1
+make eval-practice FORECASTER=numeric_v1_1
 ```
 
 Measured results are in [BASELINES.md](BASELINES.md) and the
@@ -123,7 +132,7 @@ For the submission command:
   --asof YYYY-MM-DD --out /output/forecast.parquet
 ```
 
-The image exposes this as `forecast` on PATH, defaulting to numeric_v1 with
-2,000 draws. Use `--forecaster m0` for the original baseline. Its context is allowlisted to runtime
+The image exposes this as `forecast` on PATH, defaulting to numeric_v1_1 with
+2,000 draws. Use `--forecaster numeric_v1` for the Phase 2 freeze or `--forecaster m0` for the original baseline. Its context is allowlisted to runtime
 source and dependencies. It contains no vendor tree, evaluation package, panels,
 realized values, practice unit IDs or lookup tables.

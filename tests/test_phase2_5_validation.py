@@ -41,3 +41,10 @@ def test_bootstrap_resamples_years_with_pairing():
     answer=bootstrap(candidate.sample(frac=1,random_state=2),subset)
     assert answer['years']==16
     np.testing.assert_allclose(answer['ci95'],[-.25,-.25])
+
+
+def test_cache_identity_binds_inputs_and_environment_seed():
+    from t2eval.phase2_5 import cache_signature
+    assert len({cache_signature('source', 'input', None),
+                cache_signature('source', 'input', '7'),
+                cache_signature('source', 'changed-input', None)}) == 3

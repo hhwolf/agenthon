@@ -1,0 +1,95 @@
+{
+  "admissibility": {
+    "cards": 104,
+    "failed": 0,
+    "forecast_seconds_total": 1.5556106658186764,
+    "forecast_seconds_max": 0.07197616691701114,
+    "metadata": {
+      "mode": "admissibility",
+      "forecaster": "numeric_v1_1",
+      "n_draws": 2000,
+      "forecast_seed": null,
+      "QFBENCH_SEED": null,
+      "dataset_seed": 20261014,
+      "limit": null,
+      "strict_dates": false,
+      "packages": {
+        "qfbench2-common": "2.6.0",
+        "qfbench2-track-forecasting": "3.1.0",
+        "numpy": "2.1.3",
+        "pandas": "2.2.3",
+        "scipy": "1.18.1",
+        "pyarrow": "18.1.0"
+      },
+      "source_sha256": "959663b3f237bc17f2c560b2f6767056b673c674790217c71ca8338952225187",
+      "toolkit_source": {
+        "subdirectory": "common",
+        "url": "https://github.com/Agenthon-2026/Agenthon2026-public.git",
+        "vcs_info": {
+          "commit_id": "bd01548e34d21fd660d88fd06157078fb25ece4e",
+          "requested_revision": "v2.6.0",
+          "vcs": "git"
+        }
+      },
+      "vendor_commit": "b9c663d239a0e6b86ebd3f3f2d5aead88516067d"
+    }
+  },
+  "docker_smoke": [
+    {
+      "image": "t2-upstream:local",
+      "image_id": "sha256:e2390ed54a728cb63e3692573da756f9497f30fb990f650936f7006c7881d79b",
+      "platform": "linux/amd64",
+      "network": "none",
+      "verdict": {
+        "card_id": "t2-EXAMPLE-ust-curve-1m",
+        "admissible": true,
+        "gates": {
+          "g0_integrity": "pass",
+          "g1_schema": "pass",
+          "g2_cutoff_resource": "pass",
+          "g3_domain_semantics": "pass"
+        },
+        "scored": false,
+        "note": "no --realized supplied: gates only, no score"
+      }
+    },
+    {
+      "image": "t2-pinned:local",
+      "image_id": "sha256:be7b723da6df2cc7324115ae0b6c0c7b3853222696c17c72006aa183c0e06fb9",
+      "platform": "linux/amd64",
+      "network": "none",
+      "verdict": {
+        "card_id": "t2-EXAMPLE-ust-curve-1m",
+        "admissible": true,
+        "gates": {
+          "g0_integrity": "pass",
+          "g1_schema": "pass",
+          "g2_cutoff_resource": "pass",
+          "g3_domain_semantics": "pass"
+        },
+        "scored": false,
+        "note": "no --realized supplied: gates only, no score"
+      }
+    },
+    {
+      "image": "t2-numeric_v1_1:local",
+      "image_id": "sha256:3f16cdc3702696c69b8b73575c50b01e5a2d1ad5a04fea175343351b8152432f",
+      "platform": "linux/amd64",
+      "network": "none",
+      "verdict": {
+        "card_id": "t2-EXAMPLE-ust-curve-1m",
+        "admissible": true,
+        "gates": {
+          "g0_integrity": "pass",
+          "g1_schema": "pass",
+          "g2_cutoff_resource": "pass",
+          "g3_domain_semantics": "pass"
+        },
+        "scored": false,
+        "note": "no --realized supplied: gates only, no score"
+      }
+    }
+  ],
+  "summary": "133 tests pass; pip check passes. 104/104 official admissibility checks pass at 2,000 draws (maximum host forecast time 0.072 s). All three linux/amd64 images pass the offline smoke test with read-only root. The full official scorer matches all 2,060 historical scores within 8.9e-16 and all 88 practice scores within 2.3e-16; zero inference failures. The ten-asset output triplet is 418,902 bytes, well below 64 MiB.",
+  "tests_passed": 133
+}

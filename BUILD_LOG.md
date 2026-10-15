@@ -577,3 +577,20 @@ recomputed every candidate metric, breakdown, C1 decision, veto, and paired CI
 from tracked CSVs and found no selection mismatch. Post-freeze evaluation-only
 hardening will reject mismatched paired rosters and bind caches to input data
 and the environment seed; recorded candidate predictions stay frozen.
+
+### Phase 2.5 — operational checks and review hardening
+
+The final local suite passes 133 tests; pip check passes. Additional tests cover
+short-history and collinear/zero-residual bootstrap covariance, lagged filtering,
+missing/corrupt input panels, C1 boundaries, tie ordering, unequal-year bootstrap
+weighting, and malformed paired rosters. The coverage review found no statistical
+defect and passed its gate; its cache-dependency finding was fixed by including
+numeric/scoring dependency sources and package versions in cache fingerprints.
+
+Full official CLI scoring agrees with the frozen adapter on all 2,060 historical
+cards (max |difference| 8.88e-16) and all 88 practice proxies (2.22e-16), with zero
+inference failures. Evidence and measured source commit c9be66b are recorded in
+reports/phase2_5/official-crosscheck.json. Both original Phase 2 frozen files
+still match their pre-work SHA-256 hashes. The new runtime rule is unchanged.
+All three amd64 images pass offline smoke with a read-only root and no network.
+The ten-asset output triplet is 418,902 bytes. Public CI publication follows.
