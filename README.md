@@ -52,6 +52,16 @@ See [evaluation data](reports/EVALUATION_DATA.md) for its contents, checksums,
 and restoration commands.
 Release history is in [CHANGELOG.md](CHANGELOG.md).
 The text-layer contract and House model rules are in [docs/TEXT_LAYER.md](docs/TEXT_LAYER.md).
+The [mock Final harness](docs/MOCK_FINAL.md) runs immutable published image digests
+with organizer-style staging, restricted House networking, output-tree checks,
+and official scoring against the local practice proxies. For example:
+
+```sh
+make mock-final IMAGE=ghcr.io/hhwolf/agenthon-numeric-v1@sha256:25ffda44821a0493ba5ba69aeb570ec009a5e1081cd54d5e615fa3d51ac70a01 UNITS=practice NETWORK=restricted
+```
+
+Here `practice` includes all 104 supplied units; `exemplar` and a positive count
+are also supported. `COMPARE_IMAGE=...` adds a second digest and paired reports.
 
 `backtest` generates **2,060 historical pseudo-cards** by default (20 for each
 practice template), then prints normalized score tables. `CARDS=...` changes the

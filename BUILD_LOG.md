@@ -545,3 +545,42 @@ changed. The forecaster is not wired; the numeric owner applies the signal via
   real model, then the §9 ablation (`numeric_v1` vs `numeric_v1 + apply_text_signal`) by family.
   Verify `enable_thinking=False` on the dev endpoint and the real token counts per request.
 - Prompt and clamp values are initial; tune `constants.py` from the ablation, never per unit.
+
+## Phase M — public-contract mock Final harness
+
+Started on a separate branch from main. Read the pinned organizer staging,
+output-folder, resource, House-admission and clock contracts. Reuse the existing
+teammate mock House canned response implementation. Plan and interpretation are
+recorded in reports/phase_m/PLAN.md. In particular, oversized successful output
+is no_output (not schema_invalid), scoring has a separate clock, and cached
+image pulls cannot be represented as cold-layer download measurements.
+
+Implementation: `t2eval/mock_final.py`, `t2eval/mock_house_service.py`, and
+`make mock-final IMAGE=... UNITS=practice|exemplar|N NETWORK=none|restricted`.
+`practice` explicitly includes the exemplar (104 units). `COMPARE_IMAGE` runs a
+second digest against the same roster and seed policy. The runtime image,
+`numeric_config.json`, and frozen selection files are untouched.
+
+The input directory must pass the pinned official manifest verifier and a
+whole-tree file allowlist. The organizer's root panels are copied to panels/;
+only staged input and writable output are mounted into the solver. Restricted
+mode uses two internal Docker networks with a fixed-backend forward proxy,
+per-unit credentials/deadlines, and persistent atomic admission counts. The
+original `tests/mock_house.py` remains unchanged and supplies canned responses.
+Replay uses the teammate's exact ResponseCache hash format and preserves cached
+text, finish reason and usage. No real dev response cache was provided; replay
+is verified with a synthetic cache fixture, with no provider fallback.
+
+Independent coverage and plan audits caught and fixed unlisted input leakage,
+organizer faults incorrectly charged to images, and replay text modification.
+Additional checks cover token rotation, concurrent admission, cleanup, platform
+clock exhaustion, cold-pull timeout accounting, ARM-cache handling, and retrying
+a failed initial pull. The final local suite passed 139 tests (12 pre-existing
+M0 numeric warnings from adversarial fixtures). A dedicated GitHub Actions
+workflow tests the complete suite, all requested Docker failure labels, network
+probes, and numeric_v1 on 104 units in each mode.
+
+This is an internal evaluation-tool addition; VERSION and published model/data
+release identities remain unchanged. CHANGELOG records it under Unreleased.
+All per-unit runtime artifacts stay in ignored .eval; only compact measurement
+reports are committed. No submission archive is packed or uploaded.
