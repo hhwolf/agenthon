@@ -150,6 +150,9 @@ def main(argv=None) -> int:
     p.add_argument("--budget", type=int, default=C.HARD_REQUEST_CAP)
     p.add_argument("--time-budget", type=float, default=C.TIME_BUDGET_S)
     p.add_argument("--repeat", type=int, default=1, help="run each unit N times and report rerun agreement of the labels")
+    p.add_argument("--retry-transient", type=int, default=3,
+                   help="dev/replay: re-run a unit up to N times (backoff 30/60/120 s) when it fell back on a connection "
+                        "error, 429 or 5xx, so an outage does not turn units neutral (cached calls replay for free)")
     p.add_argument("--no-cache", action="store_true")
     p.add_argument("--quiet", action="store_true")
     args = p.parse_args(argv)
@@ -208,11 +211,20 @@ def main(argv=None) -> int:
             for rep in range(max(1, args.repeat)):
                 if server is not None:
                     server.reset_accounting()      # the real House issues a fresh per-unit token and allowance
-                budget = CallBudget(limit=args.budget)
                 run_env = dict(env)
                 if args.repeat > 1 and args.mode == "dev" and rep > 0:   # repeat 0 fills the shared cache
                     run_env["TEXT_LAYER_CACHE_DIR"] = str(args.cache_dir / f"repeat{rep}")
-                signals.append((read_text(unit, summary, budget, env=run_env, time_budget_s=args.time_budget, mode=text_mode), budget))
+                for attempt in range(1 + max(0, args.retry_transient)):
+                    budget = CallBudget(limit=args.budget)
+                    signal = read_text(unit, summary, budget, env=run_env, time_budget_s=args.time_budget, mode=text_mode)
+                    reason = signal.fallback_reason or ""
+                    transient = args.mode in ("dev", "replay") and any(k in reason for k in ("APIConnectionError", "HTTP 429", "HTTP 5", "wall-clock timeout"))
+                    if not transient or attempt >= args.retry_transient:
+                        break
+                    wait = 30 * (2 ** attempt)
+                    print(f"[{i}/{len(units)}] {summary.unit_id}: transient failure ({reason[:60]}); retrying in {wait}s", file=sys.stderr)
+                    time.sleep(wait)
+                signals.append((signal, budget))
             signal, budget = signals[0]
             elapsed = time.monotonic() - t0
             L = signal.labels or {}
