@@ -1,0 +1,9 @@
+{
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:f3ec5167b28f0172004a78e336d84a4ecd423d27da42d942693e51cfc085c507",
+  "tag": "ghcr.io/hhwolf/agenthon-numeric-v1:numeric_v1_1",
+  "ci_tag": "numeric-v1.1-20261015-1",
+  "source_commit": "1e7de4d27c044581985c569b42e6dd19f44a7ae6",
+  "workflow_run": "https://github.com/hhwolf/agenthon/actions/runs/38684362341",
+  "visibility": "Public (anonymous manifest, all blobs, and actual empty-config Docker pull succeeded)",
+  "summary": "CI passed 133 tests, 104/104 admissibility gates, and the amd64 offline smoke test. The Public image was pulled with an empty Docker credential config and that exact digest passed g0\u2013g3 offline with no fallback. [Successful CI](https://github.com/hhwolf/agenthon/actions/runs/38684362341).\n\nImmutable image: `ghcr.io/hhwolf/agenthon-numeric-v1@sha256:f3ec5167b28f0172004a78e336d84a4ecd423d27da42d942693e51cfc085c507`\n\nConvenience tag: `numeric_v1_1`. CI tag: `numeric-v1.1-20261015-1`. Evidence: publication.json, anonymous-pull.json and published-image-smoke.json."
+}

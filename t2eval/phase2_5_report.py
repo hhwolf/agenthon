@@ -122,6 +122,8 @@ All smaller groups are shown, even when below the veto threshold. Full CV and pr
                         ('Rates, 2022',(merged.panel=='rates_daily') & (merged.year==2022) & (merged.dataset=='historical')),
                         ('All historical, 2022',(merged.year==2022) & (merged.dataset=='historical'))]:
         g=merged.loc[mask];focus.append([title,len(g),f'{g.score_v1.mean():.4f}',f'{g.score.mean():.4f}',f'{int(g.score_v1.ge(8).sum())} → {int(g.score.ge(8).sum())}'])
+    event = merged.loc[merged.unit_id.str.endswith('-00895') & (merged.dataset == 'historical')].iloc[0]
+    event_text = f'The flagged CPI card synthetic-…-00895 stays capped: {event.score_v1:.3f} → {event.score:.3f}.'
     page4=f'''# Capped cards and known weaknesses
 
 **{sum(changed.change=='removed')} removed, {sum(changed.change=='new')} new** capped evaluation rows across historical and practice.
@@ -135,6 +137,10 @@ Overlapping practice/historical outcomes are separate rows, not independent even
 
 {table(['Historical subset','Cards','v1 mean','v1.1 mean','Caps'],focus)}
 
+{event_text} The frozen winner keeps the original monthly trend and 25% trailing drift.
+Monthly damping and the 36-change window were tested, but worsened practice mean and combined cap counts.
+Momentum-sign drift reduced some practice losses but failed the CV tradeoff. None can be retained under C1.
+
 These are post-selection diagnostics. Late-2021 zero-bound rates, 2008 and COVID transitions remain important stress cases.
 The monthly series use revised historical vintages; improvements here do not establish real-time macro accuracy.
 '''
@@ -145,9 +151,10 @@ The monthly series use revised historical vintages; improvements here do not est
 ## Frozen rules
 
 ```json
-{json.dumps(frozen['config'],indent=2)}
+{json.dumps({k:frozen['config'][k] for k in ('drift','volatility','tails','monthly','joint','width')},indent=2)}
 ```
 
+Only the tail law changes from numeric_v1. FHS uses five-change blocks and a lagged 60-change half-life filter.
 The immutable Phase 2 numeric_config.json and frozen-selection.json are unchanged.
 New configuration: reports/phase2_5/numeric_v1_1_config.json; runtime copy: t2agent/numeric_v1_1_config.json.
 The protocol was committed as da26396 before scores. All 55,005 archived evaluation files matched their published manifest.

@@ -91,5 +91,15 @@
     }
   ],
   "summary": "133 tests pass; pip check passes. 104/104 official admissibility checks pass at 2,000 draws (maximum host forecast time 0.072 s). All three linux/amd64 images pass the offline smoke test with read-only root. The full official scorer matches all 2,060 historical scores within 8.9e-16 and all 88 practice scores within 2.3e-16; zero inference failures. The ten-asset output triplet is 418,902 bytes, well below 64 MiB.",
-  "tests_passed": 133
+  "tests_passed": 133,
+  "ci": {
+    "run_id": 38684362341,
+    "url": "https://github.com/hhwolf/agenthon/actions/runs/38684362341",
+    "conclusion": "success",
+    "tests_passed": 133,
+    "admissibility_passed": 104,
+    "max_forecast_seconds": 0.189,
+    "platform": "linux/amd64",
+    "offline_smoke": "passed"
+  }
 }

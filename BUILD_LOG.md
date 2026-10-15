@@ -594,3 +594,29 @@ reports/phase2_5/official-crosscheck.json. Both original Phase 2 frozen files
 still match their pre-work SHA-256 hashes. The new runtime rule is unchanged.
 All three amd64 images pass offline smoke with a read-only root and no network.
 The ten-asset output triplet is 418,902 bytes. Public CI publication follows.
+
+### Phase 2.5 — public image and five-page PDF
+
+CI tag `numeric-v1.1-20261015-1` published source commit
+`1e7de4d27c044581985c569b42e6dd19f44a7ae6` through
+[workflow 38684362341](https://github.com/hhwolf/agenthon/actions/runs/38684362341).
+Linux CI passed 133 tests, 104/104 admissibility (max forecast 0.189 s), the
+linux/amd64 build, data-exclusion checks, and offline read-only smoke.
+
+Public image:
+`ghcr.io/hhwolf/agenthon-numeric-v1@sha256:f3ec5167b28f0172004a78e336d84a4ecd423d27da42d942693e51cfc085c507`.
+Separate convenience tag: `numeric_v1_1`; the old `numeric_v1` tag is preserved.
+Anonymous token/manifest and every blob check returned 200. A real Docker pull
+with a fresh empty credential directory passed. The pulled immutable digest
+then passed g0–g3 with network disabled and read-only root, using the v1.1 method
+without a fallback. Publication, anonymous-pull and exact-image smoke JSONs
+are tracked under reports/phase2_5/.
+
+The final results PDF is exactly five tagged letter-size pages with one-inch
+margins, page numbers, the full ablation table, paired CIs, capped changes and
+public-image evidence. The make-pdf wrapper was unavailable, so the existing
+Chromium browse renderer was used; the source renderer is tracked in scripts/.
+Visual checks and extracted text confirm no clipping or pending placeholders.
+No competition packing or submission upload was performed. Phase 2.5 delivery
+is complete; statistically robust accuracy and capped-card reductions remain
+unproven, as stated on the first PDF page.

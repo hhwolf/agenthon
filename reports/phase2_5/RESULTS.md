@@ -127,6 +127,10 @@ Full card identifiers and horizon labels: capped-changes.csv.
 | All historical, 2022 | 119 | 1.7295 | 1.7288 | 4 → 5 |
 
 
+The flagged CPI card synthetic-…-00895 stays capped: 8.000 → 8.000. The frozen winner keeps the original monthly trend and 25% trailing drift.
+Monthly damping and the 36-change window were tested, but worsened practice mean and combined cap counts.
+Momentum-sign drift reduced some practice losses but failed the CV tradeoff. None can be retained under C1.
+
 These are post-selection diagnostics. Late-2021 zero-bound rates, 2008 and COVID transitions remain important stress cases.
 The monthly series use revised historical vintages; improvements here do not establish real-time macro accuracy.
 
@@ -139,21 +143,14 @@ The monthly series use revised historical vintages; improvements here do not est
 {
   "drift": 0.25,
   "volatility": "recent",
-  "variance_ratio": false,
   "tails": "fhs5",
-  "rates_reversion": false,
   "monthly": true,
   "joint": true,
-  "width": 1.0,
-  "term_tau": 0.0,
-  "vol_floor": 0.0,
-  "monthly_damping": 1.0,
-  "monthly_window": 12,
-  "momentum": 0.0,
-  "components": []
+  "width": 1.0
 }
 ```
 
+Only the tail law changes from numeric_v1. FHS uses five-change blocks and a lagged 60-change half-life filter.
 The immutable Phase 2 numeric_config.json and frozen-selection.json are unchanged.
 New configuration: reports/phase2_5/numeric_v1_1_config.json; runtime copy: t2agent/numeric_v1_1_config.json.
 The protocol was committed as da26396 before scores. All 55,005 archived evaluation files matched their published manifest.
@@ -162,7 +159,11 @@ The protocol was committed as da26396 before scores. All 55,005 archived evaluat
 
 133 tests pass; pip check passes. 104/104 official admissibility checks pass at 2,000 draws (maximum host forecast time 0.072 s). All three linux/amd64 images pass the offline smoke test with read-only root. The full official scorer matches all 2,060 historical scores within 8.9e-16 and all 88 practice scores within 2.3e-16; zero inference failures. The ten-asset output triplet is 418,902 bytes, well below 64 MiB.
 
-Image publication and anonymous-pull verification are pending.
+CI passed 133 tests, 104/104 admissibility gates, and the amd64 offline smoke test. The Public image was pulled with an empty Docker credential config and that exact digest passed g0–g3 offline with no fallback. [Successful CI](https://github.com/hhwolf/agenthon/actions/runs/38684362341).
+
+Immutable image: `ghcr.io/hhwolf/agenthon-numeric-v1@sha256:f3ec5167b28f0172004a78e336d84a4ecd423d27da42d942693e51cfc085c507`
+
+Convenience tag: `numeric_v1_1`. CI tag: `numeric-v1.1-20261015-1`. Evidence: publication.json, anonymous-pull.json and published-image-smoke.json.
 
 ## Limits and reproduction
 
