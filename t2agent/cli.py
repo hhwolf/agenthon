@@ -14,7 +14,7 @@ def main(argv=None):
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--card", type=Path)
     parser.add_argument("--n-draws", type=int)
-    parser.add_argument("--forecaster", choices=["numeric_v1_1", "numeric_v1", "m0"], default=os.environ.get("T2_DEFAULT_FORECASTER", "numeric_v1_1"))
+    parser.add_argument("--forecaster", choices=["numeric_v1_1", "numeric_v1", "text_v1", "m0"], default=os.environ.get("T2_DEFAULT_FORECASTER", "numeric_v1_1"))
     parser.add_argument("--seed", type=int)
     args = parser.parse_args(argv)
     path = args.card or next((p for p in (args.panels / "card.toml", args.panels.parent / "card.toml")
@@ -31,7 +31,12 @@ def main(argv=None):
             raise
         panels = {}
         panel_error = f"Panel load failed: {type(exc).__name__}: {exc}"
-    forecast = {"m0":m0.forecast, "numeric_v1":numeric_v1.forecast, "numeric_v1_1":numeric_v1_1.forecast}[args.forecaster]
+    if args.forecaster == "text_v1":
+        from . import text_v1
+        forecast = text_v1.forecast
+    else:
+        forecast = {"m0": m0.forecast, "numeric_v1": numeric_v1.forecast,
+                    "numeric_v1_1": numeric_v1_1.forecast}[args.forecaster]
     result = forecast(card, panels, args.text, args.asof, n_draws, args.seed)
     if panel_error:
         result.attrs["rationale"] += "\n\n" + panel_error

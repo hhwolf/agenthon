@@ -126,6 +126,16 @@ read_text(unit_dir: Path, summary: NumericSummary, budget: CallBudget) -> TextSi
 "Inferred" = read from tone. Inferred evidence may move the centre, never narrow the distribution.
 When documents disagree, keep the disagreement: widen or split into scenarios. Do not average tone.
 
+### Labels (Phase 3 design: the model classifies, the table sets magnitudes)
+
+`TextSignal.labels` (added 2026-10-15; the numeric owner was told) holds `regime ∈ {calm, elevated, crisis}`,
+`event_in_horizon ∈ {none, scheduled_binary, ongoing}`, per-asset `direction ∈ {strong_down, down, none, up, strong_up}` with
+`direction_established`, `disagreement`, two `branches` (prob + per-asset signs) for a scheduled binary event, the vote
+`agreement`, and the pre-pass facts. The Phase 3 signal itself is numerically neutral; `t2agent/text_map.py` maps labels to
+scenarios (elevated → vol 1.25; crisis → vol 1.6 + tail 1.5; scheduled_binary → two branches with ±1.0 sd drift by sign, probs
+clipped to [0.2, 0.8], tail 1.25; direction ±0.25 / strong ±0.5 sd; disagreement → no drift and vol ≥ 1.15), shrinks toward
+neutral with λ, then applies the clamps above. Notes-only labels (no LLM) come from the pre-pass alone and carry no direction.
+
 ## 6. Budget and runtime plan
 
 - Unit wall clock is 1,800 s **including image pull and the numeric engine**. Text layer: ≤ 600 s total.
@@ -153,10 +163,18 @@ scored, but it is screened by humans at the top of the board.
 - Unit tests: clamping, neutral fallback, budget counting (including failures), offline mode, JSON repair.
 - Mock server (`tests/mock_house.py`): OpenAI-compatible, canned responses, can simulate 401/403/5xx/timeout.
 - Offline full sweep: `make admissibility FORECASTER=<text-aware forecaster>` with `QFBENCH_NETWORK=none` → 104/104 pass.
-- Implementation: `t2agent/text_layer/` (constants in `constants.py`, pipeline in `pipeline.py`).
-  Tests: `make test`. Offline dry run on all practice units: `.venv/bin/python scripts/run_text_layer_practice.py --mode mock` (in-process mock House) or
-  `--mode offline`; dev model: `--mode dev` with `.env`, outputs under `.eval/text_signals/`,
-  responses cached under `.eval/llm_cache/`. See BUILD_LOG "Text layer — implementation".
+- Implementation (Phase 3, labels design): `t2agent/text_layer/` — `prepass.py` (deterministic card/corpus facts, event regex,
+  notes-only labels), `relevance.py` (BM25 over asset/bank terms), `corpus.py` (prioritise, chunk), `prompts.py`, `parse.py`,
+  `labels.py` (schema, validation, majority vote), `client.py` (House client, cache, replay), `pipeline.py` (`read_text`),
+  `constants.py` (every bound). `TextSignal.labels` carries the classification; `t2agent/text_map.py` holds the label→number
+  table and `apply_text_map(signal, summary, λ)`; `t2agent/text_v1.py` is the text-aware forecaster (`--forecaster text_v1`,
+  `FORECASTER=t2agent.text_v1:forecast` or the env-free variants `forecast_notes_only_l05/l10`, `forecast_labels_l05/l10`).
+  Env: `TEXT_LAYER_MODE=labels|notes_only`, `TEXT_LAYER_LAMBDA` (default 0.5), `TEXT_LAYER_CACHE_DIR`, `TEXT_LAYER_REPLAY_ONLY=1`,
+  `TEXT_LAYER_TIME_BUDGET_S` (default 400), `TEXT_LAYER_SYNTHESIS_RUNS` (default 3).
+  Tests: `make test`. Sweeps over all practice units: `scripts/run_text_layer_practice.py --mode dev|replay|mock|notes_only|offline`
+  (outputs under `.eval/text_signals*/`, dev responses cached under `.eval/llm_cache/`, replayable by `tests/mock_house.py
+  --replay-dir`). Paired practice comparison of forecaster arms: `scripts/compare_runs.py numeric_v1 t2agent.text_v1:<variant> ...`.
+  Results and decisions: BUILD_LOG "Text layer — Phase 3".
 - Ablation (with the dev model): `make eval-practice` numeric-only vs numeric+text on the 88 practice
   proxies, reported by family. Text ships only if it helps there and does not increase capped cards.
   The historical backtest (`make backtest`) has no text, so it cannot measure this.
