@@ -545,3 +545,14 @@ changed. The forecaster is not wired; the numeric owner applies the signal via
   real model, then the §9 ablation (`numeric_v1` vs `numeric_v1 + apply_text_signal`) by family.
   Verify `enable_thinking=False` on the dev endpoint and the real token counts per request.
 - Prompt and clamp values are initial; tune `constants.py` from the ablation, never per unit.
+
+## Phase 2.5 — protocol before scoring, 2026-10-15
+
+Read the Phase 2 diagnosis, validation, results and numeric guide. Existing
+`.eval/` is present and is preserved under the published restore instructions.
+The unnormalized t5 and mixture tails confound shape with variance (5/3 and 1.4).
+Phase 2.5 evaluates the fixed A1–A6 menu in
+[VALIDATION_2_5.md](reports/phase2_5/VALIDATION_2_5.md) before any new scores.
+Practice proxies now constrain selection under the user's C1 rule; reserved
+2019–2024 can veto >15% major-group regressions but cannot rank candidates.
+The old runtime config and Phase 2 freeze are protected by SHA-256 checks.
