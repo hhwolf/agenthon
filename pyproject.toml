@@ -20,7 +20,7 @@ t2-eval = "t2eval.cli:main"
 include = ["t2agent*", "t2eval*"]
 
 [tool.setuptools.package-data]
-t2agent = ["numeric_config.json"]
+t2agent = ["numeric_config.json", "numeric_v1_1_config.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

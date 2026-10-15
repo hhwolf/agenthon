@@ -8,6 +8,17 @@
 - Exercise text clients against a restricted mock House proxy with request budgets, canned failures, and exact dev-cache replay.
 - Compare two digests using official scores on local practice proxies, alongside request counts and platform-clock projections.
 - Verify container failure labels and network isolation with reproducible Docker fixtures and a dedicated CI check.
+## numeric_v1.1 experiment - 2026-10-15
+
+### Added
+
+- Run the separately frozen numeric_v1.1 forecaster with covariance-normalized filtered historical simulation and the existing recovery and optional text-hook contract.
+- Compare all 15 precommitted alternatives using C1, complete per-card scores, year-block confidence intervals, and a five-page results report. Small mean gains do not establish robust improvement; historical capped cards rise from 23 to 24.
+- Publish amd64 images through `numeric-v1.1-*` CI tags with a separate `numeric_v1_1` GHCR tag and anonymous-pull verification.
+
+### Changed
+
+- Default the CLI to numeric_v1_1 while preserving explicit numeric_v1 and M0 selection, old frozen files, and the old image workflow's numeric_v1 default.
 
 ## [0.1.0.0] - 2026-10-14
 

@@ -66,7 +66,7 @@ def report(rows: list[dict], out: Path, metadata: dict, *, admissibility=False) 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Local Track 2 measurement; never loads answers in inference")
     parser.add_argument("mode", choices=["backtest", "eval-practice", "admissibility", "calibration", "generate"])
-    parser.add_argument("--forecaster", default="m0", help="m0, numeric_v1, reference, or module:function")
+    parser.add_argument("--forecaster", default="m0", help="m0, numeric_v1, numeric_v1_1, reference, or module:function")
     parser.add_argument("--units", type=Path, default=Path("vendor/track2/units"))
     parser.add_argument("--work", type=Path, default=Path(".eval"))
     parser.add_argument("--cards", type=int, default=2060)
@@ -77,7 +77,7 @@ def main(argv=None):
     parser.add_argument("--strict-dates", action="store_true", help="practice: refuse inferred business-day targets")
     args = parser.parse_args(argv)
     if args.n_draws is None:
-        args.n_draws = 2000 if args.forecaster == "numeric_v1" else 500
+        args.n_draws = 2000 if args.forecaster in {"numeric_v1", "numeric_v1_1"} else 500
     if args.cards <= 0 or args.n_draws < 200 or (args.limit is not None and args.limit <= 0):
         parser.error("cards/limit must be positive and n-draws >=200")
     if importlib.metadata.version("qfbench2-common") != "2.6.0":

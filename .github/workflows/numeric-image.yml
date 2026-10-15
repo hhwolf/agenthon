@@ -25,7 +25,7 @@ jobs:
         env:
           IMAGE: ghcr.io/hhwolf/agenthon-numeric-v1
         run: |
-          docker buildx build --platform linux/amd64 --load \
+          docker buildx build --platform linux/amd64 --load --build-arg DEFAULT_FORECASTER=numeric_v1 \
             --label "org.opencontainers.image.revision=$GITHUB_SHA" \
             -t "$IMAGE:$GITHUB_SHA" -t "$IMAGE:numeric_v1" .
           test "$(docker image inspect --format '{{.Os}}/{{.Architecture}}' "$IMAGE:$GITHUB_SHA")" = linux/amd64
@@ -40,7 +40,7 @@ jobs:
             -v "$PWD/vendor/track2/units/t2-EXAMPLE-ust-curve-1m:/input:ro" \
             -v "$PWD/.context/image-output:/output" "$IMAGE:$GITHUB_SHA" \
             forecast --panels /input/panels --text /input/text --asof 2024-06-28 \
-            --out /output/forecast.parquet
+            --out /output/forecast.parquet --forecaster numeric_v1
           .venv/bin/python vendor/track2/scoring/scoring.py score \
             --card vendor/track2/units/t2-EXAMPLE-ust-curve-1m/card.toml \
             --forecast .context/image-output/forecast.parquet
