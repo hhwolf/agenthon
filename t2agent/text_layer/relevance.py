@@ -70,11 +70,11 @@ def query_terms(assets: tuple[str, ...], extra: set[str] | None = None) -> tuple
         for term in asset_terms(a):
             specific.update(tokenize(term))
     specific -= {"of", "the", "bank", "central", "reserve", "price", "index", "market", "rate"}
-    if extra:  # card prose names the actors of the setup (e.g. "Fed", "taper", "election"); count them as specific
-        specific.update(t for t in extra if len(t) >= 5)
     allq = set(specific)
     for term in _GENERIC_CB:
         allq.update(tokenize(term))
+    if extra:  # card prose names the actors of the setup; they score in BM25 and count separately as card hits
+        allq.update(t for t in extra if len(t) >= 5)
     return specific, allq
 
 
@@ -83,13 +83,15 @@ class Relevance:
     bm25: float          # raw BM25 score against the full query
     normalised: float    # bm25 / max over the corpus (0..1)
     specific_hits: int   # distinct asset/bank tokens present
-    off_topic: bool      # no asset/bank token at all
+    card_hits: int       # distinct card-prose keywords (>= 5 letters) present
+    off_topic: bool      # neither an asset/bank token nor a card keyword
 
 
 def score_documents(texts: dict[str, str], assets: tuple[str, ...], extra: set[str] | None = None,
                     *, max_chars: int = 200_000) -> dict[str, Relevance]:
     """BM25 (k1, b from constants) of every document against the asset query. Pure Python, stdlib only."""
     specific, allq = query_terms(assets, extra)
+    card_terms = {t for t in (extra or set()) if len(t) >= 5} - specific
     tokens = {d: tokenize(t[:max_chars]) for d, t in texts.items()}
     n = len(tokens)
     if n == 0:
@@ -105,6 +107,7 @@ def score_documents(texts: dict[str, str], assets: tuple[str, ...], extra: set[s
                 df[q] += 1
     scores: dict[str, float] = {}
     hits: dict[str, int] = {}
+    card: dict[str, int] = {}
     for d, tf in tfs.items():
         dl = max(1, len(tokens[d]))
         s = 0.0
@@ -116,6 +119,7 @@ def score_documents(texts: dict[str, str], assets: tuple[str, ...], extra: set[s
             s += idf * f * (C.BM25_K1 + 1) / (f + C.BM25_K1 * (1 - C.BM25_B + C.BM25_B * dl / avgdl))
         scores[d] = s
         hits[d] = sum(1 for q in specific if q in tf)
+        card[d] = sum(1 for q in card_terms if q in tf)
     top = max(scores.values()) if scores else 0.0
-    return {d: Relevance(bm25=scores[d], normalised=(scores[d] / top if top > 0 else 0.0),
-                         specific_hits=hits[d], off_topic=hits[d] == 0) for d in tokens}
+    return {d: Relevance(bm25=scores[d], normalised=(scores[d] / top if top > 0 else 0.0), specific_hits=hits[d],
+                         card_hits=card[d], off_topic=hits[d] == 0 and card[d] == 0) for d in tokens}

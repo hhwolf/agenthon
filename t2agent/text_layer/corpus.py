@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass, field
@@ -113,21 +114,30 @@ def load_corpus(unit_dir: Path, asof: date, notes: list[str] | None = None) -> l
     if index_path.is_file():
         try:
             index = json.loads(index_path.read_text(encoding="utf-8"))
-            entries = [e for e in index.get("documents", []) if isinstance(e, dict)]
         except (ValueError, OSError) as exc:
             notes.append(f"corpus_index.json unreadable ({type(exc).__name__}); falling back to *.txt")
+            index = None
+        documents = index.get("documents") if isinstance(index, dict) else None
+        if isinstance(documents, list):
+            entries = [e for e in documents if isinstance(e, dict)]
+        elif index is not None:
+            notes.append("corpus_index.json has no 'documents' list; falling back to *.txt")
     if not entries:
         for p in sorted(text_dir.glob("*.txt")):
             d = _parse_date(p.stem)
-            entries.append({"doc_id": p.stem, "timestamp": d.isoformat() if d else str(asof),
+            entries.append({"doc_id": p.stem, "timestamp": d.isoformat() if d else "",  # unknown date stays unknown
                             "source": "", "doc_type": "unknown", "file": p.name})
     docs: list[CorpusDoc] = []
     seen_text: dict[str, str] = {}
+    seen_ids: set[str] = set()
     for e in entries:
         doc_id = str(e.get("doc_id") or Path(str(e.get("file", ""))).stem or "").strip()
         file = str(e.get("file") or "").strip()
         if not doc_id or not file:
             notes.append("index entry without doc_id/file skipped")
+            continue
+        if doc_id in seen_ids:
+            notes.append(f"{doc_id}: duplicate doc_id in the index (file {file}); first entry kept")
             continue
         path = text_dir / file
         if not path.is_file():
@@ -146,11 +156,12 @@ def load_corpus(unit_dir: Path, asof: date, notes: list[str] | None = None) -> l
         if not text:
             notes.append(f"{doc_id}: empty")
             continue
-        key = text[:5000] + f"|{len(text)}"
+        key = hashlib.sha1(text.encode("utf-8")).hexdigest()
         if key in seen_text:
             notes.append(f"{doc_id}: duplicate of {seen_text[key]}; dropped")
             continue
         seen_text[key] = doc_id
+        seen_ids.add(doc_id)
         docs.append(CorpusDoc(doc_id=doc_id, timestamp=ts or (d.isoformat() if d else ""),
                               source=str(e.get("source") or ""), doc_type=str(e.get("doc_type") or "unknown"),
                               file=file, text=text))

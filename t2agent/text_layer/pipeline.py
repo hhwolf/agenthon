@@ -38,8 +38,10 @@ def _run_parallel(fns: list[Callable[[], Any]], max_workers: int, *, fail_fast: 
                   collect_errors: bool = False) -> list[Any]:
     """Run callables on daemon threads in input order.
 
-    ``fail_fast`` exceptions propagate immediately. Other exceptions propagate too unless
-    ``collect_errors`` is set, in which case that slot becomes ``None``.
+    ``fail_fast`` exceptions propagate; other exceptions propagate too unless ``collect_errors`` is set,
+    in which case that slot becomes ``None``. On a propagating error the queued callables are cancelled
+    and the in-flight ones are awaited (each is bounded by its own request timeout) before the error is
+    raised, so no request is sent after the caller has returned and the budget count is final.
     """
     if len(fns) <= 1 or max_workers <= 1:
         out = []
@@ -57,11 +59,13 @@ def _run_parallel(fns: list[Callable[[], Any]], max_workers: int, *, fail_fast: 
     errors: list[BaseException | None] = [None] * len(fns)
     done: "queue.Queue[int]" = queue.Queue()
     gate = threading.Semaphore(max_workers)
+    cancel = threading.Event()
 
     def worker(i: int, fn: Callable[[], Any]) -> None:
         with gate:
             try:
-                results[i] = fn()
+                if not cancel.is_set():
+                    results[i] = fn()
             except BaseException as exc:  # noqa: BLE001
                 errors[i] = exc
             finally:
@@ -69,11 +73,15 @@ def _run_parallel(fns: list[Callable[[], Any]], max_workers: int, *, fail_fast: 
 
     for i, fn in enumerate(fns):
         threading.Thread(target=worker, args=(i, fn), name=f"text-layer-{i}", daemon=True).start()
+    first_error: BaseException | None = None
     for _ in fns:
         i = done.get()
         err = errors[i]
-        if err is not None and (isinstance(err, fail_fast) or not collect_errors):
-            raise err
+        if err is not None and first_error is None and (isinstance(err, fail_fast) or not collect_errors):
+            first_error = err
+            cancel.set()          # queued workers return without sending; in-flight ones finish and report
+    if first_error is not None:
+        raise first_error
     return results
 
 
@@ -142,10 +150,23 @@ class _Pipeline:
     def _parse_extraction(self, text: str):
         obj = extract_json(text, prefer_keys=("evidence",))
         with self._lock:
-            evidence, events, disagreements, notes = parse_extraction(
-                obj, self.docs_by_id, self.summary.assets, norm_cache=self.norm_cache)
+            try:
+                evidence, events, disagreements, notes = parse_extraction(
+                    obj, self.docs_by_id, self.summary.assets, norm_cache=self.norm_cache)
+            except ParseError:
+                raise
+            except Exception as exc:  # malformed but JSON-valid shapes must reach the repair path
+                raise ParseError(f"extraction reply has an unusable shape: {type(exc).__name__}: {str(exc)[:80]}") from exc
             self.ledger.notes.extend(notes[:20])
         return evidence, events, disagreements
+
+    def _parse_labels(self, text: str, evidence: list[RawEvidence]) -> Labels:
+        try:
+            return parse_labels(extract_json(text, prefer_keys=("regime", "assets")), self.summary.assets, evidence)
+        except ParseError:
+            raise
+        except Exception as exc:
+            raise ParseError(f"labels reply has an unusable shape: {type(exc).__name__}: {str(exc)[:80]}") from exc
 
     def extract(self) -> tuple[list[RawEvidence], list[str], list[str]]:
         remaining = self.budget.limit - self.budget.used
@@ -185,13 +206,13 @@ class _Pipeline:
         result = self.house.chat(messages, max_tokens=C.SYNTHESIS_MAX_OUTPUT_TOKENS, thinking=True,
                                  purpose=f"labels_{k + 1}", timeout=C.SYNTHESIS_TIMEOUT_S, seed=seed)
         try:
-            return parse_labels(extract_json(result.text, prefer_keys=("regime", "assets")), self.summary.assets, evidence)
+            return self._parse_labels(result.text, evidence)
         except ParseError as exc:
             with self._lock:
                 self.ledger.notes.append(f"labels run {k + 1}: invalid JSON ({str(exc)[:80]}); one repair requested (thinking off)")
             repaired = self.house.chat(repair_messages(messages, result.text, str(exc)), max_tokens=C.SYNTHESIS_MAX_OUTPUT_TOKENS,
                                        thinking=False, purpose=f"labels_{k + 1}_repair", timeout=C.SYNTHESIS_TIMEOUT_S, seed=seed)
-            return parse_labels(extract_json(repaired.text, prefer_keys=("regime", "assets")), self.summary.assets, evidence)
+            return self._parse_labels(repaired.text, evidence)
 
     def synthesize(self, evidence: list[RawEvidence], events: list[str], disagreements: list[str]) -> tuple[Labels, dict, dict]:
         remaining = self.budget.limit - self.budget.used

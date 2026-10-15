@@ -13,7 +13,8 @@ from dataclasses import replace
 from .contracts import NumericSummary, TextSignal
 from .text_layer import constants as C
 from .text_layer.parse import RawScenario, RawSignal
-from .text_layer.signal import Ledger, clamp_scenarios, mapping_rationale
+from .text_layer.signal import (NUMERIC_PARAGRAPH_MAPPED, NUMERIC_PARAGRAPH_UNMAPPED, Ledger, clamp_scenarios,
+                                mapping_rationale)
 
 DEFAULT_LAMBDA = 0.5                      # balanced-risk hedge (C2); 1.0 only if the ablation is consistent
 ENV_LAMBDA = "TEXT_LAYER_LAMBDA"
@@ -98,5 +99,6 @@ def apply_text_map(signal: TextSignal, summary: NumericSummary, lam: float = DEF
     ledger = Ledger()
     has_established = any(e.established for e in signal.evidence)
     scenarios, tail = clamp_scenarios(raw, summary.assets, has_established, ledger)
-    md = signal.rationale_md.rstrip() + "\n" + mapping_rationale(summary, scenarios, tail, lines, ledger, lam)
+    md = signal.rationale_md.replace(NUMERIC_PARAGRAPH_UNMAPPED, NUMERIC_PARAGRAPH_MAPPED, 1).rstrip() + "\n" \
+        + mapping_rationale(summary, scenarios, tail, lines, ledger, lam)
     return replace(signal, scenarios=tuple(scenarios), tail_mult=tail, rationale_md=md)

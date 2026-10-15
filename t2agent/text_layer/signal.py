@@ -10,6 +10,12 @@ from .parse import RawEvidence, RawSignal
 
 _DRIFT_DECIMALS = 6
 _ROUNDING_MARGIN = 1e-5
+NUMERIC_PARAGRAPH_HEADER = "### Numeric adjustment"
+NUMERIC_PARAGRAPH_UNMAPPED = ("This signal carries labels only: its own scenario is neutral (drift 0, vol_mult 1, tail_mult 1), so "
+                              "applied as-is it reproduces the numeric forecast exactly. The forecast used the mapping below only "
+                              "if a 'Label -> number mapping' section follows.")
+NUMERIC_PARAGRAPH_MAPPED = ("The forecast used the label -> number mapping in the next section (t2agent/text_map.py); the scenarios, "
+                            "vol_mult and tail_mult there are what adjusted the numeric draws.")
 
 
 @dataclass
@@ -163,6 +169,12 @@ def rationale_labels(summary: NumericSummary, labels: dict, evidence: list[RawEv
     lines += _evidence_table(evidence)
     n_est = sum(1 for e in evidence if e.established)
     lines += ["", f"Established items: {n_est}; inferred items: {len(evidence) - n_est}."]
+    events = labels.get("events") or []
+    disagreements = labels.get("disagreements") or []
+    if events or disagreements:
+        lines += ["", "### Reader notes (from the extraction calls)", ""]
+        lines += [f"- scheduled event: {e}" for e in events[:8]]
+        lines += [f"- disagreement: {d}" for d in disagreements[:6]]
     lines += ["", "### Labels (the model classifies; magnitudes come from the fixed table in text_map)", ""]
     lines.append("| field | label | agreement |")
     lines.append("|---|---|---|")
@@ -184,9 +196,7 @@ def rationale_labels(summary: NumericSummary, labels: dict, evidence: list[RawEv
                      f"votes: {labels.get('votes', {})}")
     if labels.get("summary"):
         lines += ["", f"Model summary: {labels['summary']}"]
-    lines += ["", "### Numeric adjustment", "",
-              "Phase 3 leaves drift_sd = 0, vol_mult = 1 and tail_mult = 1; applying this signal reproduces the "
-              "numeric forecast exactly. The label -> number table (t2agent/text_map.py) adds its own ledger when applied."]
+    lines += ["", NUMERIC_PARAGRAPH_HEADER, "", NUMERIC_PARAGRAPH_UNMAPPED]
     lines.append("")
     lines.append("Requests: " + (", ".join(
         f"{c.get('purpose')}={'cached' if c.get('cached') else c.get('status')}"
@@ -220,7 +230,7 @@ def mapping_rationale(summary: NumericSummary, scenarios: list[Scenario], tail_m
             spot = summary.spot.get(a, 0.0)
             shift = mean * sd
             lines.append(f"  - horizon {h}: horizon_sd {sd:.6g} -> centre shift {shift:+.6g} value units"
-                         + (f" (spot {spot:.6g} -> {spot + shift:.6g})" if spot else ""))
+                         + (f" (about {100.0 * shift / abs(spot):+.2f}% of spot {spot:.6g}; applied to the engine's own centre)" if spot else ""))
     mix_vol = sum(s.weight * s.vol_mult for s in scenarios)
     lines.append(f"- mixture vol_mult = {mix_vol:.4f}; tail_mult = {tail_mult:.3f}")
     return "\n".join(lines).rstrip() + "\n"

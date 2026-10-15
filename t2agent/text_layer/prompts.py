@@ -120,11 +120,12 @@ def _labels_schema(assets: Sequence[str]) -> str:
             '  "event_in_horizon": "none" | "scheduled_binary" | "ongoing",\n'
             f'  "assets": {{{asset_obj}}},\n'
             '  "disagreement": true | false,\n'
-            '  "branches": [  // exactly 2 when event_in_horizon is scheduled_binary, otherwise []\n'
+            '  "branches": [\n'
             '    {"label": "<outcome>", "prob": <0-1>, "signs": {' + ", ".join(f'"{a}": -1 | 0 | 1' for a in assets) + "}}\n"
             "  ],\n"
             '  "summary": "<at most three sentences>"\n'
-            "}")
+            "}\n"
+            "(branches: exactly two objects when event_in_horizon is scheduled_binary, otherwise an empty list)")
 
 
 def format_evidence(items: Sequence, order: Sequence[int] | None = None) -> str:

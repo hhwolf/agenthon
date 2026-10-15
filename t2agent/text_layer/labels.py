@@ -91,7 +91,10 @@ def parse_labels(obj: dict, assets: Sequence[str], evidence: Sequence[RawEvidenc
             per_asset[a] = AssetLabel()
             continue
         direction = _enum(entry.get("direction"), C.DIRECTIONS, "none")
-        cited = tuple(sorted({int(_num(e)) for e in (entry.get("evidence") or []) if _num(e) is not None and 1 <= int(_num(e)) <= n}))
+        raw_cites = entry.get("evidence") or []
+        if not isinstance(raw_cites, (list, tuple)):
+            raw_cites = [raw_cites]
+        cited = tuple(sorted({int(_num(e)) for e in raw_cites if _num(e) is not None and 1 <= int(_num(e)) <= n}))
         established = _bool(entry.get("direction_established", False))
         if direction != "none" and not cited:
             direction = "none"          # uncited directional claim is dropped
@@ -102,8 +105,13 @@ def parse_labels(obj: dict, assets: Sequence[str], evidence: Sequence[RawEvidenc
         used.update(cited)
         per_asset[a] = AssetLabel(direction, established, cited)
     branches: list[Branch] = []
+    raw_branches = obj.get("branches") or []
+    if isinstance(raw_branches, dict):
+        raw_branches = list(raw_branches.values())
+    if not isinstance(raw_branches, (list, tuple)):
+        raw_branches = []
     if event == "scheduled_binary":
-        for b in (obj.get("branches") or [])[:4]:
+        for b in list(raw_branches)[:4]:
             if not isinstance(b, dict):
                 continue
             prob = _num(b.get("prob", b.get("weight", b.get("probability"))))
@@ -170,13 +178,17 @@ def vote(runs: Sequence[Labels], assets: Sequence[str]) -> tuple[Labels, dict, d
     if event == "scheduled_binary":
         binary_runs = [r for r in runs if r.event_in_horizon == "scheduled_binary" and len(r.branches) == 2]
         if binary_runs:
-            first = assets[0] if assets else None
+            ref = binary_runs[0].branches
+
+            def agreement_score(a: Branch, b: Branch) -> int:
+                return sum(a.signs.get(x, 0) * b.signs.get(x, 0) for x in assets)
 
             def ordered(r: Labels) -> tuple[Branch, Branch]:
+                """Align this run's two branches with the reference run's by total sign agreement over all assets."""
                 b0, b1 = r.branches
-                if first is not None and b0.signs.get(first, 0) < b1.signs.get(first, 0):
-                    return b1, b0
-                return b0, b1
+                straight = agreement_score(b0, ref[0]) + agreement_score(b1, ref[1])
+                swapped = agreement_score(b1, ref[0]) + agreement_score(b0, ref[1])
+                return (b1, b0) if swapped > straight else (b0, b1)
 
             pairs = [ordered(r) for r in binary_runs]
             out = []

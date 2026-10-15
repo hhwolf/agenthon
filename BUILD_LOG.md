@@ -596,11 +596,11 @@ mock Final grader can reuse. `scripts/compare_runs.py` pairs two `eval-practice`
 
 ### Results
 
-- `make test`: **91 passed** (54 existing + 37 text-layer tests: offline zero attempts, budget counting incl. failed/auth/transient
+- `make test`: **106 passed** (54 existing + 52 text-layer tests: offline zero attempts, budget counting incl. failed/auth/transient
   calls, 20-cap on a 40-document corpus, time budget, JSON repair for extraction and labels, majority vote and ties, partial
   synthesis failure, label validation of out-of-schema output, uncited/unsupported evidence, pre-pass dates and kinds, BM25
   off-topic ranking, cache → replay-only → mock replay, label→number table values and λ, text_v1 identity offline / no text,
-  mock House allowance).
+  mock House allowance, plus regression tests for every upheld review finding).
 - **No dev key on this machine** (`.env` absent), so the LLM-label sweep over the 104 units could not be run with the real model;
   `--mode dev` is ready and caches for replay. Mock-label sweep (`--mode mock`, 104 units, in-process mock House with a fresh
   allowance per unit): **104/104 labelled, 562 requests, mean 5.4 and max 6 per unit of the 20 cap,
@@ -616,19 +616,37 @@ mock Final grader can reuse. `scripts/compare_runs.py` pairs two `eval-practice`
   |---|---:|---:|---|---:|---:|---:|---:|---:|
   | v1 rules, λ = 0.5 | 2.4077 | −0.028 | [−0.062, +0.001] | 9 | +0.025 | −0.068 | +0.014 | −0.058 |
   | v1 rules, λ = 1.0 | 2.3721 | −0.064 | [−0.121, −0.010] | 7 | +0.049 | −0.113 | +0.036 | −0.163 |
-  | **v2 rules, λ = 0.5** | **2.4059** | **−0.030** | **[−0.059, −0.004]** | **9** | +0.013 | −0.058 | +0.008 | −0.060 |
+  | v2 rules, λ = 0.5 | 2.4059 | −0.030 | [−0.059, −0.004] | 9 | +0.013 | −0.058 | +0.008 | −0.060 |
   | v2 rules, λ = 1.0 | 2.3673 | −0.068 | [−0.119, −0.022] | 8 | +0.022 | −0.105 | +0.011 | −0.151 |
+  | **v2 rules after review fixes, λ = 0.5** | **2.4122** | **−0.023** | **[−0.051, +0.001]** | **9** | +0.013 | −0.058 | +0.007 | −0.039 |
+  | v2 rules after review fixes, λ = 1.0 | 2.3768 | −0.059 | [−0.108, −0.015] | 8 | +0.022 | −0.105 | +0.009 | −0.120 |
 
   v1 rules: elevated from ≥ 1 crisis cue **or** vol ratio ≥ 1.5, crisis tier at ≥ 3 cues with event `ongoing`. The per-unit
   join showed the crisis tier losing (+0.14 mean over 6 units, CHF 2021 +0.77) and vol-ratio-only widening gaining nothing — numeric_v1
   already prices a volatile panel — while cue-driven widening on a still-calm panel gained −0.16 over 26 units. v2 therefore
   drops the lexicon crisis tier and the vol-ratio trigger and skips widening when the panel is already wide (ratio ≥ 1.5). This
   revision was chosen after seeing the practice breakdown, so its figures are optimistic; the rule is principled (no double
-  counting of volatility) and is the only change between v1 and v2.
-- **Decision input for Phase 4 (balanced rule):** notes-only at λ = 0.5 improves the practice mean with no cap increase → a
-  shippable, deterministic, zero-request floor. λ = 1 improves more and removes a cap but F1/F3 are slightly worse, so it fails
-  the "consistent across families" test. The LLM-label arms (`forecast_labels_l05/l10`) run the same way once `.env` has a key;
-  nothing in the forecaster path depends on the key being present.
+  counting of volatility) and is the only change between v1 and v2. The "after review fixes" rows are the same v2 rules once the
+  adversarial review's corrections landed (whole-word cue matching removed spurious "elevated" units: 27 instead of 43 of 104,
+  5 scheduled-binary units); these are the current numbers (`.eval/ablations/notes_only_v3_vs_numeric_v1.md`).
+- **Decision input for Phase 4 (balanced rule):** notes-only at λ = 0.5 improves the practice mean (−0.023) with no cap increase,
+  but its CI now just touches zero; λ = 1 improves more (−0.059, CI clear of zero) and removes a cap, yet F1/F3 are slightly
+  worse, so it fails the "consistent across families" test. Read: a deterministic, zero-request floor worth shipping at λ = 0.5
+  only if the LLM-label arm does not beat it; the LLM-label arms (`forecast_labels_l05/l10`) run the same way once `.env` has a
+  key, and nothing in the forecaster path depends on the key being present.
+- **Adversarial review (five lenses, two to three refuters per finding):** 40 findings raised, 30 upheld, all addressed. Material
+  fixes: a malformed `corpus_index.json` now falls back to `text/*.txt` instead of neutralising the unit; duplicate detection
+  hashes the full text; duplicate `doc_id`s keep the first entry; year-less dates resolve against the document's own date (an old
+  speech can no longer mint a future event) and an undated "upcoming" mention is ignored when the text has dated events; cue
+  words match whole words; `pboc` no longer reads as the Bank of Canada; off-topic needs no asset term *and* no card keyword;
+  binary branches are aligned across runs by total sign agreement over all assets; label shapes that raise inside the parser
+  now reach the single repair; a failed extraction worker cancels its queued siblings and waits for in-flight ones, so no request
+  is sent after `read_text` returns and `calls_used` is exact; the SDK check precedes the budget spend; retried attempts are
+  logged; the model's timestamps are ignored in favour of the corpus index; the JSON schema shown to the model carries no
+  inline comment; the rationale names the reader's scheduled events and disagreements and no longer claims to reproduce the
+  numeric forecast once a mapping was applied; `cli.py` imports the text layer only when `text_v1` is selected; the monthly vol
+  ratio and log-cell centre follow numeric_v1's own log-space treatment. Refuted (kept as is): plurality vs majority beyond 3
+  runs, unit ids in prompts, NaN time budgets, kind-selection order in the event regex.
 
 ### Open items
 

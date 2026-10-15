@@ -279,12 +279,12 @@ class HouseClient:
         t0 = time.monotonic()
         while True:
             t = self._timeout(timeout)
+            sdk = self._sdk()          # a missing SDK is a failure before any slot is spent
             if not self._spend():
                 raise BudgetExhausted(f"request budget exhausted ({self.budget.used}/{self.budget.limit})")
             attempts += 1
             with self._lock:
                 self.network_attempts += 1
-            sdk = self._sdk()
             status: int | None = None
             retryable = False
             try:
@@ -315,6 +315,8 @@ class HouseClient:
                 if not retryable or retries <= 0:
                     self._record(purpose=purpose, cached=False, status=status, attempts=attempts, error=last_error, thinking=thinking)
                     raise CallFailed(last_error, status) from exc
+                self._record(purpose=purpose, cached=False, status=status, attempts=attempts, error=last_error,
+                             thinking=thinking, retrying=True)
                 retries -= 1
                 if self.deadline.remaining() - C.SAFETY_MARGIN_S > 2.0:
                     self.sleep(1.0)

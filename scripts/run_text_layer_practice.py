@@ -119,7 +119,7 @@ def summary_markdown(summary: dict, mode: str, model: str) -> str:
              f"Requests histogram: {summary['calls_histogram']}; fallbacks: {summary['fallbacks']}", "",
              f"Labels overall: regime {summary['regime']}; event {summary['event_in_horizon']}; disagreement {summary['disagreement']}; "
              f"self-consistency agreement mean {summary['agreement_mean']} (units below 0.8: {summary['agreement_below_0_8']})"
-             + (f"; rerun agreement mean {summary['rerun_agreement_mean']}" if summary.get("rerun_agreement_mean") is not None else ""), ""]
+             + (f"; rerun agreement (modal share of label sets across repeats) mean {summary['rerun_agreement_mean']}" if summary.get("rerun_agreement_mean") is not None else ""), ""]
     if summary["fallback_reasons"]:
         lines += ["Fallback reasons:"] + [f"- {r}" for r in summary["fallback_reasons"]] + [""]
     lines += ["| family | units | llm / notes / neutral | calls mean/max | regime | event | disagreement | directions | est. dirs | binary pre-pass | agreement mean/min | evidence (est.) | s/unit mean/max |",
@@ -210,7 +210,7 @@ def main(argv=None) -> int:
                     server.reset_accounting()      # the real House issues a fresh per-unit token and allowance
                 budget = CallBudget(limit=args.budget)
                 run_env = dict(env)
-                if args.repeat > 1 and args.mode == "dev":
+                if args.repeat > 1 and args.mode == "dev" and rep > 0:   # repeat 0 fills the shared cache
                     run_env["TEXT_LAYER_CACHE_DIR"] = str(args.cache_dir / f"repeat{rep}")
                 signals.append((read_text(unit, summary, budget, env=run_env, time_budget_s=args.time_budget, mode=text_mode), budget))
             signal, budget = signals[0]
@@ -218,7 +218,7 @@ def main(argv=None) -> int:
             L = signal.labels or {}
             agreement = (L.get("agreement") or {}).get("overall")
             keys = [labels_key(s.labels or {}) for s, _ in signals]
-            rerun_agreement = (sum(1 for k in keys if k == keys[0]) / len(keys)) if len(keys) > 1 else None
+            rerun_agreement = (max(Counter(keys).values()) / len(keys)) if len(keys) > 1 else None   # modal share
             row = {
                 "unit_id": summary.unit_id, "family": summary.family, "asof": summary.asof.isoformat(), "assets": list(summary.assets),
                 "calls_used": signal.calls_used, "budget_used": budget.used, "elapsed_s": round(elapsed / max(1, args.repeat), 2),

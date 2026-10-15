@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 
 from .io import read_card, read_panels, write_forecast
-from . import m0, numeric_v1, text_v1
+from . import m0, numeric_v1
 
 
 def main(argv=None):
@@ -30,7 +30,12 @@ def main(argv=None):
             raise
         panels = {}
         panel_error = f"Panel load failed: {type(exc).__name__}: {exc}"
-    forecast = {"numeric_v1": numeric_v1.forecast, "text_v1": text_v1.forecast, "m0": m0.forecast}[args.forecaster]
+    if args.forecaster == "text_v1":
+        from . import text_v1  # imported only when selected: the numeric path never needs the text layer
+
+        forecast = text_v1.forecast
+    else:
+        forecast = numeric_v1.forecast if args.forecaster == "numeric_v1" else m0.forecast
     result = forecast(card, panels, args.text, args.asof, n_draws, args.seed)
     if panel_error:
         result.attrs["rationale"] += "\n\n" + panel_error

@@ -574,3 +574,203 @@ def test_numeric_summary_and_pipeline_on_a_real_unit(server):
     assert sig.fallback_reason is None and 2 <= budget.used <= C.HARD_REQUEST_CAP
     assert sig.labels["event_in_horizon"] == "scheduled_binary" and sig.labels["prepass"]["card_binary_kind"]
     assert any(e.established for e in sig.evidence)
+
+
+# --------------------------------------------------------------------------- #
+# Regression tests from the adversarial review (2026-10-15)
+# --------------------------------------------------------------------------- #
+
+def test_malformed_corpus_index_falls_back_to_txt(tmp_path):
+    for bad in ("[]", '{"documents": null}', '{"documents": "x"}', "not json"):
+        unit = tmp_path / f"u{abs(hash(bad))}"
+        (unit / "text").mkdir(parents=True)
+        (unit / "text" / "boe_2016-06-16.txt").write_text("Bank Rate held at 0.5% ahead of the referendum on 23 June.")
+        (unit / "text" / "corpus_index.json").write_text(bad)
+        notes: list[str] = []
+        docs = load_corpus(unit, ASOF, notes)
+        assert [d.doc_id for d in docs] == ["boe_2016-06-16"] and docs[0].timestamp == "2016-06-16", bad
+        assert any("falling back" in n for n in notes), bad
+    undated = tmp_path / "undated"
+    (undated / "text").mkdir(parents=True)
+    (undated / "text" / "speech.txt").write_text("No date in this file name, so its timestamp must stay unknown.")
+    docs = load_corpus(undated, ASOF, [])
+    assert docs[0].timestamp == ""
+
+
+def test_duplicate_detection_uses_full_text_and_first_doc_id_wins(tmp_path):
+    head = "Shared opening paragraph. " * 300          # ~7,800 chars identical
+    docs = {"a_2016-06-01": ("2016-06-01", "cb_speech", head + "Tail A differs."),
+            "b_2016-06-02": ("2016-06-02", "cb_speech", head + "Tail B differs."),
+            "c_2016-06-03": ("2016-06-03", "cb_speech", head + "Tail A differs.")}
+    unit = make_unit(tmp_path, docs, extra_index=[{"doc_id": "a_2016-06-01", "timestamp": "2016-06-09", "source": "x",
+                                                   "doc_type": "cb_speech", "file": "b_2016-06-02.txt"}])
+    notes: list[str] = []
+    loaded = load_corpus(unit, ASOF, notes)
+    assert [d.doc_id for d in loaded] == ["a_2016-06-01", "b_2016-06-02"]       # c is a true duplicate of a
+    assert any("duplicate doc_id" in n for n in notes) and any("duplicate of a_2016-06-01" in n for n in notes)
+
+
+def test_vote_aligns_branches_by_all_assets():
+    A = ("GBP", "EUR")
+    r1 = Labels("elevated", "scheduled_binary", False, {a: AssetLabel() for a in A},
+                (Branch("leave", 0.6, {"GBP": -1, "EUR": -1}), Branch("remain", 0.4, {"GBP": 1, "EUR": 1})))
+    r2 = Labels("elevated", "scheduled_binary", False, {a: AssetLabel() for a in A},
+                (Branch("remain", 0.5, {"GBP": 0, "EUR": 1}), Branch("leave", 0.5, {"GBP": 0, "EUR": -1})))   # reversed, first asset 0
+    r3 = Labels("elevated", "scheduled_binary", False, {a: AssetLabel() for a in A},
+                (Branch("remain", 0.3, {"GBP": 1, "EUR": 1}), Branch("leave", 0.7, {"GBP": -1, "EUR": -1})))  # reversed
+    L, _, _ = vote([r1, r2, r3], A)
+    assert len(L.branches) == 2
+    leave, remain = L.branches
+    assert leave.signs == {"GBP": -1, "EUR": -1} and remain.signs == {"GBP": 1, "EUR": 1}
+    assert leave.prob == pytest.approx((0.6 + 0.5 + 0.7) / 3) and leave.label == "leave"
+
+
+def test_malformed_label_shapes_reach_the_repair_path(unit, server, monkeypatch):
+    # Shapes that parse_labels now coerces (dict instead of list, scalar evidence) must not raise ...
+    odd = {"regime": "calm", "event_in_horizon": "scheduled_binary", "assets": {"GBP": {"direction": "up", "evidence": 1}},
+           "branches": {"a": {"label": "a", "prob": 0.5, "signs": {"GBP": 1}}, "b": {"label": "b", "prob": 0.5, "signs": {"GBP": -1}}}}
+    L = parse_labels(odd, ("GBP",), [ev()])
+    assert L.assets["GBP"].direction == "up" and len(L.branches) == 2
+    # ... and any other non-ParseError exception inside the parse stage is converted so the single repair still happens.
+    import t2agent.text_layer.pipeline as pl
+    calls = {"n": 0}
+    real = pl.parse_labels
+
+    def flaky(obj, assets, evidence):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise TypeError("unhashable type: 'slice'")
+        return real(obj, assets, evidence)
+
+    monkeypatch.setattr(pl, "parse_labels", flaky)
+    monkeypatch.setattr(C, "MAX_PARALLEL_SYNTHESIS", 1)
+    server.push(ok(json.dumps(EXTRACTION)))
+    sig, budget = run(unit, server)
+    assert sig.fallback_reason is None and budget.used == 1 + 1 + C.SYNTHESIS_RUNS
+    assert "unusable shape" in sig.rationale_md
+
+
+def test_failed_extraction_stops_siblings_and_budget_is_final(tmp_path, server):
+    body = ("Paragraph about sterling, the referendum and policy with a dated statement from 2016-05-05 that runs "
+            "long enough to be real. ") * 900                            # ~100K chars = ~25K tokens each
+    docs = {f"speech_{i}_2016-05-1{i}": (f"2016-05-1{i}", "cb_speech", body + f" Section marker {i}.") for i in range(3)}
+    unit = make_unit(tmp_path, docs)
+    server.push(error(401, "bad token"))                                 # the first extraction request fails hard
+    sig, budget = run(unit, server)
+    assert numeric_neutral(sig) and "401" in sig.fallback_reason
+    seen_at_return = len(server.requests)
+    time.sleep(0.5)
+    assert len(server.requests) == seen_at_return == budget.used == sig.calls_used   # nothing sent after return
+    assert budget.used <= 3
+
+
+def test_year_less_dates_resolve_against_the_document_date():
+    end = ASOF.replace(year=ASOF.year) ; end = date(2016, 7, 22)
+    text = "The Governor said the referendum on 23 June would be the main risk."
+    old_doc = find_events(text, "old", ASOF, end, reference=date(2014, 6, 1))
+    assert old_doc == []                                                 # 23 June 2014 is in the past
+    fresh = find_events(text, "new", ASOF, end, reference=date(2016, 6, 10))
+    assert fresh and fresh[0].event_date == date(2016, 6, 23) and "[year inferred]" in fresh[0].text
+    past_dated = find_events("The general election on 7 May 2015 returned a majority; another upcoming election is unlikely.",
+                             "x", ASOF, end, reference=date(2016, 6, 1))
+    assert past_dated == []                                              # dated past event: no undated fallback
+
+
+def test_cue_words_match_whole_words_and_bank_needles_are_bounded():
+    from t2agent.text_layer.prepass import CRISIS, DOVISH, _bank, _count_cues
+    assert _count_cues("increase release decrease executive stressed", CRISIS + DOVISH) == 0
+    assert _count_cues("the bank will ease policy; funding stress is acute", CRISIS + DOVISH) == 2
+    doc = lambda doc_id: type("D", (), {"doc_id": doc_id, "source": ""})()  # noqa: E731
+    assert _bank(doc("pboc_mp_decision_2015-08-11")) == "PBoC" and _bank(doc("boc_rate_decision_2017-07-12")) == "BoC"
+    assert _bank(doc("fomc-statement-2016-06-15")) == "Fed" and _bank(doc("bis_shirakawa_2012-11-26")) is None
+
+
+def test_off_topic_needs_no_asset_term_and_no_card_keyword():
+    texts = {"brazil": OFF_TOPIC[2], "referendum_only": "A note on how a referendum changes public finances in general terms.",
+             "sterling": DOCS["bis_carney_2016-05-12"][2]}
+    rel = score_documents(texts, ("GBP",), {"referendum", "scheduled", "binary"})
+    assert rel["brazil"].off_topic and rel["brazil"].specific_hits == 0 and rel["brazil"].card_hits == 0
+    assert not rel["referendum_only"].off_topic and rel["referendum_only"].specific_hits == 0 and rel["referendum_only"].card_hits == 1
+    assert not rel["sterling"].off_topic and rel["sterling"].specific_hits >= 1
+
+
+def test_evidence_numbering_is_stable_across_permuted_runs(unit, server):
+    import re
+    sig, _ = run(unit, server)
+    assert sig.fallback_reason is None
+    runs = [b["messages"][1]["content"] for b in server.bodies() if "TASK: LABELS" in b["messages"][1]["content"]]
+    numbered = [re.findall(r"^\[(\d+)\] \(([EI])\) (.+)$", p, re.M) for p in runs]
+    assert len(numbered) == 3 and all(len(n) == len(numbered[0]) >= 3 for n in numbered)
+    assert all(set(n) == set(numbered[0]) for n in numbered)            # same (number, flag, line) triples
+    assert any(n != numbered[0] for n in numbered[1:])                   # but presented in a different order
+
+
+def test_clamp_scenarios_unit():
+    from t2agent.text_layer.parse import RawScenario, RawSignal
+    from t2agent.text_layer.signal import Ledger, clamp_scenarios
+    raw = RawSignal((RawScenario("a", 0.7, {"X": 2.0}, 0.5, ()), RawScenario("b", 0.29, {"X": -0.2}, 3.0, ()),
+                     RawScenario("c", 0.01, {"X": 0.0}, 1.0, ())), 9.0, (), "")
+    ledger = Ledger()
+    scenarios, tail = clamp_scenarios(raw, ("X",), has_established=False, ledger=ledger)
+    assert [s.label for s in scenarios] == ["a", "b"] and abs(sum(s.weight for s in scenarios) - 1) < 1e-9
+    assert all(abs(s.drift_sd["X"]) <= 1.5 for s in scenarios) and abs(sum(s.weight * s.drift_sd["X"] for s in scenarios)) <= 0.5 + 1e-9
+    assert [s.vol_mult for s in scenarios] == [1.0, 2.0] and tail == 2.0
+    assert any("dropped" in c for c in ledger.clamps) and any("rescaled" in c for c in ledger.clamps) and any("cannot narrow" in c for c in ledger.clamps)
+    established, _ = clamp_scenarios(raw, ("X",), has_established=True, ledger=Ledger())
+    assert established[0].vol_mult == C.VOL_MULT_MIN
+    many = RawSignal(tuple(RawScenario(f"s{i}", 1.0, {"X": 0.0}, 1.0, ()) for i in range(6)), 1.0, (), "")
+    assert len(clamp_scenarios(many, ("X",), True, Ledger())[0]) == C.MAX_SCENARIOS
+
+
+def test_rationale_numeric_paragraph_matches_what_was_applied(unit, server):
+    from t2agent.text_layer.signal import NUMERIC_PARAGRAPH_MAPPED, NUMERIC_PARAGRAPH_UNMAPPED
+    sig, _ = run(unit, server)
+    assert NUMERIC_PARAGRAPH_UNMAPPED in sig.rationale_md and NUMERIC_PARAGRAPH_MAPPED not in sig.rationale_md
+    assert "### Reader notes" in sig.rationale_md and "disagreement:" in sig.rationale_md
+    mapped = apply_text_map(sig, make_summary(), 0.5)
+    assert NUMERIC_PARAGRAPH_MAPPED in mapped.rationale_md and NUMERIC_PARAGRAPH_UNMAPPED not in mapped.rationale_md
+
+
+def test_model_timestamps_are_not_trusted_and_retries_are_logged(unit, server):
+    reply = json.loads(json.dumps(EXTRACTION))
+    reply["evidence"][0]["timestamp"] = "2099-01-01"
+    server.push(error(503), ok(json.dumps(reply)))
+    sig, budget = run(unit, server)
+    assert sig.fallback_reason is None and sig.evidence[0].timestamp == "2016-06-16"
+    assert "extract_1=200x2" in sig.rationale_md and budget.used == 2 + C.SYNTHESIS_RUNS
+
+
+def test_established_requires_a_verbatim_quote(tmp_path):
+    from t2agent.text_layer.parse import parse_extraction, quote_found
+    docs = {d.doc_id: d for d in load_corpus(make_unit(tmp_path), ASOF, [])}
+    base = {"doc_id": "boe_mpc_2016-06-16", "claim": "Rate held.", "assets": ["GBP"], "direction": 0, "established": True}
+    cases = {"maintain Bank Rate at 0.5%": True, "MAINTAIN   bank rate at 0.5%": True, "“maintain Bank Rate at 0.5%”": True,
+             "maintain Bank Rate at 0.75%": False, "": False, "Rate": False}
+    for quote, expected in cases.items():
+        out, _, _, notes = parse_extraction({"evidence": [dict(base, quote=quote)]}, docs, ("GBP",))
+        assert out[0].established is expected, quote
+    assert quote_found("the referendum on 23 June", docs["boe_mpc_2016-06-16"].text)
+
+
+def test_parallel_failure_accounting_is_exact(tmp_path, server):
+    body = ("Sterling, the referendum and policy, with a dated statement from 2016-05-05 that runs long enough. ") * 900
+    docs = {f"speech_{i}_2016-05-1{i}": (f"2016-05-1{i}", "cb_speech", body + f" Marker {i}.") for i in range(3)}
+    unit = make_unit(tmp_path, docs)
+    server.scenario = "invalid_json"                      # every extraction reply unparsable: each chunk gets one repair
+    sig, budget = run(unit, server)
+    assert numeric_neutral(sig) and "ParseError" in sig.fallback_reason
+    at_return = len(server.requests)
+    time.sleep(0.5)
+    assert len(server.requests) == at_return == budget.used == sig.calls_used
+    assert budget.used <= 2 * 3                           # at most one call + one repair per chunk, never a label call
+
+
+def test_deadline_stops_the_pipeline_mid_way(unit, server, monkeypatch):
+    monkeypatch.setattr(C, "SAFETY_MARGIN_S", 0.0)
+    monkeypatch.setattr(C, "MIN_REQUEST_TIMEOUT_S", 0.1)
+    server.push(delay(1.2))                               # the extraction reply arrives, but eats the budget
+    sig, budget = run(unit, server, time_budget_s=1.3)
+    assert numeric_neutral(sig) and "TimeExhausted" in sig.fallback_reason
+    assert budget.used == 1 and len(server.requests) == 1   # no label call was started after the deadline
+    time.sleep(0.3)
+    assert len(server.requests) == 1

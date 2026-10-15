@@ -53,11 +53,11 @@ CRISIS = ("crisis", "turmoil", "stress", "panic", "collapse", "default", "contag
           "pandemic", "lockdown", "unprecedented", "bailout", "bank run", "insolvency", "shock", "capitulation")
 BINARY = ("referendum", "vote", "election", "ballot", "binary", "hike or hold", "leave or remain", "coin flip")
 REGIME_WORDS = ("regime", "pivot", "shift", "turning point", "inflection")
-_BANKS = (
-    ("fomc", "Fed"), ("federal reserve", "Fed"), ("fed_", "Fed"), ("fed-", "Fed"), ("frb", "Fed"),
-    ("boj", "BoJ"), ("bank of japan", "BoJ"), ("boe", "BoE"), ("bank of england", "BoE"), ("mpc", "BoE"),
-    ("ecb", "ECB"), ("rba", "RBA"), ("boc", "BoC"), ("bank of canada", "BoC"), ("snb", "SNB"),
-    ("riksbank", "Riksbank"), ("norges", "Norges Bank"), ("rbnz", "RBNZ"), ("pboc", "PBoC"), ("rbi", "RBI"),
+_BANKS = (  # checked in order with letter boundaries; multi-letter and longer needles come first
+    ("federal reserve", "Fed"), ("fomc", "Fed"), ("frb", "Fed"), ("fed", "Fed"),
+    ("bank of japan", "BoJ"), ("boj", "BoJ"), ("bank of england", "BoE"), ("boe", "BoE"), ("mpc", "BoE"),
+    ("ecb", "ECB"), ("rba", "RBA"), ("bank of canada", "BoC"), ("pboc", "PBoC"), ("boc", "BoC"), ("snb", "SNB"),
+    ("riksbank", "Riksbank"), ("norges", "Norges Bank"), ("rbnz", "RBNZ"), ("rbi", "RBI"),
     ("bcb", "BCB"), ("copom", "BCB"), ("banxico", "Banxico"), ("sarb", "SARB"), ("bok", "BoK"),
 )
 
@@ -141,7 +141,9 @@ def horizon_window(summary: NumericSummary) -> tuple[date, int]:
     return summary.asof + timedelta(days=days), days
 
 
-def _parse_match(m: re.Match, asof: date) -> date | None:
+def _parse_match(m: re.Match, reference: date) -> tuple[date | None, bool]:
+    """Return (date, year_inferred). A month-day without a year is placed at its next occurrence on or
+    after ``reference`` (the document's own date, so an old speech cannot mint a future event)."""
     g = m.groupdict()
     try:
         day = int(g.get("d") or 0)
@@ -151,46 +153,58 @@ def _parse_match(m: re.Match, asof: date) -> date | None:
             month = _MONTHS.get((g.get("m") or "").lower()[:3], 0) if (g.get("m") or "").lower()[:4] != "sept" else 9
         year = int(g["y"]) if g.get("y") else None
     except (TypeError, ValueError):
-        return None
+        return None, False
     if not (1 <= day <= 31) or not (1 <= month <= 12):
-        return None
-    if year is None:  # "23 June" -> the next occurrence on or after the as-of year
-        year = asof.year
+        return None, False
+    inferred = year is None
+    if inferred:
+        year = reference.year
         try:
-            if date(year, month, day) < asof - timedelta(days=60):
+            if date(year, month, day) < reference - timedelta(days=60):
                 year += 1
         except ValueError:
-            return None
+            return None, False
     try:
-        return date(year, month, day)
+        return date(year, month, day), inferred
     except ValueError:
-        return None
+        return None, False
 
 
 def find_events(text: str, source: str, asof: date, horizon_end: date, *, window: int = 140,
-                max_events: int = 12) -> list[ScheduledEvent]:
-    """Dated events near an event keyword. Only dates after the as-of matter; past dates are context."""
+                max_events: int = 12, reference: date | None = None) -> list[ScheduledEvent]:
+    """Dated events near an event keyword. Only dates after the as-of matter; past dates are context.
+
+    ``reference`` is the document's own date (defaults to the as-of): a month-day without a year is
+    placed relative to it, and an undated "upcoming" mention is only used when the text carries no
+    dated event at all (past or future), so a stale election is not re-reported as pending.
+    """
     low = text.lower()
+    ref = reference or asof
     found: list[ScheduledEvent] = []
     seen: set[tuple[str, date | None]] = set()
+    dated_kinds = 0
     for pat in _DATE_PATTERNS:
         for m in pat.finditer(text):
-            d = _parse_match(m, asof)
-            if d is None or d <= asof or d > asof + timedelta(days=400):
+            d, inferred = _parse_match(m, ref)
+            if d is None:
                 continue
             ctx = low[max(0, m.start() - window): m.end() + window]
             kind = next((k for k, pats in _EVENT_RES.items() if any(p.search(ctx) for p in pats)), None)
             if kind is None:
+                continue
+            dated_kinds += 1
+            if d <= asof or d > asof + timedelta(days=400):
                 continue
             key = (kind, d)
             if key in seen:
                 continue
             seen.add(key)
             snippet = re.sub(r"\s+", " ", text[max(0, m.start() - 60): m.end() + 60]).strip()
-            found.append(ScheduledEvent(kind, snippet[:140], source, d, asof < d <= horizon_end))
+            found.append(ScheduledEvent(kind, snippet[:140] + (" [year inferred]" if inferred else ""), source, d,
+                                        asof < d <= horizon_end))
             if len(found) >= max_events:
                 return found
-    if not found:
+    if not found and not dated_kinds:
         for kind in BINARY_KINDS + ("policy_meeting",):
             for pat in _EVENT_RES[kind]:
                 m = pat.search(low)
@@ -207,15 +221,15 @@ def find_events(text: str, source: str, asof: date, horizon_end: date, *, window
 def _bank(doc: CorpusDoc) -> str | None:
     hay = f"{doc.doc_id} {doc.source}".lower()
     for needle, bank in _BANKS:
-        if needle in hay:
+        if re.search(r"(?<![a-z])" + re.escape(needle) + r"(?![a-z])", hay):
             return bank
     return None
 
 
 def _count_cues(text: str, words: tuple[str, ...]) -> int:
-    """Number of DISTINCT cue words present (occurrence counts inflate on repetitive decision texts)."""
+    """Number of DISTINCT cue phrases present as whole words ("ease" must not fire on "increase")."""
     low = text.lower()
-    return sum(1 for w in words if w in low)
+    return sum(1 for w in words if re.search(r"(?<![a-z])" + re.escape(w) + r"(?![a-z])", low))
 
 
 def run_prepass(summary: NumericSummary, docs: list[CorpusDoc], relevance: dict | None = None) -> Prepass:
@@ -240,7 +254,7 @@ def run_prepass(summary: NumericSummary, docs: list[CorpusDoc], relevance: dict 
             if cur is None or (age is not None and age < cur["days_before_asof"]):
                 pre.latest_decisions[bank] = {"doc_id": d.doc_id, "timestamp": d.timestamp, "days_before_asof": age if age is not None else 9999}
         if len(pre.scheduled_events) < 24:
-            pre.scheduled_events.extend(find_events(d.text, d.doc_id, asof, horizon_end, max_events=4))
+            pre.scheduled_events.extend(find_events(d.text, d.doc_id, asof, horizon_end, max_events=4, reference=ts))
     for bank, info in pre.latest_decisions.items():
         doc = next((d for d in docs if d.doc_id == info["doc_id"]), None)
         if doc is not None:

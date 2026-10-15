@@ -19,7 +19,14 @@ RECENT_WINDOW = 63
 
 
 def _vol_ratio(series, level: bool) -> float:
-    increments = (series.diff() if level else series).dropna()
+    """Recent (63 obs) / long-run sd of the steps numeric_v1 models: level changes, published returns, or log
+    changes for a positive monthly index (numeric_v1 models those in log space)."""
+    if level:
+        gaps = series.index.to_series().diff().dt.days.dropna()
+        monthly_index = len(gaps) > 0 and float(gaps.median()) > 20 and bool((series > 0).all())
+        increments = (np.log(series).diff() if monthly_index else series.diff()).dropna()
+    else:
+        increments = series.dropna()
     if len(increments) < RECENT_WINDOW + 5:
         return 1.0
     long_run = float(increments.std(ddof=1))
@@ -37,19 +44,21 @@ def numeric_summary_from(card: dict, panels: dict, asof: str) -> NumericSummary:
     grid = [(a, h) for a in assets for h in horizons]
     try:
         prepared = numeric_v1.prepare(card, panels, asof)
-        _, cov, log_cells, _ = numeric_v1.moments(prepared, numeric_v1.selected_config())
+        mean, cov, log_cells, _ = numeric_v1.moments(prepared, numeric_v1.selected_config())
         histories = prepared.histories
     except Exception:
         dist = m0.distribution(card, panels, asof)
-        cov, histories = dist.covariance, dist.histories
+        mean, cov, histories = dist.mean, dist.covariance, dist.histories
         log_cells = np.zeros(len(grid), dtype=bool)
     sd = np.sqrt(np.maximum(np.diag(np.asarray(cov, dtype=float)), 0.0))
     spot = {a: float(histories[a].iloc[-1]) if level else 0.0 for a in assets}
     horizon_sd = {}
     for k, (a, h) in enumerate(grid):
         value = float(sd[k])
-        if log_cells[k] and spot[a]:
-            value *= abs(spot[a])  # log-space cell -> approximate level units
+        if log_cells[k]:
+            # numeric_v1 models this cell in log space and applies text drift to the level draws' own sd;
+            # approximate the level sd around the engine's centre exp(mean), not the spot
+            value *= float(np.exp(np.clip(mean[k], -50, 50)))
         horizon_sd[(a, h)] = value
     family = str(card.get("metadata", {}).get("category") or card.get("forecast_spec", {}).get("card_family") or "")
     return NumericSummary(
