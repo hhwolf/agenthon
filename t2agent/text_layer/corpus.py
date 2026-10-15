@@ -23,7 +23,7 @@ _STOPWORDS = {
 
 
 def estimate_tokens(text: str) -> int:
-    return max(1, len(text) // C.CHARS_PER_TOKEN)
+    return max(1, int(len(text) / C.CHARS_PER_TOKEN))
 
 
 def normalise(text: str) -> str:
@@ -202,7 +202,7 @@ def prioritise(docs: list[CorpusDoc], asof: date, keywords: set[str], relevance:
 
 def segment(doc: CorpusDoc, max_tokens: int = C.MAX_SEGMENT_TOKENS) -> list[Segment]:
     """Split a long document at paragraph boundaries into pieces of at most ``max_tokens``."""
-    limit_chars = max_tokens * C.CHARS_PER_TOKEN
+    limit_chars = int(max_tokens * C.CHARS_PER_TOKEN)
     if len(doc.text) <= limit_chars:
         return [Segment(doc.doc_id, doc.timestamp, doc.doc_type, 1, 1, doc.text)]
     pieces: list[str] = []

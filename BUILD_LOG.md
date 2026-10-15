@@ -652,3 +652,14 @@ mock Final grader can reuse. `scripts/compare_runs.py` pairs two `eval-practice`
 
 - Dev-model sweep and the LLM-label ablation; verify `enable_thinking=False` and real token counts on the dev endpoint.
 - Numeric owner: accept the `labels` field; decide whether `text_v1` becomes the image default and at which λ.
+
+### Dev endpoint check, 2026-10-15 (key in `.env`, `nvidia/nemotron-3-super-120b-a12b` on integrate.api.nvidia.com)
+
+Three-unit smoke test (`--mode dev --limit 3`): 3/3 labelled, no fallbacks, no JSON repairs, 4–6 requests per unit, 72–166 s per
+unit, vote agreement 0.83–1.0. `chat_template_kwargs.enable_thinking=False` is honoured: extraction replies contain no reasoning
+and their completion tokens match the visible text; label calls think server-side (1,000–2,700 completion tokens for ~700 chars of
+JSON). Two sizing corrections before the full sweep, both from the cached usage figures: the tokenizer counts 2.6–3.5 characters
+per token on these corpora (one extraction prompt reached 68,818 real tokens against the ~60K design limit), so
+`CHARS_PER_TOKEN` is now 2.8 (≈ 48K real tokens per request, 5 extraction calls for the largest corpora, 8 requests worst case);
+and extraction replies truncated at 3,000 output tokens, so extraction now uses the 4,000 cap with at most 18 items per chunk and
+quotes of ≤ 200 characters. The first three units will be re-labelled by the sweep because the prompts changed.

@@ -18,7 +18,7 @@ TAIL_MULT_MAX = 2.0
 SCENARIO_WEIGHT_MIN = 0.05
 MAX_SCENARIOS = 4
 MAX_EVIDENCE = 40              # items carried into synthesis and the signal
-MAX_EVIDENCE_PER_CHUNK = 25
+MAX_EVIDENCE_PER_CHUNK = 18                 # fewer, shorter items keep replies under the output cap
 
 # --- §3 / §6 budget and runtime ------------------------------------------------------------------
 HARD_REQUEST_CAP = MAX_ADMITTED_REQUESTS   # 20 admitted requests; House allows 25
@@ -35,7 +35,7 @@ REQUEST_TIMEOUT_S = 120.0                   # per the contract snippet
 SYNTHESIS_TIMEOUT_S = 150.0                 # thinking on; bounded by the remaining time budget
 MIN_REQUEST_TIMEOUT_S = 15.0
 MAX_OUTPUT_TOKENS = 4000                    # House caps every request at 4,000 output tokens
-EXTRACTION_MAX_OUTPUT_TOKENS = 3000
+EXTRACTION_MAX_OUTPUT_TOKENS = 4000         # 3,000 truncated replies on the dev endpoint
 SYNTHESIS_MAX_OUTPUT_TOKENS = 4000
 TEMPERATURE = 0.0
 TOP_P = 1.0
@@ -44,12 +44,12 @@ MAX_PARALLEL_EXTRACTION = 3
 MAX_PARALLEL_SYNTHESIS = 3
 
 # --- §2 sizing -------------------------------------------------------------------------------------
-CHARS_PER_TOKEN = 4                         # conservative estimate for English prose
+CHARS_PER_TOKEN = 2.8                       # measured on the dev endpoint (2.6–3.5 chars/token on these corpora)
 MAX_INPUT_TOKENS_PER_CALL = 48_000          # "design for requests <= ~60K input tokens"
 PROMPT_OVERHEAD_TOKENS = 3_000              # instructions + card + numeric block
 MAX_SEGMENT_TOKENS = 20_000                 # long documents are split at paragraph boundaries
 MIN_SEGMENT_TOKENS = 200
-MAX_QUOTE_CHARS = 300
+MAX_QUOTE_CHARS = 200
 MIN_QUOTE_CHARS = 10
 MAX_CLAIM_CHARS = 280
 

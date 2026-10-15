@@ -77,7 +77,7 @@ def numeric_context(summary: NumericSummary) -> str:
 _EXTRACTION_SCHEMA = """{
   "evidence": [
     {"doc_id": "<exact id from a DOC header>", "timestamp": "<that document's timestamp>",
-     "claim": "<one factual sentence>", "quote": "<verbatim excerpt, 10-300 characters, copied exactly>",
+     "claim": "<one factual sentence>", "quote": "<verbatim excerpt, 10-200 characters, copied exactly>",
      "assets": ["<asset id>"], "direction": -1 | 0 | 1, "established": true | false,
      "kind": "decision" | "data" | "guidance" | "tone" | "event" | "other"}
   ],
@@ -100,7 +100,7 @@ def extraction_messages(summary: NumericSummary, chunk: Chunk, part: int, total:
         "this JSON shape:\n" + _EXTRACTION_SCHEMA + "\n\n"
         "RULES\n"
         "1. doc_id must be copied exactly from a DOC header. Claims you cannot tie to a document are not allowed.\n"
-        "2. quote must be a verbatim excerpt from that document (10-300 characters). Do not paraphrase inside quote.\n"
+        "2. quote must be a verbatim excerpt from that document (10-200 characters). Do not paraphrase inside quote.\n"
         "3. established=true ONLY for things the document states as done or released: a decision taken, a print "
         "released, a level announced, a date set. Interpretations of tone, expectations, and your own inferences "
         "are established=false.\n"
