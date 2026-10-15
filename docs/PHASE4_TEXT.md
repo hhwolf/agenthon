@@ -109,3 +109,8 @@ both it and the previous per-unit cache format.
 
 The remaining step is to supply all 88 validated cached labels, rerun the fixed
 comparison, and record the final decision in BUILD_LOG and text_config.json.
+
+See [verification](../reports/phase4/VERIFICATION.md) for 224 passing tests,
+104/104 host and container admissibility, zero-call card-notes runs, and the
+restricted canned-label integration smoke. These verify execution, not the
+unavailable model-label accuracy comparison.

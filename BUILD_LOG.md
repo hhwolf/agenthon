@@ -878,3 +878,24 @@ Corrected this before any model-label scoring: fixed branch shifts now retain
 +/-1 SD by sign; their natural mean bound is 1 SD, while opposing +/-1 branches
 still imply a 0.6-SD maximum. The protocol's correction appendix records why.
 Card-notes branch signs are zero, so this leaves its measured scores unchanged.
+
+Final Phase 4 verification: **224 tests passed** (22.81 s), **104/104** host
+admissibility (max 0.424 s). Final amd64 image
+`sha256:69a30bf26d5d6e18ed494ac80e806e717f140aac7ee15a666d2dc735faa7a546`
+matches all 26 runtime Python/JSON files and passes all 104 offline units with
+zero model requests, proxy mean 2.378141 and 9 caps (194.24 s ingestion).
+The prior card-notes image passes all 104 restricted units with zero requests
+(199.52 s); every forecast and metadata file matches the final offline run
+byte-for-byte. The final image additionally passes the restricted exemplar;
+a derived explicit-labels image passes the restricted canned House smoke in
+four requests and writes the mapping and evidence ledger. These canned labels
+are not accuracy measurements. Largest triplet: 424,862 bytes. See
+reports/phase4/VERIFICATION.md and verification.json for exact provenance,
+including the initial offline attempt invalidated by a local image retag.
+The new CI workflow is configured but has not run remotely.
+
+Checked GitHub release assets and Actions artifacts as well: no dev-label cache
+is published there, and the teammate branch has no newer commit. The remaining
+work is the two real cached-label ablations and final (non-provisional) ship
+choice. Changes are committed locally; no Phase 4 image, pack or submission
+upload has been published.
