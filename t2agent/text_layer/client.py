@@ -95,24 +95,41 @@ class ChatResult:
     thinking: bool
 
 
+_KEY_FIELDS = ("model", "messages", "temperature", "top_p", "seed", "max_tokens", "extra_body")
+
+
+def request_key(params: Mapping[str, Any]) -> str:
+    """sha256 of the request as sent (model, messages, sampling params, chat_template_kwargs).
+
+    The same key is reproducible from the HTTP body (see ``request_key_from_body``), which lets a
+    mock House replay cached development responses.
+    """
+    blob = json.dumps({k: params.get(k) for k in _KEY_FIELDS}, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
+
+
+def request_key_from_body(body: Mapping[str, Any]) -> str:
+    params = {k: body.get(k) for k in _KEY_FIELDS if k != "extra_body"}
+    extra = body.get("extra_body")
+    if extra is None and "chat_template_kwargs" in body:
+        extra = {"chat_template_kwargs": body["chat_template_kwargs"]}
+    params["extra_body"] = extra
+    return request_key(params)
+
+
 @dataclass
 class ResponseCache:
-    """Disk cache keyed by (unit_id, model, request params including messages)."""
+    """Flat disk cache: ``<dir>/<request_key>.json`` holding the reply plus unit/purpose metadata."""
 
     directory: Path
     hits: int = 0
     writes: int = 0
 
-    def key(self, unit_id: str, model: str, params: Mapping[str, Any]) -> str:
-        blob = json.dumps({"unit_id": unit_id, "model": model, "params": params}, sort_keys=True, ensure_ascii=False)
-        return hashlib.sha256(blob.encode("utf-8")).hexdigest()
+    def path(self, key: str) -> Path:
+        return self.directory / f"{key}.json"
 
-    def _path(self, unit_id: str, key: str) -> Path:
-        safe = re.sub(r"[^A-Za-z0-9._-]+", "_", unit_id) or "unit"
-        return self.directory / safe / f"{key}.json"
-
-    def get(self, unit_id: str, key: str) -> dict | None:
-        p = self._path(unit_id, key)
+    def get(self, key: str) -> dict | None:
+        p = self.path(key)
         if not p.is_file():
             return None
         try:
@@ -122,8 +139,8 @@ class ResponseCache:
         self.hits += 1
         return payload
 
-    def put(self, unit_id: str, key: str, payload: dict) -> None:
-        p = self._path(unit_id, key)
+    def put(self, key: str, payload: dict) -> None:
+        p = self.path(key)
         try:
             p.parent.mkdir(parents=True, exist_ok=True)
             tmp = p.with_suffix(".tmp")
@@ -137,6 +154,10 @@ class ResponseCache:
 def cache_from_env(env: Mapping[str, str]) -> ResponseCache | None:
     value = str(env.get(C.ENV_CACHE_DIR, "")).strip()
     return ResponseCache(Path(value)) if value else None
+
+
+def replay_only_from_env(env: Mapping[str, str]) -> bool:
+    return str(env.get(C.ENV_REPLAY_ONLY, "")).strip().lower() in {"1", "true", "yes", "on"}
 
 
 def _call_with_wall_timeout(fn: Callable[[], Any], timeout: float) -> Any:
@@ -180,11 +201,12 @@ class HouseClient:
 
     def __init__(self, budget: CallBudget, deadline: Deadline, *, env: Mapping[str, str] | None = None,
                  cache: ResponseCache | None = None, client: Any = None, unit_id: str = "",
-                 sleep: Callable[[float], None] = time.sleep):
+                 sleep: Callable[[float], None] = time.sleep, replay_only: bool = False):
         self.env = os.environ if env is None else env
         self.budget = budget
         self.deadline = deadline
         self.cache = cache
+        self.replay_only = bool(replay_only)
         self.unit_id = unit_id
         self.sleep = sleep
         self.offline = offline_reason(self.env)
@@ -227,7 +249,7 @@ class HouseClient:
 
     # -- the one way to talk to the model ----------------------------------------
     def chat(self, messages: list[dict], *, max_tokens: int, thinking: bool, purpose: str,
-             timeout: float | None = None) -> ChatResult:
+             timeout: float | None = None, seed: int | None = None) -> ChatResult:
         if self.offline:
             raise OfflineError(self.offline)
         params: dict[str, Any] = {
@@ -235,19 +257,22 @@ class HouseClient:
             "messages": messages,
             "temperature": C.TEMPERATURE,
             "top_p": C.TOP_P,
-            "seed": C.SEED,
+            "seed": int(C.SEED if seed is None else seed),
             "max_tokens": int(max(1, min(max_tokens, C.MAX_OUTPUT_TOKENS))),
             "extra_body": {"chat_template_kwargs": {"enable_thinking": bool(thinking)}},
         }
-        key = None
+        key = request_key(params)
         if self.cache is not None:
-            key = self.cache.key(self.unit_id, self.model, params)
-            hit = self.cache.get(self.unit_id, key)
+            hit = self.cache.get(key)
             if hit is not None:
                 self._record(purpose=purpose, cached=True, finish_reason=hit.get("finish_reason"),
-                             usage=hit.get("usage", {}), attempts=0, thinking=thinking, status=200)
+                             usage=hit.get("usage", {}), attempts=0, thinking=thinking, status=200, key=key)
                 return ChatResult(hit.get("text", ""), hit.get("finish_reason"), hit.get("usage", {}),
                                   True, 0, purpose, 0.0, thinking)
+        if self.replay_only:
+            self._record(purpose=purpose, cached=False, status=None, attempts=0, thinking=thinking,
+                         error="replay-only mode: cache miss", key=key)
+            raise CallFailed(f"replay-only mode: no cached response for {purpose} ({key[:12]})")
         attempts = 0
         retries = C.MAX_RETRIES_PER_CALL
         last_error = "request failed"
@@ -298,9 +323,10 @@ class HouseClient:
             self._record(purpose=purpose, cached=False, status=200, attempts=attempts, finish_reason=finish,
                          usage=usage, thinking=thinking, elapsed_s=round(time.monotonic() - t0, 2),
                          prompt_tokens_est=sum(len(m.get("content") or "") for m in messages) // C.CHARS_PER_TOKEN)
-            if self.cache is not None and key is not None:
-                self.cache.put(self.unit_id, key, {"text": text, "finish_reason": finish, "usage": usage,
-                                                   "model": self.model, "purpose": purpose, "created": time.time()})
+            if self.cache is not None:
+                self.cache.put(key, {"text": text, "finish_reason": finish, "usage": usage, "model": self.model,
+                                     "purpose": purpose, "unit_id": self.unit_id, "thinking": bool(thinking),
+                                     "created": time.time()})
             return ChatResult(text, finish, usage, False, attempts, purpose, time.monotonic() - t0, thinking)
 
     @staticmethod

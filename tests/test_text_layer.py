@@ -1,24 +1,28 @@
-"""Text layer tests: clamping, neutral fallback, budget counting (incl. failures), offline mode, JSON repair."""
+"""Text layer tests (Phase 3): offline mode, budget counting incl. failures, JSON repair, majority vote,
+neutral on errors, pre-pass, relevance, label->number table, text_v1 forecaster, mock House accounting."""
 
 from __future__ import annotations
 
 import json
 import time
-from dataclasses import replace
 from datetime import date
 from pathlib import Path
 
 import numpy as np
 import pytest
 
-from mock_house import MockHouse, canned_extraction, delay, error, ok
-from t2agent import numeric_v1
-from t2agent.contracts import CallBudget, TextSignal
+from mock_house import MockHouse, delay, error, ok
+from t2agent import numeric_v1, text_v1
+from t2agent.contracts import CallBudget, NumericSummary, TextSignal
 from t2agent.text_layer import constants as C
 from t2agent.text_layer import read_text
-from t2agent.text_layer.corpus import load_corpus, plan_chunks, prioritise
-from t2agent.text_layer.parse import RawScenario, RawSignal, extract_json
-from t2agent.text_layer.signal import Ledger, clamp_scenarios
+from t2agent.text_layer.client import request_key_from_body
+from t2agent.text_layer.corpus import card_keywords, load_corpus, plan_chunks, prioritise
+from t2agent.text_layer.labels import AssetLabel, Branch, Labels, parse_labels, vote
+from t2agent.text_layer.parse import ParseError, RawEvidence, extract_json
+from t2agent.text_layer.prepass import find_events, horizon_window, run_prepass
+from t2agent.text_layer.relevance import score_documents
+from t2agent.text_map import apply_text_map
 
 ROOT = Path(__file__).resolve().parents[1]
 ASOF = date(2016, 6, 17)
@@ -30,16 +34,19 @@ DOCS = {
     "fomc_statement_2016-06-15": ("2016-06-15", "fomc_statement",
         "Federal Open Market Committee statement, 15 June 2016.\n\n"
         "Information received since the Committee met in April indicates that the pace of improvement in the labor market has slowed while growth in economic activity appears to have picked up.\n\n"
-        "The Committee decided to maintain the target range for the federal funds rate at 1/4 to 1/2 percent."),
+        "The Committee decided to maintain the target range for the federal funds rate at 1/4 to 1/2 percent. Voting for the FOMC monetary policy action were: Janet L. Yellen, Chair."),
     "bis_carney_2016-05-12": ("2016-05-12", "cb_speech",
         "Mark Carney: Opening remarks at the Inflation Report press conference, 12 May 2016.\n\n"
         "A vote to leave the EU could have material economic effects on the exchange rate, on demand and on supply.\n\n"
         "Sterling has depreciated by around nine percent since its November peak, reflecting referendum uncertainty."),
 }
+OFF_TOPIC = ("2016-04-02", "cb_speech",
+             "Remarks on payment system modernisation in Brazil.\n\nThe central bank of Brazil continues to upgrade the instant payments "
+             "infrastructure and the real-time gross settlement system, with no implications for monetary policy settings.")
 
 
-def make_unit(tmp_path: Path, docs=DOCS, extra_index: list | None = None) -> Path:
-    unit = tmp_path / "unit"
+def make_unit(tmp_path: Path, docs=DOCS, extra_index: list | None = None, name: str = "unit") -> Path:
+    unit = tmp_path / name
     text = unit / "text"
     text.mkdir(parents=True)
     index = {"card_id": "t2-TEST-brexit-2016", "asof": ASOF.isoformat(), "documents": []}
@@ -51,14 +58,12 @@ def make_unit(tmp_path: Path, docs=DOCS, extra_index: list | None = None) -> Pat
     return unit
 
 
-def make_summary(assets=("GBP",), family="T2-F2"):
-    from t2agent.contracts import NumericSummary
+def make_summary(assets=("GBP",), family="T2-F2", notes="A scheduled binary risk event falls shortly after the as-of date."):
     return NumericSummary(
         unit_id="t2-TEST-brexit-2016", asof=ASOF, family=family, target_type="level", value_unit="usd_per_gbp",
         assets=tuple(assets), horizons=(21,), spot={a: 1.42 for a in assets},
         horizon_sd={(a, 21): 0.035 for a in assets}, vol_ratio={a: 1.3 for a in assets},
-        card_description="GBP/USD into the EU referendum (21 BD).",
-        card_text_notes="A scheduled binary risk event falls shortly after the as-of date.")
+        card_description="GBP/USD into the EU referendum (21 BD).", card_text_notes=notes)
 
 
 @pytest.fixture
@@ -79,146 +84,192 @@ def run(unit, server, budget=None, env=None, **kw):
     return sig, budget
 
 
-def is_neutral(sig: TextSignal) -> bool:
-    n = TextSignal.neutral(("GBP",))
-    return sig.scenarios == n.scenarios and sig.tail_mult == 1.0 and sig.evidence == ()
+def numeric_neutral(sig: TextSignal, assets=("GBP",)) -> bool:
+    n = TextSignal.neutral(assets)
+    return sig.scenarios == n.scenarios and sig.tail_mult == 1.0
+
+
+def ev(doc_id="boe_mpc_2016-06-16", established=True, direction=1):
+    return RawEvidence(doc_id, "2016-06-16", "claim", "quote", ("GBP",), direction, established, "decision")
 
 
 # --------------------------------------------------------------------------- #
-# Happy path and request hygiene
+# Happy path: labels, self-consistency, request hygiene
 # --------------------------------------------------------------------------- #
 
-def test_happy_path_small_corpus(unit, server):
+def test_happy_path_labels_and_neutral_numbers(unit, server):
     sig, budget = run(unit, server)
     assert sig.fallback_reason is None
-    assert sig.calls_used == budget.used == len(server.requests) == 2  # one extraction + one synthesis
-    assert len(sig.scenarios) == 3 and abs(sum(s.weight for s in sig.scenarios) - 1) < 1e-9
-    assert all(set(s.drift_sd) == {"GBP"} for s in sig.scenarios)
+    assert sig.calls_used == budget.used == len(server.requests) == 1 + C.SYNTHESIS_RUNS
+    assert numeric_neutral(sig)                       # Phase 3 leaves magnitudes to text_map
+    L = sig.labels
+    assert L["mode"] == "llm" and L["schema"] == C.LABELS_SCHEMA_VERSION
+    assert L["regime"] == "elevated" and L["event_in_horizon"] == "scheduled_binary"
+    assert L["assets"]["GBP"]["direction"] == "up" and L["assets"]["GBP"]["direction_established"]
+    assert len(L["branches"]) == 2 and {b["signs"]["GBP"] for b in L["branches"]} == {1, -1}
+    assert L["runs"] == 3 and L["agreement"]["regime"] == pytest.approx(2 / 3) and L["agreement"]["overall"] < 1
+    assert L["votes"]["regime"].count("elevated") == 2
     assert any(e.established for e in sig.evidence) and all(e.doc_id in DOCS for e in sig.evidence)
-    assert sig.tail_mult == 1.2
-    assert "### Adjustment ledger" in sig.rationale_md and "mean drift" in sig.rationale_md
+    assert "### Labels" in sig.rationale_md and "Self-consistency: 3" in sig.rationale_md
 
 
-def test_requests_are_pinned_tool_free_and_thinking_flagged(unit, server):
+def test_requests_are_pinned_thinking_flagged_and_seeds_vary(unit, server):
     sig, _ = run(unit, server)
     assert sig.fallback_reason is None
-    extraction, synthesis = server.requests
-    for req in (extraction, synthesis):
-        body = req["body"]
-        assert req["path"] == "/v1/chat/completions"
-        assert req["headers"]["authorization"] == f"Bearer {server.token}"
-        assert body["model"] == server.model and body["temperature"] == 0.0 and body["seed"] == C.SEED
-        assert body["max_tokens"] <= 4000 and "n" not in body
-        for forbidden in ("tools", "functions", "tool_choice", "web_search_options"):
-            assert forbidden not in body
+    bodies = server.bodies()
+    for req, body in zip(server.requests, bodies):
+        assert req["path"] == "/v1/chat/completions" and req["headers"]["authorization"] == f"Bearer {server.token}"
+        assert body["model"] == server.model and body["temperature"] == 0.0 and body["max_tokens"] <= 4000
+        assert "n" not in body and "tools" not in body and "functions" not in body
         prompt = body["messages"][1]["content"]
         assert f"AS-OF DATE: {ASOF.isoformat()}" in prompt and "Do not use any knowledge" in prompt
-    assert extraction["body"]["chat_template_kwargs"] == {"enable_thinking": False}
-    assert synthesis["body"]["chat_template_kwargs"] == {"enable_thinking": True}
-    assert "doc_id must be copied exactly" in extraction["body"]["messages"][1]["content"]
+    extraction = [b for b in bodies if "DOCUMENTS (part" in b["messages"][1]["content"]]
+    labels = [b for b in bodies if "TASK: LABELS" in b["messages"][1]["content"]]
+    assert len(extraction) == 1 and len(labels) == 3
+    assert all(b["chat_template_kwargs"] == {"enable_thinking": False} for b in extraction)
+    assert all(b["chat_template_kwargs"] == {"enable_thinking": True} for b in labels)
+    assert sorted(b["seed"] for b in labels) == [C.SEED, C.SEED + 1, C.SEED + 2]
+    prompts = {b["messages"][1]["content"] for b in labels}
+    assert len(prompts) == 3                       # evidence order permuted per run, numbering stable
+    assert "[1] (" in next(iter(prompts))
 
 
 def test_prompt_is_deterministic(unit, server):
     run(unit, server)
     run(unit, server)
-    assert server.bodies()[0] == server.bodies()[2] and server.bodies()[1] == server.bodies()[3]
+    first, second = server.bodies()[:4], server.bodies()[4:]
+    assert sorted(json.dumps(b, sort_keys=True) for b in first) == sorted(json.dumps(b, sort_keys=True) for b in second)
+
+
+def test_neutral_and_real_signals_through_numeric_adapter(unit, server):
+    sig, _ = run(unit, server)
+    card = {"targets": {"asset_ids": ["GBP"], "horizons": [21]}}
+    samples = np.random.default_rng(0).normal(size=(2000, 1))
+    assert numeric_v1.apply_text_signal(samples, card, sig, seed=1) is samples      # Phase 3 signal is numerically neutral
+    mapped = apply_text_map(sig, make_summary(), 1.0)
+    adjusted = numeric_v1.apply_text_signal(samples, card, mapped, seed=1)
+    assert adjusted.shape == samples.shape and np.isfinite(adjusted).all() and not np.allclose(adjusted, samples)
 
 
 # --------------------------------------------------------------------------- #
-# Offline mode
+# Offline, notes-only, replay
 # --------------------------------------------------------------------------- #
 
 def test_offline_network_none_makes_no_attempt(unit, server):
     sig, budget = run(unit, server, env=server.env(network="none"))
-    assert is_neutral(sig) and sig.fallback_reason.startswith("offline")
+    assert numeric_neutral(sig) and sig.fallback_reason.startswith("offline")
     assert sig.calls_used == 0 and budget.used == 0 and server.requests == []
+    assert sig.labels["mode"] == "neutral" and sig.labels["prepass"]["binary_event_inside"]
 
 
 def test_offline_without_endpoint(unit, server):
     env = {k: v for k, v in server.env().items() if k != "MODEL_ENDPOINT"}
     sig, budget = run(unit, server, env=env)
-    assert is_neutral(sig) and "MODEL_ENDPOINT" in sig.fallback_reason
-    assert budget.used == 0 and server.requests == []
+    assert numeric_neutral(sig) and "MODEL_ENDPOINT" in sig.fallback_reason and budget.used == 0 and server.requests == []
 
 
-def test_neutral_reproduces_numeric_draws(unit, server):
-    sig, _ = run(unit, server, env=server.env(network="none"))
-    card = {"targets": {"asset_ids": ["GBP"], "horizons": [21]}}
-    samples = np.random.default_rng(0).normal(size=(200, 1))
-    assert numeric_v1.apply_text_signal(samples, card, sig, seed=1) is samples
+def test_notes_only_mode_uses_no_model(unit, server):
+    sig, budget = run(unit, server, mode="notes_only")
+    assert sig.fallback_reason is None and budget.used == 0 and server.requests == []
+    L = sig.labels
+    assert L["mode"] == "notes_only" and L["event_in_horizon"] == "scheduled_binary" and L["regime"] == "calm"  # no crisis vocabulary
+    assert all(v["direction"] == "none" for v in L["assets"].values()) and len(L["branches"]) == 2
+    stressed = read_text(unit, make_summary(notes="Funding stress and liquidity turmoil: a scheduled binary risk event falls inside the window."),
+                         CallBudget(), env=server.env(), mode="notes_only")
+    assert stressed.labels["regime"] == "elevated" and stressed.labels["notes_only_inputs"]["crisis_cues"] >= 1
+    wide = NumericSummary(**{**make_summary().__dict__, "vol_ratio": {"GBP": 1.8},
+                             "card_text_notes": "Funding stress and liquidity turmoil ahead of the referendum."})
+    assert read_text(unit, wide, CallBudget(), env=server.env(), mode="notes_only").labels["regime"] == "calm"  # panel already wide
+    env_sig, _ = run(unit, server, env=dict(server.env(), TEXT_LAYER_MODE="notes_only"))
+    assert env_sig.labels == L
 
 
-def test_real_signal_is_accepted_by_numeric_adapter(unit, server):
-    sig, _ = run(unit, server)
-    card = {"targets": {"asset_ids": ["GBP"], "horizons": [21]}}
-    samples = np.random.default_rng(0).normal(size=(2000, 1))
-    adjusted = numeric_v1.apply_text_signal(samples, card, sig, seed=1)
-    assert adjusted.shape == samples.shape and np.isfinite(adjusted).all() and not np.allclose(adjusted, samples)
+def test_cache_then_replay_only_without_network(unit, server, tmp_path):
+    env = dict(server.env(), TEXT_LAYER_CACHE_DIR=str(tmp_path / "cache"))
+    sig1, b1 = run(unit, server, env=env)
+    assert sig1.fallback_reason is None and b1.used == 4
+    dead = dict(env, MODEL_ENDPOINT="http://127.0.0.1:9", TEXT_LAYER_REPLAY_ONLY="1")
+    sig2, b2 = run(unit, server, env=dead)
+    assert sig2.fallback_reason is None and b2.used == 0 and sig2.calls_used == 0
+    assert sig2.labels["regime"] == sig1.labels["regime"] and sig2.labels["assets"] == sig1.labels["assets"]
+    assert len(server.requests) == 4 and "served from the dev cache" in sig2.rationale_md
+    miss = dict(dead, TEXT_LAYER_CACHE_DIR=str(tmp_path / "empty"))
+    sig3, b3 = run(unit, server, env=miss)
+    assert numeric_neutral(sig3) and "replay-only" in sig3.fallback_reason and b3.used == 0 and len(server.requests) == 4
+
+
+def test_mock_house_replays_recorded_responses(unit, server, tmp_path):
+    env = dict(server.env(), TEXT_LAYER_CACHE_DIR=str(tmp_path / "cache"))
+    sig1, _ = run(unit, server, env=env)
+    for req in server.requests:
+        assert any(p.stem == request_key_from_body(req["body"]) for p in (tmp_path / "cache").glob("*.json"))
+    with MockHouse(scenario="server_error", replay_dir=tmp_path / "cache") as replay:
+        sig2 = read_text(unit, make_summary(), CallBudget(), env=replay.env())
+        assert sig2.fallback_reason is None and sig2.labels["assets"] == sig1.labels["assets"]
+        assert all(r["admitted"] for r in replay.requests) and len(replay.requests) == 4
 
 
 # --------------------------------------------------------------------------- #
-# Clamps
+# Labels: validation and majority vote
 # --------------------------------------------------------------------------- #
 
-def test_extreme_values_are_clamped_end_to_end(unit, server):
+def test_parse_labels_validation():
+    evidence = [ev(established=True), ev(established=False)]
+    obj = {"regime": "High", "event_in_horizon": "scheduled binary", "disagreement": "yes",
+           "assets": {"gbp": {"direction": "Strongly up", "direction_established": True, "evidence": [2]}},
+           "branches": [{"label": "leave", "prob": 0.3, "signs": {"GBP": "-"}}, {"label": "remain", "prob": 0.6, "signs": {"GBP": 1}}]}
+    L = parse_labels(obj, ("GBP",), evidence)
+    assert L.regime == "elevated" and L.event_in_horizon == "scheduled_binary" and L.disagreement is True
+    assert L.assets["GBP"].direction == "strong_up" and L.assets["GBP"].direction_established is False  # cites only an inferred item
+    assert [round(b.prob, 3) for b in L.branches] == [0.333, 0.667] and L.branches[0].signs == {"GBP": -1}
+    uncited = parse_labels({"regime": "calm", "assets": {"GBP": {"direction": "up", "evidence": []}}}, ("GBP",), evidence)
+    assert uncited.assets["GBP"].direction == "none"
+    three = parse_labels({"regime": "calm", "event_in_horizon": "scheduled_binary", "assets": {},
+                          "branches": [{"prob": 0.4, "signs": {}}, {"prob": 0.3, "signs": {}}, {"prob": 0.3, "signs": {}}]}, ("GBP",), evidence)
+    assert three.event_in_horizon == "ongoing" and three.branches == ()
+    listed = parse_labels({"regime": "crisis", "assets": [{"asset": "GBP", "direction": "down", "evidence": [1]}]}, ("GBP",), evidence)
+    assert listed.assets["GBP"].direction == "down"
+    with pytest.raises(ParseError):
+        parse_labels({"foo": 1}, ("GBP",), evidence)
+
+
+def test_majority_vote_and_ties():
+    a = Labels("elevated", "none", False, {"GBP": AssetLabel("up", True, (1,))})
+    b = Labels("elevated", "none", False, {"GBP": AssetLabel("up", False, (2,))})
+    c = Labels("crisis", "ongoing", True, {"GBP": AssetLabel("down", True, (3,))})
+    L, agreement, votes = vote([a, b, c], ("GBP",))
+    assert L.regime == "elevated" and L.event_in_horizon == "none" and L.disagreement is False
+    assert L.assets["GBP"].direction == "up" and L.assets["GBP"].direction_established is True and L.assets["GBP"].evidence == (1, 2)
+    assert agreement["regime"] == pytest.approx(2 / 3) and agreement["runs"] == 3 and votes["regime"] == ["elevated", "elevated", "crisis"]
+    L2, _, _ = vote([a, c, Labels("calm", "scheduled_binary", False, {"GBP": AssetLabel("none")})], ("GBP",))
+    assert L2.regime == "calm" and L2.event_in_horizon == "none" and L2.assets["GBP"].direction == "none"   # three-way ties -> neutral
+    L3, _, _ = vote([a, c], ("GBP",))
+    assert L3.regime == "calm" and L3.assets["GBP"].direction == "none"                                     # two-way tie -> neutral
+    L4, _, _ = vote([a], ("GBP",))
+    assert L4.regime == "elevated"                                                                           # a single run stands alone
+
+
+def test_vote_aligns_binary_branches():
+    br = lambda s0, p: (Branch("A", p, {"GBP": s0}), Branch("B", 1 - p, {"GBP": -s0}))  # noqa: E731
+    r1 = Labels("elevated", "scheduled_binary", False, {"GBP": AssetLabel()}, br(1, 0.6))
+    r2 = Labels("elevated", "scheduled_binary", False, {"GBP": AssetLabel()}, br(-1, 0.5))   # branches listed the other way round
+    r3 = Labels("elevated", "none", False, {"GBP": AssetLabel()})
+    L, _, _ = vote([r1, r2, r3], ("GBP",))
+    assert L.event_in_horizon == "scheduled_binary" and len(L.branches) == 2
+    assert L.branches[0].signs == {"GBP": 1} and L.branches[0].prob == pytest.approx(0.55)
+
+
+def test_out_of_schema_model_output_is_contained(unit, server):
     server.scenario = "extreme"
-    sig, _ = run(unit, server)
-    assert sig.fallback_reason is None
+    sig, budget = run(unit, server)
+    assert sig.fallback_reason is None and budget.used == 4
+    L = sig.labels
+    assert L["regime"] == "calm" and L["disagreement"] is False
+    assert L["assets"]["GBP"]["direction"] == "none"           # uncited strong_up dropped
+    assert L["event_in_horizon"] == "ongoing" and L["branches"] == []
     assert all(not e.established for e in sig.evidence) and all(e.doc_id in DOCS for e in sig.evidence)
-    assert len(sig.scenarios) == 2  # the two tiny scenarios were dropped
-    mean = sum(s.weight * s.drift_sd["GBP"] for s in sig.scenarios)
-    assert abs(mean) <= C.DRIFT_MEAN_LIMIT + 1e-9 and all(abs(s.drift_sd["GBP"]) <= C.DRIFT_SCENARIO_LIMIT for s in sig.scenarios)
-    assert [s.vol_mult for s in sig.scenarios] == [1.0, 2.0]  # 0.5 -> 0.8 -> floored at 1 (no established); 5 -> 2
-    assert sig.tail_mult == C.TAIL_MULT_MAX
-    assert "rescaled" in sig.rationale_md and "cannot narrow" in sig.rationale_md
-
-
-def test_vol_below_one_needs_established_evidence(unit, server):
-    quote = "The Committee voted unanimously to maintain Bank Rate at 0.5%"
-    established = {"evidence": [{"doc_id": "boe_mpc_2016-06-16", "timestamp": "2016-06-16", "claim": "Bank Rate held at 0.5%.",
-                                 "quote": quote, "assets": ["GBP"], "direction": 0, "established": True, "kind": "decision"}],
-                   "scheduled_events": [], "disagreements": []}
-    narrow = {"scenarios": [{"label": "calm", "weight": 1.0, "drift_sd": {"GBP": 0.0}, "vol_mult": 0.85, "evidence": [1]}],
-              "tail_mult": 1.0, "narrowing_support": [1], "summary": "Decision already taken."}
-    server.push(ok(json.dumps(established)), ok(json.dumps(narrow)))
-    sig, _ = run(unit, server)
-    assert sig.fallback_reason is None and sig.scenarios[0].vol_mult == 0.85 and sig.evidence[0].established
-
-    inferred = json.loads(json.dumps(established))
-    inferred["evidence"][0].update(established=False, quote="")
-    server.push(ok(json.dumps(inferred)), ok(json.dumps(narrow)))
-    sig2, _ = run(unit, server)
-    assert sig2.fallback_reason is None and sig2.scenarios[0].vol_mult == 1.0
-    assert "cannot narrow" in sig2.rationale_md
-
-
-def test_established_requires_verbatim_quote_and_citations(unit, server):
-    reply = {"evidence": [
-        {"doc_id": "boe_mpc_2016-06-16", "claim": "Fake quote.", "quote": "rates were cut to zero", "assets": ["GBP"], "direction": -1, "established": True},
-        {"doc_id": "ghost_2016-06-01", "claim": "Uncited.", "quote": "", "assets": ["GBP"], "direction": 1, "established": True},
-        {"doc_id": "bis_carney_2016-05-12", "claim": "Sterling fell about nine percent.", "quote": "Sterling has depreciated by around nine percent", "assets": ["GBP"], "direction": -1, "established": True},
-    ], "scheduled_events": [], "disagreements": []}
-    server.push(ok(json.dumps(reply)))
-    sig, _ = run(unit, server)
-    assert sig.fallback_reason is None
-    ids = {e.doc_id for e in sig.evidence}
-    assert "ghost_2016-06-01" not in ids
-    by_claim = {e.claim: e for e in sig.evidence}
-    assert by_claim["Fake quote."].established is False and by_claim["Sterling fell about nine percent."].established is True
-
-
-def test_clamp_scenarios_unit():
-    ledger = Ledger()
-    raw = RawSignal((RawScenario("a", 0.7, {"X": 2.0}, 0.5, (1,)), RawScenario("b", 0.3, {"X": -0.2}, 3.0, ()),
-                     RawScenario("c", 0.01, {"X": 0.0}, 1.0, ())), 9.0, (), "")
-    scenarios, tail = clamp_scenarios(raw, ("X",), has_established=False, ledger=ledger)
-    assert [s.label for s in scenarios] == ["a", "b"] and abs(sum(s.weight for s in scenarios) - 1) < 1e-9
-    mean = sum(s.weight * s.drift_sd["X"] for s in scenarios)
-    assert abs(mean) <= C.DRIFT_MEAN_LIMIT + 1e-9 and scenarios[0].drift_sd["X"] > 0 > scenarios[1].drift_sd["X"]
-    assert [s.vol_mult for s in scenarios] == [1.0, 2.0] and tail == 2.0
-    scenarios_e, _ = clamp_scenarios(raw, ("X",), has_established=True, ledger=Ledger())
-    assert scenarios_e[0].vol_mult == C.VOL_MULT_MIN
-    assert any("dropped" in c for c in ledger.clamps) and any("rescaled" in c for c in ledger.clamps)
+    mapped = apply_text_map(sig, make_summary(), 1.0)
+    assert all(1.0 <= s.vol_mult <= 2.0 and abs(s.drift_sd["GBP"]) <= 1.5 for s in mapped.scenarios) and 1.0 <= mapped.tail_mult <= 2.0
 
 
 # --------------------------------------------------------------------------- #
@@ -228,7 +279,7 @@ def test_clamp_scenarios_unit():
 def test_failed_calls_count_against_budget(unit, server):
     server.push(error(500), error(502))
     sig, budget = run(unit, server)
-    assert is_neutral(sig) and "HTTP 502" in sig.fallback_reason
+    assert numeric_neutral(sig) and "HTTP 502" in sig.fallback_reason and sig.labels["mode"] == "neutral"
     assert budget.used == sig.calls_used == len(server.requests) == 1 + C.MAX_RETRIES_PER_CALL
 
 
@@ -237,14 +288,13 @@ def test_auth_failures_are_not_retried(unit, server):
         server.requests.clear()
         server.push(error(status, "nope"))
         sig, budget = run(unit, server)
-        assert is_neutral(sig) and str(status) in sig.fallback_reason
-        assert budget.used == 1 and len(server.requests) == 1
+        assert numeric_neutral(sig) and str(status) in sig.fallback_reason and budget.used == 1 and len(server.requests) == 1
 
 
 def test_transient_error_then_success(unit, server):
     server.push(error(503))
     sig, budget = run(unit, server)
-    assert sig.fallback_reason is None and budget.used == 3 == len(server.requests)
+    assert sig.fallback_reason is None and budget.used == 5 == len(server.requests)
 
 
 def test_timeout_is_neutral_and_bounded(unit, server, monkeypatch):
@@ -255,39 +305,36 @@ def test_timeout_is_neutral_and_bounded(unit, server, monkeypatch):
     server.push(delay(3.0))
     t0 = time.monotonic()
     sig, budget = run(unit, server, time_budget_s=30)
-    assert is_neutral(sig) and time.monotonic() - t0 < 2.5
-    assert budget.used == 1 and "Timeout" in sig.fallback_reason or "timeout" in sig.fallback_reason.lower()
+    assert numeric_neutral(sig) and time.monotonic() - t0 < 2.5 and budget.used == 1
+    assert "timeout" in sig.fallback_reason.lower()
 
 
 def test_time_budget_too_small_sends_nothing(unit, server, monkeypatch):
     monkeypatch.setattr(C, "SAFETY_MARGIN_S", 0.0)
     sig, budget = run(unit, server, time_budget_s=1.0)
-    assert is_neutral(sig) and "TimeExhausted" in sig.fallback_reason and budget.used == 0 and server.requests == []
+    assert numeric_neutral(sig) and "TimeExhausted" in sig.fallback_reason and budget.used == 0 and server.requests == []
 
 
-def test_budget_limit_respected(unit, server):
-    sig, budget = run(unit, server, budget=CallBudget(limit=2))  # no room for extraction + synthesis reserve
-    assert is_neutral(sig) and "BudgetExhausted" in sig.fallback_reason and budget.used == 0 and server.requests == []
-    sig3, budget3 = run(unit, server, budget=CallBudget(limit=3))
-    assert sig3.fallback_reason is None and budget3.used == 2
-
-
-def test_exhausted_shared_budget(unit, server):
-    budget = CallBudget(limit=5, used=5)
-    sig, _ = run(unit, server, budget=budget)
-    assert is_neutral(sig) and server.requests == [] and budget.used == 5
+def test_budget_limits_shrink_runs_then_refuse(unit, server):
+    sig3, b3 = run(unit, server, budget=CallBudget(limit=3))      # 1 extraction + 1 synthesis run
+    assert sig3.fallback_reason is None and b3.used == 2 and sig3.labels["runs"] == 1
+    sig2, b2 = run(unit, server, budget=CallBudget(limit=2))      # no room for extraction + reserve
+    assert numeric_neutral(sig2) and "BudgetExhausted" in sig2.fallback_reason and b2.used == 0
+    shared = CallBudget(limit=5, used=5)
+    sig0, _ = run(unit, server, budget=shared)
+    assert numeric_neutral(sig0) and shared.used == 5
 
 
 def test_hard_cap_holds_for_huge_corpus(tmp_path, server):
-    para = ("Paragraph about policy, inflation and the exchange rate with a dated statement from 2016-05-05 "
-            "that matters for the horizon and runs long enough to be a real paragraph. ")
+    para = ("Paragraph about policy, inflation and sterling with a dated statement from 2016-05-05 that matters for "
+            "the horizon and runs long enough to be a real paragraph. ")
     docs = {f"speech_{i:02d}_2016-0{1 + i % 5}-1{i % 9}": (f"2016-0{1 + i % 5}-1{i % 9}", "cb_speech",
                                                            "".join(f"Speech {i} section {k}. " + para * 60 + "\n\n" for k in range(15)))
             for i in range(40)}
     unit = make_unit(tmp_path, docs)
     sig, budget = run(unit, server)
     assert sig.fallback_reason is None
-    assert budget.used == C.MAX_EXTRACTION_CALLS + 1 <= C.HARD_REQUEST_CAP
+    assert budget.used == C.MAX_EXTRACTION_CALLS + C.SYNTHESIS_RUNS <= C.HARD_REQUEST_CAP
     for body in server.bodies():
         assert sum(len(m["content"]) for m in body["messages"]) // C.CHARS_PER_TOKEN <= 60_000
     assert "Not sent (budget)" in sig.rationale_md
@@ -296,40 +343,68 @@ def test_hard_cap_holds_for_huge_corpus(tmp_path, server):
 def test_context_overflow_splits_the_chunk(unit, server):
     server.push(error(400, "This model's maximum context length is 8192 tokens; your request used 9000."))
     sig, budget = run(unit, server)
-    assert sig.fallback_reason is None
-    assert budget.used == 4  # overflow + two halves + synthesis
-    assert "split in two" in sig.rationale_md
+    assert sig.fallback_reason is None and budget.used == 1 + 2 + C.SYNTHESIS_RUNS and "split in two" in sig.rationale_md
+
+
+def test_mock_house_allowance_is_enforced_and_counted(unit, server):
+    server.allowance = 1                                  # extraction admitted, every label run refused with 429
+    sig, budget = run(unit, server)
+    assert numeric_neutral(sig) and "every synthesis run failed" in sig.fallback_reason
+    assert sum(1 for r in server.requests if r["admitted"]) == 1
+    assert budget.used == len(server.requests) == 1 + C.SYNTHESIS_RUNS * (1 + C.MAX_RETRIES_PER_CALL)
+    assert all(r["max_tokens_effective"] <= 4000 for r in server.requests if r["admitted"])
+    server.allowance = 2                                  # one label run survives: the vote proceeds on it
+    server.requests.clear(); server.reset_accounting()
+    sig2, _ = run(unit, server)
+    assert sig2.fallback_reason is None and sig2.labels["runs"] == 1
 
 
 # --------------------------------------------------------------------------- #
-# JSON repair
+# JSON repair and partial synthesis failures
 # --------------------------------------------------------------------------- #
 
 def test_extraction_json_repaired_once(unit, server):
     server.push(ok("Sure! Here is what I found, in prose rather than JSON."))
     sig, budget = run(unit, server)
-    assert sig.fallback_reason is None and budget.used == 3
+    assert sig.fallback_reason is None and budget.used == 2 + C.SYNTHESIS_RUNS
     repair = server.bodies()[1]["messages"]
     assert [m["role"] for m in repair] == ["system", "user", "assistant", "user"] and "not a valid JSON" in repair[-1]["content"]
-    assert "one repair requested" in sig.rationale_md
 
 
 def test_extraction_repair_failure_is_neutral(unit, server):
     server.push(ok("still prose"), ok("and again prose"))
     sig, budget = run(unit, server)
-    assert is_neutral(sig) and "ParseError" in sig.fallback_reason and budget.used == 2
+    assert numeric_neutral(sig) and "ParseError" in sig.fallback_reason and budget.used == 2
 
 
-def test_synthesis_repair_runs_with_thinking_off(unit, server):
-    extraction = canned_extraction(json.dumps({"x": 0}))  # no docs in this fake prompt -> empty evidence is fine
-    extraction = {"evidence": [{"doc_id": "boe_mpc_2016-06-16", "timestamp": "2016-06-16", "claim": "Rate held.",
-                                "quote": "maintain Bank Rate at 0.5%", "assets": ["GBP"], "direction": 0, "established": True, "kind": "decision"}],
-                  "scheduled_events": [], "disagreements": []}
-    server.push(ok(json.dumps(extraction)), ok("", finish_reason="length"))
+EXTRACTION = {"evidence": [{"doc_id": "boe_mpc_2016-06-16", "timestamp": "2016-06-16", "claim": "Rate held.",
+                            "quote": "maintain Bank Rate at 0.5%", "assets": ["GBP"], "direction": 0, "established": True, "kind": "decision"}],
+              "scheduled_events": [], "disagreements": []}
+
+
+def test_labels_repair_runs_with_thinking_off(unit, server, monkeypatch):
+    monkeypatch.setattr(C, "MAX_PARALLEL_SYNTHESIS", 1)
+    server.push(ok(json.dumps(EXTRACTION)), ok("", finish_reason="length"))
     sig, budget = run(unit, server)
-    assert sig.fallback_reason is None and budget.used == 3
+    assert sig.fallback_reason is None and budget.used == 1 + 1 + C.SYNTHESIS_RUNS and sig.labels["runs"] == 3
     flags = [b["chat_template_kwargs"]["enable_thinking"] for b in server.bodies()]
-    assert flags == [False, True, False]
+    assert flags[:3] == [False, True, False]
+
+
+def test_one_failed_synthesis_run_is_excluded_from_the_vote(unit, server, monkeypatch):
+    monkeypatch.setattr(C, "MAX_PARALLEL_SYNTHESIS", 1)
+    server.push(ok(json.dumps(EXTRACTION)), error(500), error(502))
+    sig, budget = run(unit, server)
+    assert sig.fallback_reason is None and sig.labels["runs"] == 2 and budget.used == 1 + 2 + 2
+    assert "1 of 3 synthesis run(s) failed" in sig.rationale_md
+
+
+def test_all_synthesis_runs_failing_is_neutral(unit, server):
+    server.scenario = "invalid_json"
+    server.push(ok(json.dumps(EXTRACTION)))
+    sig, budget = run(unit, server)
+    assert numeric_neutral(sig) and "every synthesis run failed" in sig.fallback_reason
+    assert budget.used == 1 + 2 * C.SYNTHESIS_RUNS
 
 
 def test_truncated_and_fenced_outputs_are_tolerated(unit, server):
@@ -338,21 +413,57 @@ def test_truncated_and_fenced_outputs_are_tolerated(unit, server):
         server.requests.clear()
         sig, budget = run(unit, server)
         assert sig.fallback_reason is None, scenario
-        assert budget.used == 2, scenario
+        assert budget.used == 4, scenario
 
 
 def test_extract_json_cases():
-    assert extract_json('```json\n{"scenarios": [1]}\n```')["scenarios"] == [1]
+    assert extract_json('```json\n{"regime": "calm"}\n```', prefer_keys=("regime",))["regime"] == "calm"
     assert extract_json('<think>{"not": 1}</think>\n{"evidence": []}') == {"evidence": []}
     obj = extract_json('{"evidence": [{"doc_id": "a", "claim": "b", "established": true}, {"doc_id": "c", "cla')
     assert obj["evidence"][0]["doc_id"] == "a"
-    with pytest.raises(Exception):
+    with pytest.raises(ParseError):
         extract_json("no json here")
 
 
 # --------------------------------------------------------------------------- #
-# Corpus handling, cache, robustness
+# Pre-pass, relevance, corpus handling
 # --------------------------------------------------------------------------- #
+
+def test_prepass_dates_kinds_and_card_flags():
+    s = make_summary()
+    end, days = horizon_window(s)
+    assert days >= C.MIN_HORIZON_DAYS and end > ASOF
+    boe = find_events(DOCS["boe_mpc_2016-06-16"][2], "boe", ASOF, end)
+    assert any(e.kind == "referendum" and e.event_date == date(2016, 6, 23) and e.inside_horizon for e in boe)
+    fomc = find_events(DOCS["fomc_statement_2016-06-15"][2] + " The next meeting of the Committee would be held on July 26-27, 2016.", "fomc", ASOF, end)
+    assert all(e.kind != "vote" for e in fomc) and any(e.kind == "policy_meeting" and e.event_date == date(2016, 7, 26) for e in fomc)
+    ranged = find_events("The Committee met on March 19-20, 2013. By unanimous vote, the Committee ratified.", "x", date(2013, 5, 24), date(2013, 11, 27))
+    assert ranged == []                                   # past date with explicit year is not a future event
+    unit_docs = [type("D", (), {"doc_id": k, "timestamp": v[0], "doc_type": v[1], "source": "", "text": v[2]})() for k, v in DOCS.items()]
+    pre = run_prepass(s, unit_docs)
+    assert pre.card_binary_kind and pre.binary_event_inside and "BoE" in pre.latest_decisions and "Fed" in pre.latest_decisions
+    plain = NumericSummary(**{**s.__dict__, "card_description": "GBP/USD continuation (21 BD).", "card_text_notes": "Routine continuation card."})
+    calm = run_prepass(plain, unit_docs)
+    assert not calm.card_binary_kind and calm.binary_event_inside   # the BoE decision names the referendum date inside the horizon
+    assert not run_prepass(plain, unit_docs[1:2]).binary_event_inside  # the FOMC statement alone: "Voting for" is not a vote event
+
+
+def test_relevance_ranks_off_topic_speech_last(tmp_path, server):
+    docs = dict(DOCS, bis_brazil_2016_04_02=OFF_TOPIC)
+    unit = make_unit(tmp_path, docs)
+    s = make_summary()
+    loaded = load_corpus(unit, ASOF, [])
+    kw = card_keywords(s.card_description, s.card_text_notes, assets=s.assets)
+    rel = score_documents({d.doc_id: d.text for d in loaded}, s.assets, kw)
+    assert rel["bis_brazil_2016_04_02"].off_topic and not rel["bis_carney_2016-05-12"].off_topic
+    ranked = prioritise(loaded, ASOF, kw, rel)
+    assert ranked[0].doc_type == "central_bank_decision" and ranked[-1].doc_id == "bis_brazil_2016_04_02"
+    assert not rel["fomc_statement_2016-06-15"].off_topic or ranked.index(next(d for d in ranked if d.doc_id == "fomc_statement_2016-06-15")) < 3
+    sig, _ = run(unit, server)
+    assert "off-topic by asset terms: bis_brazil_2016_04_02" in sig.rationale_md
+    chunks, dropped = plan_chunks(ranked, max_chunks=6)
+    assert len(chunks) == 1 and not dropped
+
 
 def test_post_asof_and_missing_documents_are_dropped(tmp_path, server):
     extra = [{"doc_id": "future_2016-07-01", "timestamp": "2016-07-01", "source": "x", "doc_type": "cb_speech", "file": "future.txt"},
@@ -366,39 +477,90 @@ def test_post_asof_and_missing_documents_are_dropped(tmp_path, server):
     assert "after as-of" in sig.rationale_md and "missing" in sig.rationale_md
 
 
-def test_prioritisation_and_chunk_plan(unit):
-    notes = []
-    docs = load_corpus(unit, ASOF, notes)
-    ordered = prioritise(docs, ASOF, {"referendum", "sterling"})
-    assert ordered[0].doc_type == "central_bank_decision" and ordered[-1].doc_type == "cb_speech"
-    chunks, dropped = plan_chunks(ordered, max_chunks=6)
-    assert len(chunks) == 1 and not dropped and chunks[0].doc_ids == [d.doc_id for d in ordered]
-
-
-def test_cache_serves_second_run_without_requests(unit, server, tmp_path):
-    env = dict(server.env(), TEXT_LAYER_CACHE_DIR=str(tmp_path / "cache"))
-    sig1, b1 = run(unit, server, env=env)
-    n = len(server.requests)
-    sig2, b2 = run(unit, server, env=env)
-    assert sig1.fallback_reason is None and n == b1.used == 2
-    assert len(server.requests) == n and b2.used == 0 and sig2.calls_used == 0
-    assert sig1.scenarios == sig2.scenarios and "served from the dev cache" in sig2.rationale_md
-    assert any(p.suffix == ".json" for p in (tmp_path / "cache").rglob("*"))
-
-
 def test_missing_unit_dir_and_empty_corpus_are_neutral(tmp_path, server):
     sig, budget = run(tmp_path / "nope", server)
-    assert is_neutral(sig) and budget.used == 0 and server.requests == []
+    assert numeric_neutral(sig) and budget.used == 0 and server.requests == []
     empty = tmp_path / "empty"
     (empty / "text").mkdir(parents=True)
     sig2, budget2 = run(empty, server)
-    assert is_neutral(sig2) and budget2.used == 0 and "no readable documents" in sig2.fallback_reason
+    assert numeric_neutral(sig2) and budget2.used == 0 and "no readable documents" in sig2.fallback_reason
 
 
-def test_joint_card_gets_every_asset_in_every_scenario(unit, server):
+def test_joint_card_labels_every_asset(unit, server):
     sig = read_text(unit, make_summary(assets=("GBP", "EUR"), family="T2-F3"), CallBudget(), env=server.env())
-    assert sig.fallback_reason is None
-    assert all(set(s.drift_sd) == {"GBP", "EUR"} for s in sig.scenarios)
+    assert sig.fallback_reason is None and set(sig.labels["assets"]) == {"GBP", "EUR"}
+    assert all(set(b["signs"]) == {"GBP", "EUR"} for b in sig.labels["branches"])
+    mapped = apply_text_map(sig, make_summary(assets=("GBP", "EUR"), family="T2-F3"), 1.0)
+    assert all(set(s.drift_sd) == {"GBP", "EUR"} for s in mapped.scenarios)
+
+
+# --------------------------------------------------------------------------- #
+# Label -> number table and the text_v1 forecaster
+# --------------------------------------------------------------------------- #
+
+def _labelled(**over):
+    base = {"schema": C.LABELS_SCHEMA_VERSION, "mode": "llm", "regime": "calm", "event_in_horizon": "none", "disagreement": False,
+            "assets": {"GBP": {"direction": "none", "direction_established": False, "evidence": []}}, "branches": [], "summary": ""}
+    base.update(over)
+    sig = TextSignal.neutral(("GBP",))
+    from dataclasses import replace
+    return replace(sig, labels=base)
+
+
+def test_text_map_table_values_and_lambda():
+    s = make_summary()
+    calm = apply_text_map(_labelled(), s, 1.0)
+    assert calm.scenarios[0].drift_sd["GBP"] == 0.0 and calm.scenarios[0].vol_mult == 1.0 and calm.tail_mult == 1.0
+    elevated = apply_text_map(_labelled(regime="elevated"), s, 1.0)
+    assert elevated.scenarios[0].vol_mult == 1.25
+    assert apply_text_map(_labelled(regime="elevated"), s, 0.5).scenarios[0].vol_mult == 1.125
+    crisis = apply_text_map(_labelled(regime="crisis"), s, 1.0)
+    assert crisis.scenarios[0].vol_mult == 1.6 and crisis.tail_mult == 1.5
+    up = apply_text_map(_labelled(assets={"GBP": {"direction": "strong_up", "direction_established": True, "evidence": [1]}}), s, 1.0)
+    assert up.scenarios[0].drift_sd["GBP"] == 0.5
+    dis = apply_text_map(_labelled(disagreement=True, assets={"GBP": {"direction": "up"}}), s, 1.0)
+    assert dis.scenarios[0].drift_sd["GBP"] == 0.0 and dis.scenarios[0].vol_mult == 1.15
+    binary = apply_text_map(_labelled(event_in_horizon="scheduled_binary", regime="elevated",
+                                      branches=[{"label": "leave", "prob": 0.9, "signs": {"GBP": -1}}, {"label": "remain", "prob": 0.1, "signs": {"GBP": 1}}]), s, 1.0)
+    assert [round(x.weight, 2) for x in binary.scenarios] == [0.8, 0.2]
+    # branch drifts start at -1.0/+1.0 (mean -0.6) and are rescaled to keep |mean| <= 0.5, preserving the sign split
+    assert binary.scenarios[0].drift_sd["GBP"] == pytest.approx(-0.8333, abs=1e-3) and binary.scenarios[1].drift_sd["GBP"] > 0
+    assert abs(sum(x.weight * x.drift_sd["GBP"] for x in binary.scenarios)) <= 0.5 + 1e-9 and binary.tail_mult == 1.25
+    even = apply_text_map(_labelled(event_in_horizon="scheduled_binary", regime="elevated",
+                                    branches=[{"label": "a", "prob": 0.5, "signs": {"GBP": -1}}, {"label": "b", "prob": 0.5, "signs": {"GBP": 1}}]), s, 1.0)
+    assert [x.drift_sd["GBP"] for x in even.scenarios] == [-1.0, 1.0] and [x.vol_mult for x in even.scenarios] == [1.25, 1.25]
+    shock = apply_text_map(_labelled(regime="crisis", assets={"GBP": {"direction": "down", "evidence": [1]}}), s, 1.0)
+    assert len(shock.scenarios) == 2 and shock.scenarios[1].weight == 0.2 and shock.scenarios[1].drift_sd["GBP"] == -0.5
+    assert apply_text_map(_labelled(regime="crisis"), s, 0.0).scenarios[0].vol_mult == 1.0            # λ = 0 -> numeric only
+    neutral = TextSignal.neutral(("GBP",), reason="offline")
+    assert apply_text_map(neutral, s, 1.0) is neutral
+    assert "Label -> number mapping" in crisis.rationale_md and "Adjustment ledger" in crisis.rationale_md
+
+
+def test_text_v1_forecaster_modes(unit, server, monkeypatch):
+    card = {"task": {"id": "t2-TEST-brexit-2016"}, "provenance": {"data_cutoff": ASOF.isoformat()},
+            "targets": {"asset_ids": ["GBP"], "horizons": [21], "target_type": "level", "value_unit": "usd_per_gbp"},
+            "metadata": {"category": "T2-F2", "description": "GBP/USD into the EU referendum (21 BD)."},
+            "text": {"notes": "A scheduled binary risk event falls shortly after the as-of date."}}
+    import pandas as pd
+    dates = pd.bdate_range(end=ASOF, periods=400)
+    rng = np.random.default_rng(3)
+    panels = {"g10_fx_daily.parquet": pd.DataFrame({"asset_id": "GBP", "date": dates, "value": 1.45 + np.cumsum(rng.normal(0, 0.005, len(dates)))})}
+    for k, v in server.env().items():
+        monkeypatch.setenv(k, v)
+    monkeypatch.setenv("TEXT_LAYER_LAMBDA", "0.5")
+    text = text_v1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
+    numeric = numeric_v1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)
+    assert not np.allclose(text.value.to_numpy(), numeric.value.to_numpy()) and len(server.requests) == 4
+    assert "Label -> number mapping" in text.attrs["rationale"] and "### Labels" in text.attrs["rationale"]
+    monkeypatch.setenv("QFBENCH_NETWORK", "none")
+    offline = text_v1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
+    assert np.array_equal(offline.value.to_numpy(), numeric.value.to_numpy()) and "offline" in offline.attrs["rationale"]
+    notes = text_v1.forecast_notes_only_l10(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
+    assert notes.attrs["text_signal"].labels["mode"] == "notes_only" and not np.allclose(notes.value.to_numpy(), numeric.value.to_numpy())
+    assert len(server.requests) == 4                       # neither offline nor notes-only touched the network
+    no_text = text_v1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)
+    assert np.array_equal(no_text.value.to_numpy(), numeric.value.to_numpy())
 
 
 @pytest.mark.skipif(not (ROOT / "vendor" / "track2" / "units" / "t2-F2-abenomics-2012").exists(), reason="vendor units not checked out")
@@ -410,4 +572,5 @@ def test_numeric_summary_and_pipeline_on_a_real_unit(server):
     budget = CallBudget()
     sig = read_text(unit, summary, budget, env=server.env())
     assert sig.fallback_reason is None and 2 <= budget.used <= C.HARD_REQUEST_CAP
+    assert sig.labels["event_in_horizon"] == "scheduled_binary" and sig.labels["prepass"]["card_binary_kind"]
     assert any(e.established for e in sig.evidence)

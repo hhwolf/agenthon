@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 
 from .io import read_card, read_panels, write_forecast
-from . import m0, numeric_v1
+from . import m0, numeric_v1, text_v1
 
 
 def main(argv=None):
@@ -13,7 +13,7 @@ def main(argv=None):
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--card", type=Path)
     parser.add_argument("--n-draws", type=int)
-    parser.add_argument("--forecaster", choices=["numeric_v1", "m0"], default="numeric_v1")
+    parser.add_argument("--forecaster", choices=["numeric_v1", "text_v1", "m0"], default="numeric_v1")
     parser.add_argument("--seed", type=int)
     args = parser.parse_args(argv)
     path = args.card or next((p for p in (args.panels / "card.toml", args.panels.parent / "card.toml")
@@ -21,7 +21,7 @@ def main(argv=None):
     if path is None:
         parser.error("card.toml not found beside panels")
     card = read_card(path)
-    n_draws = args.n_draws or (2000 if args.forecaster == "numeric_v1" else 500)
+    n_draws = args.n_draws or (500 if args.forecaster == "m0" else 2000)
     try:
         panels = read_panels(args.panels)
         panel_error = None
@@ -30,7 +30,7 @@ def main(argv=None):
             raise
         panels = {}
         panel_error = f"Panel load failed: {type(exc).__name__}: {exc}"
-    forecast = numeric_v1.forecast if args.forecaster == "numeric_v1" else m0.forecast
+    forecast = {"numeric_v1": numeric_v1.forecast, "text_v1": text_v1.forecast, "m0": m0.forecast}[args.forecaster]
     result = forecast(card, panels, args.text, args.asof, n_draws, args.seed)
     if panel_error:
         result.attrs["rationale"] += "\n\n" + panel_error

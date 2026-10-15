@@ -545,3 +545,92 @@ changed. The forecaster is not wired; the numeric owner applies the signal via
   real model, then the §9 ablation (`numeric_v1` vs `numeric_v1 + apply_text_signal`) by family.
   Verify `enable_thinking=False` on the dev endpoint and the real token counts per request.
 - Prompt and clamp values are initial; tune `constants.py` from the ablation, never per unit.
+
+## Text layer — Phase 3 (labels design), 2026-10-15
+
+Rebuilt `t2agent/text_layer/` to the Phase 3 brief: the model classifies, a fixed table sets magnitudes. Contract change:
+`TextSignal.labels: dict` (default `{}`) added to `t2agent/contracts.py` — flagged to the numeric owner; `TextSignal.neutral`
+and every existing caller are unaffected. `numeric_v1.py` is untouched; `t2agent/text_v1.py` wraps it through the existing
+`text_signal` hook and `t2agent/cli.py` gained `--forecaster text_v1`.
+
+### Pipeline per unit
+
+1. **Deterministic pre-pass** (`prepass.py`, no LLM): calendar window of the horizons; dated events from card prose and documents
+   with regex kinds (referendum / election / vote-on / policy meeting / deadline / release / summit) and day-range dates;
+   latest decision or statement per bank; document recency; distinct hawkish / dovish / crisis / binary cue words in the card prose
+   and latest decisions; `card_binary_kind` when the card itself names a two-outcome event. FOMC "voting for the action" language
+   is not a vote event; a month-day without a year is placed at its next occurrence.
+2. **Relevance** (`relevance.py`): BM25 (k1 1.5, b 0.75) over asset/bank terms plus card keywords. Speeches, beige books and
+   landmarks with no such term are ranked last (+240 days) and listed as off-topic; decisions, statements, releases and minutes are
+   never penalised. Ranking = doc-type level × 60 days + age − keyword and relevance bonuses.
+3. **Extraction** (thinking off, ≤ 6 parallel requests of ≤ 48K estimated tokens): cited evidence `{doc_id, claim, quote, assets,
+   direction, established}`; uncited claims dropped; `established` survives only with a verbatim quote found in the document.
+4. **Labels** (thinking on, 3 runs in parallel with seeds `SEED+k` and the evidence order permuted, numbering stable): strict JSON
+   labels; validation coerces enums, drops uncited directions, requires a cited established item for `direction_established`,
+   and demands exactly two branches for `scheduled_binary`. **Majority vote** per field (≥ 2 of 3; any tie → neutral value);
+   branches aligned by the first asset's sign and probability-averaged; a failed run is excluded from the vote (one survivor is
+   enough; zero → neutral). JSON repair: one per call, synthesis repairs with thinking off.
+5. **Budget / time**: `budget.spend()` before every request incl. retries, repairs and splits; worst case 6 + 6 + 3 + 3 = 18 < 20;
+   runs are reduced when fewer slots remain. Hard stop 400 s (`TIME_BUDGET_S`), soft target 240 s logged; per-request timeout
+   `min(120 s, remaining − 20 s)` (labels 150 s) with a daemon-thread wall clock. Offline → zero attempts.
+6. **Output**: numerically neutral `TextSignal` (applying it reproduces numeric_v1 bit for bit, tested) carrying `labels`,
+   evidence, and a rationale with documents, pre-pass facts, the evidence table (E/I), the label table with per-field agreement,
+   and the vote record. `text_map.apply_text_map` appends the table rows used, λ, clamps and the adjustment ledger.
+
+### Label → number table (`t2agent/text_map.py`, constants only; starting values from SOLVER-PLAYBOOK §3)
+
+elevated → vol 1.25; crisis → vol 1.6, tail 1.5; scheduled_binary → two branches, drift ±1.0 sd by branch sign, probabilities
+clipped to [0.2, 0.8], vol floor 1.15, tail 1.25; ongoing → vol floor 1.15; direction up/down ±0.25 sd, strong ±0.5 sd;
+disagreement → no drift, vol ≥ 1.15; crisis with a named side → 20 % shock scenario at twice the drift and vol 1.8; λ shrinks
+drift, (vol−1) and (tail−1); then the §5 clamps (`signal.clamp_scenarios`). Notes-only branches carry no signs, so a binary
+event without an LLM adds width and tail, not drift.
+
+### Dev tooling
+
+`scripts/run_text_layer_practice.py --mode dev|replay|mock|notes_only|offline [--repeat N]` writes `.eval/text_signals*/<unit>.json|.md`
+and a summary by family (label distribution, calls, fallbacks, self-consistency and rerun agreement). The dev cache is flat
+(`.eval/llm_cache/<request-sha256>.json`, key = model + messages + sampling params + chat_template_kwargs) so that
+`tests/mock_house.py --replay-dir .eval/llm_cache` and `TEXT_LAYER_REPLAY_ONLY=1` reproduce a dev run without a network; the mock
+also enforces a 25-request allowance per bearer token (429 beyond), clamps `max_tokens` to 4,000 and refuses `n > 1`, which the
+mock Final grader can reuse. `scripts/compare_runs.py` pairs two `eval-practice` runs (bootstrap CI, caps, by family, per-card).
+
+### Results
+
+- `make test`: **91 passed** (54 existing + 37 text-layer tests: offline zero attempts, budget counting incl. failed/auth/transient
+  calls, 20-cap on a 40-document corpus, time budget, JSON repair for extraction and labels, majority vote and ties, partial
+  synthesis failure, label validation of out-of-schema output, uncited/unsupported evidence, pre-pass dates and kinds, BM25
+  off-topic ranking, cache → replay-only → mock replay, label→number table values and λ, text_v1 identity offline / no text,
+  mock House allowance).
+- **No dev key on this machine** (`.env` absent), so the LLM-label sweep over the 104 units could not be run with the real model;
+  `--mode dev` is ready and caches for replay. Mock-label sweep (`--mode mock`, 104 units, in-process mock House with a fresh
+  allowance per unit): **104/104 labelled, 562 requests, mean 5.4 and max 6 per unit of the 20 cap,
+  self-consistency agreement 0.848 (the mock dissents on one of three seeds by design), 9.3 s wall time**;
+  label mix regime {'elevated': 104}, event {'none': 99, 'scheduled_binary': 5}. Offline sweep: 104/104 neutral, 0 requests.
+  `QFBENCH_NETWORK=none make admissibility FORECASTER=t2agent.text_v1:forecast`: **104/104 passed**, max forecast time 0.41 s.
+  CLI path `python -m t2agent.cli --forecaster text_v1 ...` on the exemplar against the mock passes g0–g3 with the label table
+  and mapping ledger in `forecast_rationale.md`.
+- **Notes-only ablation on the 88 practice proxies** (`make eval-practice`, numeric_v1 vs `t2agent.text_v1:forecast_notes_only_*`,
+  paired, same roster, 2,000 draws; `.eval/ablations/*.md`):
+
+  | arm | mean | Δ vs 2.4356 | 95 % CI | caps (base 9) | F1 Δ | F2 Δ | F3 Δ | F4 Δ |
+  |---|---:|---:|---|---:|---:|---:|---:|---:|
+  | v1 rules, λ = 0.5 | 2.4077 | −0.028 | [−0.062, +0.001] | 9 | +0.025 | −0.068 | +0.014 | −0.058 |
+  | v1 rules, λ = 1.0 | 2.3721 | −0.064 | [−0.121, −0.010] | 7 | +0.049 | −0.113 | +0.036 | −0.163 |
+  | **v2 rules, λ = 0.5** | **2.4059** | **−0.030** | **[−0.059, −0.004]** | **9** | +0.013 | −0.058 | +0.008 | −0.060 |
+  | v2 rules, λ = 1.0 | 2.3673 | −0.068 | [−0.119, −0.022] | 8 | +0.022 | −0.105 | +0.011 | −0.151 |
+
+  v1 rules: elevated from ≥ 1 crisis cue **or** vol ratio ≥ 1.5, crisis tier at ≥ 3 cues with event `ongoing`. The per-unit
+  join showed the crisis tier losing (+0.14 mean over 6 units, CHF 2021 +0.77) and vol-ratio-only widening gaining nothing — numeric_v1
+  already prices a volatile panel — while cue-driven widening on a still-calm panel gained −0.16 over 26 units. v2 therefore
+  drops the lexicon crisis tier and the vol-ratio trigger and skips widening when the panel is already wide (ratio ≥ 1.5). This
+  revision was chosen after seeing the practice breakdown, so its figures are optimistic; the rule is principled (no double
+  counting of volatility) and is the only change between v1 and v2.
+- **Decision input for Phase 4 (balanced rule):** notes-only at λ = 0.5 improves the practice mean with no cap increase → a
+  shippable, deterministic, zero-request floor. λ = 1 improves more and removes a cap but F1/F3 are slightly worse, so it fails
+  the "consistent across families" test. The LLM-label arms (`forecast_labels_l05/l10`) run the same way once `.env` has a key;
+  nothing in the forecaster path depends on the key being present.
+
+### Open items
+
+- Dev-model sweep and the LLM-label ablation; verify `enable_thinking=False` and real token counts on the dev endpoint.
+- Numeric owner: accept the `labels` field; decide whether `text_v1` becomes the image default and at which λ.

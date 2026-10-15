@@ -1,7 +1,7 @@
-"""Build a ``NumericSummary`` for a practice unit from the numeric engine (dev / evaluation helper).
+"""Build a ``NumericSummary`` from the numeric engine (used by text_v1 and the dev sweep).
 
-The numeric owner builds the summary in production; this mirrors that construction so the text
-layer can be exercised and swept on the practice units without touching the forecaster.
+The numeric owner may build the summary differently in production; this mirrors numeric_v1's own
+moments so the text layer sees the same horizon sd the engine will scale.
 """
 
 from __future__ import annotations
@@ -29,11 +29,7 @@ def _vol_ratio(series, level: bool) -> float:
     return float(np.clip(recent / long_run, 0.2, 5.0))
 
 
-def numeric_summary_for_unit(unit_dir: Path | str) -> NumericSummary:
-    unit_dir = Path(unit_dir)
-    card = read_card(unit_dir / "card.toml")
-    panels = read_panels(unit_dir / "panels")
-    asof = str(card["provenance"]["data_cutoff"])
+def numeric_summary_from(card: dict, panels: dict, asof: str) -> NumericSummary:
     targets = card["targets"]
     assets = tuple(targets["asset_ids"])
     horizons = tuple(int(h) for h in targets["horizons"])
@@ -58,7 +54,7 @@ def numeric_summary_for_unit(unit_dir: Path | str) -> NumericSummary:
     family = str(card.get("metadata", {}).get("category") or card.get("forecast_spec", {}).get("card_family") or "")
     return NumericSummary(
         unit_id=str(card["task"]["id"]),
-        asof=date.fromisoformat(asof[:10]),
+        asof=date.fromisoformat(str(asof)[:10]),
         family=family,
         target_type=str(targets.get("target_type", "level")),
         value_unit=str(targets.get("value_unit", "")),
@@ -70,3 +66,10 @@ def numeric_summary_for_unit(unit_dir: Path | str) -> NumericSummary:
         card_description=str(card.get("metadata", {}).get("description", "")),
         card_text_notes=str(card.get("text", {}).get("notes", "")),
     )
+
+
+def numeric_summary_for_unit(unit_dir: Path | str) -> NumericSummary:
+    unit_dir = Path(unit_dir)
+    card = read_card(unit_dir / "card.toml")
+    panels = read_panels(unit_dir / "panels")
+    return numeric_summary_from(card, panels, str(card["provenance"]["data_cutoff"]))

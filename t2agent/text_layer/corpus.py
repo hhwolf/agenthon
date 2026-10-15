@@ -169,8 +169,9 @@ def card_keywords(*texts: str, assets: tuple[str, ...] = ()) -> set[str]:
     return words
 
 
-def prioritise(docs: list[CorpusDoc], asof: date, keywords: set[str]) -> list[CorpusDoc]:
-    """Decisions/statements before minutes before speeches; recent first; card keywords help."""
+def prioritise(docs: list[CorpusDoc], asof: date, keywords: set[str], relevance: dict | None = None) -> list[CorpusDoc]:
+    """Decisions/statements before minutes before speeches; recent first; card keywords and BM25
+    relevance to the assets help; documents with no asset/bank term at all sort last (off-topic)."""
     scored: list[CorpusDoc] = []
     for d in docs:
         level = C.DOC_TYPE_PRIORITY.get(d.doc_type, C.DEFAULT_DOC_TYPE_PRIORITY)
@@ -179,6 +180,11 @@ def prioritise(docs: list[CorpusDoc], asof: date, keywords: set[str]) -> list[Co
         sample = d.text[:20000].lower()
         hits = sum(1 for k in keywords if len(k) >= 4 and k in sample)
         score = level * C.PRIORITY_DAYS_PER_LEVEL + max(days, 0) - C.KEYWORD_BONUS_DAYS * min(hits, 3)
+        rel = (relevance or {}).get(d.doc_id)
+        if rel is not None:
+            score -= C.RELEVANCE_BONUS_DAYS * float(rel.normalised)
+            if rel.off_topic and level >= C.OFF_TOPIC_MIN_PRIORITY:
+                score += C.OFF_TOPIC_PENALTY_DAYS
         scored.append(CorpusDoc(**{**d.__dict__, "score": float(score)}))
     return sorted(scored, key=lambda d: (d.score, d.doc_id))
 
