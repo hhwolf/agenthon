@@ -1,0 +1,16 @@
+{
+  "drift": 0.25,
+  "volatility": "recent",
+  "variance_ratio": false,
+  "tails": "fhs5",
+  "rates_reversion": false,
+  "monthly": true,
+  "joint": true,
+  "width": 1.0,
+  "term_tau": 0.0,
+  "vol_floor": 0.0,
+  "monthly_damping": 1.0,
+  "monthly_window": 12,
+  "momentum": 0.0,
+  "components": []
+}

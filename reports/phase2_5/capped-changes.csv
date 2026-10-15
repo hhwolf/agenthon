@@ -1,0 +1,2 @@
+unit_id,asof,family,panel,horizon_bucket,shape,horizons,year,dataset,score,error,score_v1,change,partition,assets
+synthetic-20261014-01446,2022-02-11,T2-F1,rates_daily,127+,joint,"126,189",2022,historical,8.0,,7.994100465302436,new,held-out,"UST_2Y,UST_10Y"

@@ -1,0 +1,54 @@
+name: Publish numeric_v1.1 image
+on:
+  push:
+    tags: ['numeric-v1.1-*']
+permissions:
+  contents: read
+  packages: write
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      IMAGE: ghcr.io/hhwolf/agenthon-numeric-v1
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - name: Set up pinned evaluation environment
+        run: bash scripts/setup.sh
+      - name: Tests and all 104 admissibility gates
+        run: |
+          make test
+          make admissibility FORECASTER=numeric_v1_1
+      - name: Build amd64 runtime image
+        run: |
+          docker buildx build --platform linux/amd64 --load \
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            -t "$IMAGE:$GITHUB_SHA" -t "$IMAGE:numeric_v1_1" .
+          test "$(docker image inspect --format '{{.Os}}/{{.Architecture}}' "$IMAGE:$GITHUB_SHA")" = linux/amd64
+      - name: Run offline with read-only root and verify output
+        run: |
+          mkdir -p .context/image-output
+          chmod 0777 .context/image-output
+          docker run --rm --platform linux/amd64 --network=none --read-only \
+            --tmpfs /tmp:rw,noexec,nosuid,size=64m --cpus=4 --memory=4g \
+            -v "$PWD/vendor/track2/units/t2-EXAMPLE-ust-curve-1m:/input:ro" \
+            -v "$PWD/.context/image-output:/output" "$IMAGE:$GITHUB_SHA" \
+            forecast --panels /input/panels --text /input/text --asof 2024-06-28 \
+            --out /output/forecast.parquet
+          .venv/bin/python vendor/track2/scoring/scoring.py score \
+            --card vendor/track2/units/t2-EXAMPLE-ust-curve-1m/card.toml \
+            --forecast .context/image-output/forecast.parquet
+          docker run --rm --network=none "$IMAGE:$GITHUB_SHA" python -c \
+            'import importlib.util, pathlib; assert importlib.util.find_spec("t2eval") is None; assert not list(pathlib.Path("/app").rglob("*.parquet")); assert not pathlib.Path("/app/vendor").exists()'
+      - name: Push to GHCR
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker push "$IMAGE:$GITHUB_SHA"
+          docker push "$IMAGE:numeric_v1_1"
+          docker image inspect --format '{{json .RepoDigests}}' "$IMAGE:$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          docker logout ghcr.io

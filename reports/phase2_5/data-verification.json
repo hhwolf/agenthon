@@ -1,0 +1,7 @@
+{
+  "manifest_sha256": "78e71078af162a86195aca4ed5faaf758d66f29e857bf6461a30c52d27770cc4",
+  "checked": 55005,
+  "mismatches": [],
+  "restored": false,
+  "reason": "Existing snapshot preserved per restore instructions"
+}

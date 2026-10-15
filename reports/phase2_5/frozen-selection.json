@@ -1,0 +1,49 @@
+{
+  "winner": "A1_fhs5",
+  "config": {
+    "drift": 0.25,
+    "volatility": "recent",
+    "variance_ratio": false,
+    "tails": "fhs5",
+    "rates_reversion": false,
+    "monthly": true,
+    "joint": true,
+    "width": 1.0,
+    "term_tau": 0.0,
+    "vol_floor": 0.0,
+    "monthly_damping": 1.0,
+    "monthly_window": 12,
+    "momentum": 0.0,
+    "components": []
+  },
+  "n_draws": 2000,
+  "source_signature": "2b1ad69d10d3ff220777f3a9b5a46c88ab7617d1be961e9e2d98632288b3678b",
+  "protocol_sha256": "d1199f53736bf8fdaf58146f2b7188497a00efa7f82b087648d42b99d32eb84b",
+  "protocol_commit": "da26396",
+  "metrics": {
+    "cv": {
+      "cards": 1073,
+      "mean": 0.9510810683178046,
+      "median": 0.7061132289773177,
+      "capped": 1
+    },
+    "practice": {
+      "cards": 88,
+      "mean": 2.415744063385565,
+      "median": 1.365855760616008,
+      "capped": 9
+    },
+    "heldout": {
+      "cards": 554,
+      "mean": 1.4542078196027481,
+      "median": 0.8079784206047909,
+      "capped": 18
+    },
+    "historical": {
+      "cards": 2060,
+      "mean": 1.1525372909443976,
+      "median": 0.7590767375690866,
+      "capped": 24
+    }
+  }
+}

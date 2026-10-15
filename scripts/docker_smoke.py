@@ -7,7 +7,7 @@ import subprocess
 import argparse
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--forecaster', choices=['m0', 'numeric_v1'], default='m0')
+parser.add_argument('--forecaster', choices=['m0', 'numeric_v1', 'numeric_v1_1'], default='m0')
 args = parser.parse_args()
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -36,7 +36,7 @@ def run_forecaster(name: str, unit: Path, out: Path, n_draws=500, seed=None, *, 
         with contextlib.redirect_stdout(io.StringIO()):
             cli.main(args)
         return
-    module, function = (f"t2agent.{name}", "forecast") if name in {"m0", "numeric_v1"} else name.split(":", 1)
+    module, function = (f"t2agent.{name}", "forecast") if name in {"m0", "numeric_v1", "numeric_v1_1"} else name.split(":", 1)
     forecaster = getattr(importlib.import_module(module), function)
     frame = forecaster(card, read_panels(unit / "panels"), unit / "text" if text else None,
                        asof, n_draws, seed)

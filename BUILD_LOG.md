@@ -556,3 +556,24 @@ Phase 2.5 evaluates the fixed A1–A6 menu in
 Practice proxies now constrain selection under the user's C1 rule; reserved
 2019–2024 can veto >15% major-group regressions but cannot rank candidates.
 The old runtime config and Phase 2 freeze are protected by SHA-256 checks.
+
+### Phase 2.5 — frozen experiment and independent verification
+
+All 55,005 published evaluation files matched the archive manifest; no restore
+or overwrite was necessary. The fixed menu produced 15 candidate rows plus the
+bit-identical numeric_v1 control. A1 filtered historical simulation is selected:
+CV 0.953077 → 0.951081, practice 2.435614 → 2.415744, held-out 1.456363 → 1.454208.
+CV+practice caps stay 10; held-out caps rise 17 → 18, all-historical 23 → 24.
+No cap is removed. Synthetic card 01446 (UST_2Y/UST_10Y, 2022-02-11) changes
+7.994 → 8.000. These overlapping-card results do not establish robust accuracy:
+all paired year-block 95% CIs include zero. The monthly and rate-trend issues
+remain unresolved because their alternatives failed the fixed acceptance rule.
+
+The initial runner stopped before scoring because pandas `rows.asof` resolves
+its method, not the column; explicit column indexing fixed it. No scoring menu
+or inference rule changed after results were seen. The selected engine passed
+100 tests and 104/104 official admissibility checks. Independent review
+recomputed every candidate metric, breakdown, C1 decision, veto, and paired CI
+from tracked CSVs and found no selection mismatch. Post-freeze evaluation-only
+hardening will reject mismatched paired rosters and bind caches to input data
+and the environment seed; recorded candidate predictions stay frozen.
