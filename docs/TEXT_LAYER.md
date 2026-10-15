@@ -153,6 +153,10 @@ scored, but it is screened by humans at the top of the board.
 - Unit tests: clamping, neutral fallback, budget counting (including failures), offline mode, JSON repair.
 - Mock server (`tests/mock_house.py`): OpenAI-compatible, canned responses, can simulate 401/403/5xx/timeout.
 - Offline full sweep: `make admissibility FORECASTER=<text-aware forecaster>` with `QFBENCH_NETWORK=none` → 104/104 pass.
+- Implementation: `t2agent/text_layer/` (constants in `constants.py`, pipeline in `pipeline.py`).
+  Tests: `make test`. Offline dry run on all practice units: `.venv/bin/python scripts/run_text_layer_practice.py --mode mock` (in-process mock House) or
+  `--mode offline`; dev model: `--mode dev` with `.env`, outputs under `.eval/text_signals/`,
+  responses cached under `.eval/llm_cache/`. See BUILD_LOG "Text layer — implementation".
 - Ablation (with the dev model): `make eval-practice` numeric-only vs numeric+text on the 88 practice
   proxies, reported by family. Text ships only if it helps there and does not increase capped cards.
   The historical backtest (`make backtest`) has no text, so it cannot measure this.

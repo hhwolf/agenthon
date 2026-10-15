@@ -467,3 +467,81 @@ Clamp values are initial and will be set by the practice-proxy ablation.
 `tests/test_contracts.py` covers the neutral signal and budget refusal.
 `numeric_v1.apply_text_signal` already duck-types these types and applies the
 same drift and weight bounds (see `docs/NUMERIC_V1.md`).
+
+## Text layer — implementation, 2026-10-14
+
+Implemented `t2agent/text_layer/` behind the frozen contract in `t2agent/contracts.py`
+(`read_text(unit_dir, NumericSummary, CallBudget) -> TextSignal`). The contract types were not
+changed. The forecaster is not wired; the numeric owner applies the signal via
+`numeric_v1.apply_text_signal`, which already accepts these dataclasses (verified by test).
+
+### Setup on this machine
+
+- `make setup` needs Python 3.13 (`qfbench2-common` requires `>=3.13`); none was installed, so
+  `python@3.13` was added with Homebrew and the venv rebuilt with
+  `PYTHON_BOOTSTRAP=/opt/homebrew/bin/python3.13 make setup`. Toolkit 2.6.0 and track 3.1.0 as pinned.
+- `openai==3.31.0` is now a runtime dependency (`requirements-runtime.txt`, `pyproject.toml`); its
+  closure is pinned in `constraints-eval.txt` (`pip check` clean). The SDK uses `httpx2` with
+  `trust_env`, so the harness's `HTTP(S)_PROXY` is honoured without any code.
+- **No `.env` / NVIDIA key exists on this machine**, so the dev-model sweep could not be run. Everything
+  below was measured against `tests/mock_house.py`; the dev sweep command is ready
+  (`scripts/run_text_layer_practice.py --mode dev`) and caches under `.eval/llm_cache/`.
+
+### Decisions
+
+1. **House client exactly per §3.** `OpenAI(base_url=$MODEL_ENDPOINT.rstrip('/')+'/v1', api_key=$MODEL_TOKEN,
+   max_retries=0, timeout)`, `model=$MODEL_NAME`, `temperature=0`, `top_p=1`, `seed=20261014`,
+   `max_tokens<=4000`, no tools, `n` never set. `budget.spend()` is called immediately before every
+   request, including retries and repairs; a cache hit sends nothing and spends nothing.
+2. **Offline = zero attempts.** `QFBENCH_NETWORK=none`, or any of `MODEL_ENDPOINT`/`MODEL_TOKEN`/
+   `MODEL_NAME` unset, returns `TextSignal.neutral(reason="offline (...)")` before a client exists.
+   A missing `openai` install is a failure (neutral), not offline.
+3. **Request plan.** Documents are prioritised (decision/statement 0, release 1, minutes 2, beige book
+   and speech 3, landmark 4; one level = 60 days of recency; card keywords earn up to 90 days), split at
+   paragraph boundaries into <= 20K-token segments and first-fit packed into <= 45K-token chunks
+   (`MAX_INPUT_TOKENS_PER_CALL=48_000` minus 3K prompt overhead, chars/4). Chunks are capped at
+   `MAX_EXTRACTION_CALLS=6` and at `budget_remaining - 2`; overflow segments are listed in the
+   rationale as "Not sent (budget)". Extraction calls run with thinking off, three in parallel;
+   the single synthesis call runs with thinking on. One repair per call, and the synthesis repair
+   runs with thinking off so a truncated reasoning trace cannot eat the 4,000-token limit twice.
+   A `400 ... context length` reply splits that chunk in two once. Hard cap: worst case
+   6 extraction + 6 repairs + synthesis + repair = 14 < 20.
+4. **Evidence validation.** Claims whose `doc_id` is not in the corpus are dropped. `established=True`
+   survives only when the model's verbatim quote is found in that document (whitespace/case/curly-quote
+   tolerant); otherwise the item is demoted to inferred. Narrowing (`vol_mult < 1`) is allowed only when
+   at least one established item remains, matching the check `apply_text_signal` repeats.
+5. **Clamps as named constants** (`t2agent/text_layer/constants.py`): per-scenario drift +/-1.5, weighted
+   mean drift +/-0.5 with proportional rescaling of every scenario's drift for that asset, vol 0.8-2.0
+   with the inferred floor at 1.0, tail 1.0-2.0, weight >= 0.05 (smaller scenarios dropped and the rest
+   renormalised), 1-4 scenarios. Drifts are rounded to 6 decimals and the mean bound is re-checked after
+   rounding. Ablation changes only this file.
+6. **Time.** `TIME_BUDGET_S=600` per unit; each request's timeout is `min(120 s, remaining - 30 s)`
+   (synthesis up to 240 s), backed by a daemon-thread wall clock so a stalled socket cannot exceed it.
+7. **Rationale.** `rationale_md` lists documents read/dropped, an evidence table with E/I flags, the
+   scenario table with cited evidence numbers, every clamp applied (before -> after), and an adjustment
+   ledger per asset: weighted drift arithmetic, centre shift in value units per horizon, mixture
+   vol_mult, tail_mult, and the request log. Neutral signals carry the reason.
+8. **Dev cache** keyed by sha256(unit_id, model, full request params incl. messages), opt-in through
+   `TEXT_LAYER_CACHE_DIR` (the sweep script sets `.eval/llm_cache/`); it never exists in the image.
+
+### Results (mock House; dev model pending a key)
+
+- `make test`: **85 passed** (54 existing + 31 text-layer tests: clamps, inferred-floor, quote and
+  citation validation, neutral fallbacks, budget counting with failed/auth/transient calls, offline mode,
+  time budget, hard cap on a 40-document corpus, context-overflow split, JSON repair for extraction and
+  synthesis, cache, post-as-of drop, numeric-adapter compatibility, one real practice unit).
+- `scripts/run_text_layer_practice.py --mode mock` on all 104 units (`.eval/text_signals_mock/`):
+  **104/104 non-neutral, 354 requests total, 2-4 per unit (median 3), max 4 of the 20 cap**, 4.4 s wall.
+  Corpora of up to 549K chars pack into 3 extraction requests of <= 48K estimated tokens.
+- `--mode mock --mock-scenario extreme` (out-of-range model output, fabricated citations):
+  104/104 units inside every bound; vol floored at 1.0 because no established evidence survived.
+- `--mode offline` (`QFBENCH_NETWORK=none`): 104/104 neutral, **0 requests**.
+- Mock-driven signal statistics (not a text-ablation result): mean |weighted drift| 0.21 sd, mixture
+  vol 1.125, tail 1.2, 3 scenarios, about 22 evidence items per unit of which half established.
+
+### Open items
+
+- Run `--mode dev` with a `build.nvidia.com` key in `.env` to produce `.eval/text_signals/` with the
+  real model, then the §9 ablation (`numeric_v1` vs `numeric_v1 + apply_text_signal`) by family.
+  Verify `enable_thinking=False` on the dev endpoint and the real token counts per request.
+- Prompt and clamp values are initial; tune `constants.py` from the ablation, never per unit.
