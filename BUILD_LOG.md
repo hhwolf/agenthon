@@ -634,7 +634,7 @@ mock Final grader can reuse. `scripts/compare_runs.py` pairs two `eval-practice`
   worse, so it fails the "consistent across families" test. Read: a deterministic, zero-request floor worth shipping at λ = 0.5
   only if the LLM-label arm does not beat it; the LLM-label arms (`forecast_labels_l05/l10`) run the same way once `.env` has a
   key, and nothing in the forecaster path depends on the key being present.
-- **Adversarial review (five lenses, two to three refuters per finding):** 40 findings raised, 30 upheld, all addressed. Material
+- **Adversarial review (five lenses, two to three refuters per finding):** 40 findings raised, 29 upheld, all addressed. Material
   fixes: a malformed `corpus_index.json` now falls back to `text/*.txt` instead of neutralising the unit; duplicate detection
   hashes the full text; duplicate `doc_id`s keep the first entry; year-less dates resolve against the document's own date (an old
   speech can no longer mint a future event) and an undated "upcoming" mention is ignored when the text has dated events; cue
