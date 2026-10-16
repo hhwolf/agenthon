@@ -50,6 +50,7 @@ class TextSignal:
     rationale_md: str = ""
     calls_used: int = 0
     fallback_reason: str | None = None  # set whenever the signal is neutral because of a failure
+    labels: dict = field(default_factory=dict)  # Phase 3 categorical labels; text_map turns them into numbers
 
     @staticmethod
     def neutral(assets: tuple[str, ...], reason: str | None = None) -> TextSignal:

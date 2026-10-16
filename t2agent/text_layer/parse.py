@@ -284,7 +284,7 @@ def parse_extraction(obj: dict, docs_by_id: dict[str, CorpusDoc], assets: tuple[
             continue
         seen.add(key)
         out.append(RawEvidence(
-            doc_id=doc_id, timestamp=str(item.get("timestamp") or doc.timestamp), claim=claim[:C.MAX_CLAIM_CHARS],
+            doc_id=doc_id, timestamp=doc.timestamp or str(item.get("timestamp") or ""), claim=claim[:C.MAX_CLAIM_CHARS],
             quote=quote[:C.MAX_QUOTE_CHARS], assets=_match_assets(item.get("assets"), assets),
             direction=_direction(item.get("direction")), established=established,
             kind=str(item.get("kind") or "other").strip().lower()[:16] or "other"))

@@ -620,3 +620,154 @@ Visual checks and extracted text confirm no clipping or pending placeholders.
 No competition packing or submission upload was performed. Phase 2.5 delivery
 is complete; statistically robust accuracy and capped-card reductions remain
 unproven, as stated on the first PDF page.
+
+## Text layer — Phase 3 (labels design), 2026-10-15
+
+Rebuilt `t2agent/text_layer/` to the Phase 3 brief: the model classifies, a fixed table sets magnitudes. Contract change:
+`TextSignal.labels: dict` (default `{}`) added to `t2agent/contracts.py` — flagged to the numeric owner; `TextSignal.neutral`
+and every existing caller are unaffected. `numeric_v1.py` is untouched; `t2agent/text_v1.py` wraps it through the existing
+`text_signal` hook and `t2agent/cli.py` gained `--forecaster text_v1`.
+
+### Pipeline per unit
+
+1. **Deterministic pre-pass** (`prepass.py`, no LLM): calendar window of the horizons; dated events from card prose and documents
+   with regex kinds (referendum / election / vote-on / policy meeting / deadline / release / summit) and day-range dates;
+   latest decision or statement per bank; document recency; distinct hawkish / dovish / crisis / binary cue words in the card prose
+   and latest decisions; `card_binary_kind` when the card itself names a two-outcome event. FOMC "voting for the action" language
+   is not a vote event; a month-day without a year is placed at its next occurrence.
+2. **Relevance** (`relevance.py`): BM25 (k1 1.5, b 0.75) over asset/bank terms plus card keywords. Speeches, beige books and
+   landmarks with no such term are ranked last (+240 days) and listed as off-topic; decisions, statements, releases and minutes are
+   never penalised. Ranking = doc-type level × 60 days + age − keyword and relevance bonuses.
+3. **Extraction** (thinking off, ≤ 6 parallel requests of ≤ 48K estimated tokens): cited evidence `{doc_id, claim, quote, assets,
+   direction, established}`; uncited claims dropped; `established` survives only with a verbatim quote found in the document.
+4. **Labels** (thinking on, 3 runs in parallel with seeds `SEED+k` and the evidence order permuted, numbering stable): strict JSON
+   labels; validation coerces enums, drops uncited directions, requires a cited established item for `direction_established`,
+   and demands exactly two branches for `scheduled_binary`. **Majority vote** per field (≥ 2 of 3; any tie → neutral value);
+   branches aligned by the first asset's sign and probability-averaged; a failed run is excluded from the vote (one survivor is
+   enough; zero → neutral). JSON repair: one per call, synthesis repairs with thinking off.
+5. **Budget / time**: `budget.spend()` before every request incl. retries, repairs and splits; worst case 6 + 6 + 3 + 3 = 18 < 20;
+   runs are reduced when fewer slots remain. Hard stop 400 s (`TIME_BUDGET_S`), soft target 240 s logged; per-request timeout
+   `min(120 s, remaining − 20 s)` (labels 150 s) with a daemon-thread wall clock. Offline → zero attempts.
+6. **Output**: numerically neutral `TextSignal` (applying it reproduces numeric_v1 bit for bit, tested) carrying `labels`,
+   evidence, and a rationale with documents, pre-pass facts, the evidence table (E/I), the label table with per-field agreement,
+   and the vote record. `text_map.apply_text_map` appends the table rows used, λ, clamps and the adjustment ledger.
+
+### Label → number table (`t2agent/text_map.py`, constants only; starting values from SOLVER-PLAYBOOK §3)
+
+elevated → vol 1.25; crisis → vol 1.6, tail 1.5; scheduled_binary → two branches, drift ±1.0 sd by branch sign, probabilities
+clipped to [0.2, 0.8], vol floor 1.15, tail 1.25; ongoing → vol floor 1.15; direction up/down ±0.25 sd, strong ±0.5 sd;
+disagreement → no drift, vol ≥ 1.15; crisis with a named side → 20 % shock scenario at twice the drift and vol 1.8; λ shrinks
+drift, (vol−1) and (tail−1); then the §5 clamps (`signal.clamp_scenarios`). Notes-only branches carry no signs, so a binary
+event without an LLM adds width and tail, not drift.
+
+### Dev tooling
+
+`scripts/run_text_layer_practice.py --mode dev|replay|mock|notes_only|offline [--repeat N]` writes `.eval/text_signals*/<unit>.json|.md`
+and a summary by family (label distribution, calls, fallbacks, self-consistency and rerun agreement). The dev cache is flat
+(`.eval/llm_cache/<request-sha256>.json`, key = model + messages + sampling params + chat_template_kwargs) so that
+`tests/mock_house.py --replay-dir .eval/llm_cache` and `TEXT_LAYER_REPLAY_ONLY=1` reproduce a dev run without a network; the mock
+also enforces a 25-request allowance per bearer token (429 beyond), clamps `max_tokens` to 4,000 and refuses `n > 1`, which the
+mock Final grader can reuse. `scripts/compare_runs.py` pairs two `eval-practice` runs (bootstrap CI, caps, by family, per-card).
+
+### Results
+
+- `make test`: **106 passed** (54 existing + 52 text-layer tests: offline zero attempts, budget counting incl. failed/auth/transient
+  calls, 20-cap on a 40-document corpus, time budget, JSON repair for extraction and labels, majority vote and ties, partial
+  synthesis failure, label validation of out-of-schema output, uncited/unsupported evidence, pre-pass dates and kinds, BM25
+  off-topic ranking, cache → replay-only → mock replay, label→number table values and λ, text_v1 identity offline / no text,
+  mock House allowance, plus regression tests for every upheld review finding).
+- **No dev key on this machine** (`.env` absent), so the LLM-label sweep over the 104 units could not be run with the real model;
+  `--mode dev` is ready and caches for replay. Mock-label sweep (`--mode mock`, 104 units, in-process mock House with a fresh
+  allowance per unit): **104/104 labelled, 562 requests, mean 5.4 and max 6 per unit of the 20 cap,
+  self-consistency agreement 0.848 (the mock dissents on one of three seeds by design), 9.3 s wall time**;
+  label mix regime {'elevated': 104}, event {'none': 99, 'scheduled_binary': 5}. Offline sweep: 104/104 neutral, 0 requests.
+  `QFBENCH_NETWORK=none make admissibility FORECASTER=t2agent.text_v1:forecast`: **104/104 passed**, max forecast time 0.41 s.
+  CLI path `python -m t2agent.cli --forecaster text_v1 ...` on the exemplar against the mock passes g0–g3 with the label table
+  and mapping ledger in `forecast_rationale.md`.
+- **Notes-only ablation on the 88 practice proxies** (`make eval-practice`, numeric_v1 vs `t2agent.text_v1:forecast_notes_only_*`,
+  paired, same roster, 2,000 draws; `.eval/ablations/*.md`):
+
+  | arm | mean | Δ vs 2.4356 | 95 % CI | caps (base 9) | F1 Δ | F2 Δ | F3 Δ | F4 Δ |
+  |---|---:|---:|---|---:|---:|---:|---:|---:|
+  | v1 rules, λ = 0.5 | 2.4077 | −0.028 | [−0.062, +0.001] | 9 | +0.025 | −0.068 | +0.014 | −0.058 |
+  | v1 rules, λ = 1.0 | 2.3721 | −0.064 | [−0.121, −0.010] | 7 | +0.049 | −0.113 | +0.036 | −0.163 |
+  | v2 rules, λ = 0.5 | 2.4059 | −0.030 | [−0.059, −0.004] | 9 | +0.013 | −0.058 | +0.008 | −0.060 |
+  | v2 rules, λ = 1.0 | 2.3673 | −0.068 | [−0.119, −0.022] | 8 | +0.022 | −0.105 | +0.011 | −0.151 |
+  | **v2 rules after review fixes, λ = 0.5** | **2.4122** | **−0.023** | **[−0.051, +0.001]** | **9** | +0.013 | −0.058 | +0.007 | −0.039 |
+  | v2 rules after review fixes, λ = 1.0 | 2.3768 | −0.059 | [−0.108, −0.015] | 8 | +0.022 | −0.105 | +0.009 | −0.120 |
+
+  v1 rules: elevated from ≥ 1 crisis cue **or** vol ratio ≥ 1.5, crisis tier at ≥ 3 cues with event `ongoing`. The per-unit
+  join showed the crisis tier losing (+0.14 mean over 6 units, CHF 2021 +0.77) and vol-ratio-only widening gaining nothing — numeric_v1
+  already prices a volatile panel — while cue-driven widening on a still-calm panel gained −0.16 over 26 units. v2 therefore
+  drops the lexicon crisis tier and the vol-ratio trigger and skips widening when the panel is already wide (ratio ≥ 1.5). This
+  revision was chosen after seeing the practice breakdown, so its figures are optimistic; the rule is principled (no double
+  counting of volatility) and is the only change between v1 and v2. The "after review fixes" rows are the same v2 rules once the
+  adversarial review's corrections landed (whole-word cue matching removed spurious "elevated" units: 27 instead of 43 of 104,
+  5 scheduled-binary units); these are the current numbers (`.eval/ablations/notes_only_v3_vs_numeric_v1.md`).
+- **Decision input for Phase 4 (balanced rule):** notes-only at λ = 0.5 improves the practice mean (−0.023) with no cap increase,
+  but its CI now just touches zero; λ = 1 improves more (−0.059, CI clear of zero) and removes a cap, yet F1/F3 are slightly
+  worse, so it fails the "consistent across families" test. Read: a deterministic, zero-request floor worth shipping at λ = 0.5
+  only if the LLM-label arm does not beat it; the LLM-label arms (`forecast_labels_l05/l10`) run the same way once `.env` has a
+  key, and nothing in the forecaster path depends on the key being present.
+- **Adversarial review (five lenses, two to three refuters per finding):** 40 findings raised, 29 upheld, all addressed. Material
+  fixes: a malformed `corpus_index.json` now falls back to `text/*.txt` instead of neutralising the unit; duplicate detection
+  hashes the full text; duplicate `doc_id`s keep the first entry; year-less dates resolve against the document's own date (an old
+  speech can no longer mint a future event) and an undated "upcoming" mention is ignored when the text has dated events; cue
+  words match whole words; `pboc` no longer reads as the Bank of Canada; off-topic needs no asset term *and* no card keyword;
+  binary branches are aligned across runs by total sign agreement over all assets; label shapes that raise inside the parser
+  now reach the single repair; a failed extraction worker cancels its queued siblings and waits for in-flight ones, so no request
+  is sent after `read_text` returns and `calls_used` is exact; the SDK check precedes the budget spend; retried attempts are
+  logged; the model's timestamps are ignored in favour of the corpus index; the JSON schema shown to the model carries no
+  inline comment; the rationale names the reader's scheduled events and disagreements and no longer claims to reproduce the
+  numeric forecast once a mapping was applied; `cli.py` imports the text layer only when `text_v1` is selected; the monthly vol
+  ratio and log-cell centre follow numeric_v1's own log-space treatment. Refuted (kept as is): plurality vs majority beyond 3
+  runs, unit ids in prompts, NaN time budgets, kind-selection order in the event regex.
+
+### Open items
+
+- Dev-model sweep and the LLM-label ablation; verify `enable_thinking=False` and real token counts on the dev endpoint.
+- Numeric owner: accept the `labels` field; decide whether `text_v1` becomes the image default and at which λ.
+
+### Dev endpoint check, 2026-10-15 (key in `.env`, `nvidia/nemotron-3-super-120b-a12b` on integrate.api.nvidia.com)
+
+Three-unit smoke test (`--mode dev --limit 3`): 3/3 labelled, no fallbacks, no JSON repairs, 4–6 requests per unit, 72–166 s per
+unit, vote agreement 0.83–1.0. `chat_template_kwargs.enable_thinking=False` is honoured: extraction replies contain no reasoning
+and their completion tokens match the visible text; label calls think server-side (1,000–2,700 completion tokens for ~700 chars of
+JSON). Two sizing corrections before the full sweep, both from the cached usage figures: the tokenizer counts 2.6–3.5 characters
+per token on these corpora (one extraction prompt reached 68,818 real tokens against the ~60K design limit), so
+`CHARS_PER_TOKEN` is now 2.8 (≈ 48K real tokens per request, 5 extraction calls for the largest corpora, 8 requests worst case);
+and extraction replies truncated at 3,000 output tokens, so extraction now uses the 4,000 cap with at most 18 items per chunk and
+quotes of ≤ 200 characters. The first three units will be re-labelled by the sweep because the prompts changed.
+
+### Dev-model sweep and LLM-label ablation, 2026-10-15
+
+Full sweep of the 104 practice units against `nvidia/nemotron-3-super-120b-a12b` on integrate.api.nvidia.com (`scripts/
+run_text_layer_practice.py --mode dev`, two passes: a network outage during the first pass turned 63 units neutral with
+"Connection error" after ~1 s each; the gap-fill pass re-ran only those from the cache boundary onward, with the new
+transient-retry logic, which was never needed because the link stayed up). Outputs: `.eval/text_signals/` (labels JSON + rationale
+per unit), `.eval/llm_cache/` (449 replies keyed by request hash; the whole ablation below replayed from it with zero network calls).
+
+- **100/104 units labelled**; 4 neutral (`ParseError: no JSON object found` after the single repair). Requests per unit: mean 4.4,
+  max 11 of the 20 cap; wall time per live unit mean ≈ 125 s, max 293 s (4 units over the 240 s soft target, none near the 400 s
+  hard stop). Self-consistency agreement mean 0.85; 29 units below 0.8.
+- **Label mix**: regime elevated 83, crisis 8, calm 9; event scheduled_binary 44, ongoing 13, none 43; disagreement flagged on
+  63 of 100 units (→ no drift, vol ≥ 1.15 by the table); per-asset directions: none 105, up 25, strong_up 8, down 20, strong_down 7,
+  48 of them established. The model is conservative on direction and liberal on disagreement and "elevated".
+- **Paired practice ablation** (88 proxies, same roster, 2,000 draws, `make eval-practice`, replayed from cache;
+  `.eval/ablations/labels_vs_numeric_v1.md`):
+
+  | arm | mean | Δ vs numeric_v1 2.4356 | 95 % CI | caps (base 9) | F1 Δ | F2 Δ | F3 Δ | F4 Δ |
+  |---|---:|---:|---|---:|---:|---:|---:|---:|
+  | notes-only, λ = 0.5 | 2.4122 | −0.023 | [−0.051, +0.001] | 9 | +0.013 | −0.058 | +0.007 | −0.039 |
+  | notes-only, λ = 1.0 | 2.3768 | −0.059 | [−0.108, −0.015] | 8 | +0.022 | −0.105 | +0.009 | −0.120 |
+  | **LLM labels, λ = 0.5** | **2.2905** | **−0.145** | **[−0.238, −0.060]** | **7** | +0.008 | −0.025 | −0.023 | −0.426 |
+  | LLM labels, λ = 1.0 | 2.2067 | −0.229 | [−0.378, −0.090] | 6 | +0.038 | −0.023 | −0.022 | −0.712 |
+
+- **Decision input for Phase 4 (balanced rule):** LLM labels at **λ = 0.5** improve the practice mean by 0.145 (CI clear of zero)
+  and cut caps from 9 to 7 → meets "practice mean improves and caps do not rise". λ = 1.0 is larger (−0.229, caps 6) but F1 is
+  +0.038 worse, so it fails "consistent across families"; the gain is concentrated in F4 (−0.71), i.e. the tail/shock cards where
+  the table's crisis/binary rows widen and fatten tails. Recommendation: ship LLM labels at λ = 0.5; keep notes-only as the
+  offline/fallback arm. Caveats: practice cards are historical episodes the model may remember (TEXT_LAYER.md §7), so these gains
+  are optimistic for the sealed 2025–26 set; the dev endpoint may serve a different snapshot than the House route; 4 % of units
+  fall back to neutral on JSON failures and 29 % of units have vote agreement below 0.8, so a rerun with a fresh seed can move
+  individual cards — the organisers' fresh-seed rerun check (P5) should be run on the final image.
