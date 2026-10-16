@@ -4,6 +4,9 @@
 
 ### Added
 
+- Prepare final-* CI publication, strict eight-sweep release verification, and toolkit-based descriptor generation; final publication remains pending real replay data and a code license.
+- Make rationale output reproducible by sorting concurrent notes/requests and keeping measured timing in harness reports.
+
 - Apply fixed text labels after numeric sampling, with shared binary branches, named adverse tails, and a cited evidence ledger.
 - Compare cached labels and a strict card-prose-only arm against numeric_v1.1; provisionally select card notes at lambda 0.5 while full model-label replay is unavailable.
 - Verify current Phase 4 candidate containers in both offline and restricted mock Final modes in CI.

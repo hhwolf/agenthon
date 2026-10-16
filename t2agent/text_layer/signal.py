@@ -152,7 +152,7 @@ def rationale_labels(summary: NumericSummary, labels: dict, evidence: list[RawEv
     lines.append(f"As-of {summary.asof.isoformat()}; family {summary.family}; mode {labels.get('mode', ledger.mode)}; "
                  f"House requests used: {ledger.requests}"
                  + (f" ({ledger.cache_hits} served from the dev cache)" if ledger.cache_hits else "")
-                 + (f"; wall time {ledger.elapsed_s:.1f} s" if ledger.elapsed_s else "") + ".")
+                 + ".")
     if neutral_reason:
         lines += ["", f"**Neutral signal** — {neutral_reason}. The forecast is numeric-only."]
     lines += ["", "### Documents", ""]
@@ -160,8 +160,10 @@ def rationale_labels(summary: NumericSummary, labels: dict, evidence: list[RawEv
                  if ledger.docs_read else "No documents were sent to the model.")
     if ledger.docs_dropped:
         lines.append(f"Not sent (budget): {'; '.join(ledger.docs_dropped)}.")
-    if ledger.notes:
-        lines.append("Pipeline notes: " + " ".join(ledger.notes[:12]) + (" ..." if len(ledger.notes) > 12 else ""))
+    # Timing stays in the runtime/harness ledger, not deterministic deliverables.
+    notes = sorted(n for n in ledger.notes if not n.startswith("wall time "))
+    if notes:
+        lines.append("Pipeline notes: " + " ".join(notes[:12]) + (" ..." if len(notes) > 12 else ""))
     if ledger.prepass_lines:
         lines += ["", "### Deterministic pre-pass (card prose, corpus index, lexicons)", ""]
         lines += [f"- {l}" for l in ledger.prepass_lines]
@@ -198,9 +200,9 @@ def rationale_labels(summary: NumericSummary, labels: dict, evidence: list[RawEv
         lines += ["", f"Model summary: {labels['summary']}"]
     lines += ["", NUMERIC_PARAGRAPH_HEADER, "", NUMERIC_PARAGRAPH_UNMAPPED]
     lines.append("")
-    lines.append("Requests: " + (", ".join(
+    lines.append("Requests: " + (", ".join(sorted(
         f"{c.get('purpose')}={'cached' if c.get('cached') else c.get('status')}"
-        + (f"x{c.get('attempts')}" if (c.get('attempts') or 0) > 1 else "") for c in ledger.calls) or "none"))
+        + (f"x{c.get('attempts')}" if (c.get('attempts') or 0) > 1 else "") for c in ledger.calls)) or "none"))
     return "\n".join(lines).rstrip() + "\n"
 
 

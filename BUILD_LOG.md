@@ -931,3 +931,38 @@ per unit), `.eval/llm_cache/` (449 replies keyed by request hash; the whole abla
   are optimistic for the sealed 2025–26 set; the dev endpoint may serve a different snapshot than the House route; 4 % of units
   fall back to neutral on JSON failures and 29 % of units have vote agreement below 0.8, so a rerun with a fresh seed can move
   individual cards — the organisers' fresh-seed rerun check (P5) should be run on the final image.
+
+## Phase 5 preparation — 2026-10-16
+
+Fetched and merged the teammate's `2d6601e` report (100/104 real-model labels;
+lambda 0.5 recommended against numeric_v1). The cache itself is still absent
+from local workspaces, all remote branches, Actions artifacts and release assets.
+Requested the per-unit labels and raw replies, including the four malformed
+response cases; the integrated numeric_v1.1 comparison remains required.
+Also requested a code license (none is declared in the repository) and optionally
+the public derived team alias. Never request or handle the Team Key.
+
+Added the precommitted Phase 5 protocol, `final-*` CI publication workflow,
+`t2eval.final_release` eight-sweep verifier, and `scripts/prepare_final.py` toolkit
+descriptor/preflight helper. All use the existing official scorer/harness and
+leave prior frozen numeric configurations untouched. The release manifest is
+explicitly pending and publication preflight rejects it. Final freeze covers
+runtime Python/JSON, Dockerfile, runtime requirements, .dockerignore and LICENSE.
+
+Found and corrected a deterministic-output defect: rationale files contained
+elapsed times plus completion-order-dependent request and warning lists. Runtime
+rationales now omit elapsed measurements and sort those lists before truncation;
+harness reports retain timing. No forecast values or mapping coefficients changed.
+Repeated offline and labels+canned exemplar runs have identical parquet, metadata
+and rationale bytes. The canned route sends four requests; offline sends zero.
+
+Validation: **241 tests passed**, 15 existing warnings; **104/104 host
+admissibility**; linux/amd64 candidate build succeeded. Independent coverage/plan
+audits also caught a missing .context creation in CI and gaps in freeze and
+orchestration tests; fixed and tested. Local image IDs and timing are recorded in
+`reports/phase5/preflight.json`, not represented as registry digests.
+
+Final publication, the four-mode 104-unit matrix with repeat/fresh-seed checks,
+and the actual descriptor remain pending the cache, selection and license.
+No final-* tag, GHCR final image, competition pack, or CodaBench upload was made.
+See `reports/phase5/STATUS.md` and `docs/FINAL_RELEASE.md` for the concrete handoff.
