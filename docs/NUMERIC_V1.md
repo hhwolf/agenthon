@@ -13,8 +13,8 @@ frame = forecast(card, panels, None, asof, n_draws=2000, seed=7)
 # Optional: keyword-only text_signal=signal
 ```
 
-The six existing positional arguments remain compatible. The CLI and Docker
-image default to numeric_v1 and 2,000 draws; `--forecaster m0` preserves the
+The six existing positional arguments remain compatible. The Phase 2 image defaults to numeric_v1 and 2,000 draws. The newer CLI/image
+default to numeric_v1_1; use `--forecaster numeric_v1` for this unchanged freeze; `--forecaster m0` preserves the
 500-draw baseline. Explicit seed wins over `QFBENCH_SEED`, otherwise CRC32 of the
 unit identifier supplies a deterministic seed. Inference never opens text files,
 evaluation artifacts, realized values, or per-unit answer tables.

@@ -545,3 +545,78 @@ changed. The forecaster is not wired; the numeric owner applies the signal via
   real model, then the §9 ablation (`numeric_v1` vs `numeric_v1 + apply_text_signal`) by family.
   Verify `enable_thinking=False` on the dev endpoint and the real token counts per request.
 - Prompt and clamp values are initial; tune `constants.py` from the ablation, never per unit.
+
+## Phase 2.5 — protocol before scoring, 2026-10-15
+
+Read the Phase 2 diagnosis, validation, results and numeric guide. Existing
+`.eval/` is present and is preserved under the published restore instructions.
+The unnormalized t5 and mixture tails confound shape with variance (5/3 and 1.4).
+Phase 2.5 evaluates the fixed A1–A6 menu in
+[VALIDATION_2_5.md](reports/phase2_5/VALIDATION_2_5.md) before any new scores.
+Practice proxies now constrain selection under the user's C1 rule; reserved
+2019–2024 can veto >15% major-group regressions but cannot rank candidates.
+The old runtime config and Phase 2 freeze are protected by SHA-256 checks.
+
+### Phase 2.5 — frozen experiment and independent verification
+
+All 55,005 published evaluation files matched the archive manifest; no restore
+or overwrite was necessary. The fixed menu produced 15 candidate rows plus the
+bit-identical numeric_v1 control. A1 filtered historical simulation is selected:
+CV 0.953077 → 0.951081, practice 2.435614 → 2.415744, held-out 1.456363 → 1.454208.
+CV+practice caps stay 10; held-out caps rise 17 → 18, all-historical 23 → 24.
+No cap is removed. Synthetic card 01446 (UST_2Y/UST_10Y, 2022-02-11) changes
+7.994 → 8.000. These overlapping-card results do not establish robust accuracy:
+all paired year-block 95% CIs include zero. The monthly and rate-trend issues
+remain unresolved because their alternatives failed the fixed acceptance rule.
+
+The initial runner stopped before scoring because pandas `rows.asof` resolves
+its method, not the column; explicit column indexing fixed it. No scoring menu
+or inference rule changed after results were seen. The selected engine passed
+100 tests and 104/104 official admissibility checks. Independent review
+recomputed every candidate metric, breakdown, C1 decision, veto, and paired CI
+from tracked CSVs and found no selection mismatch. Post-freeze evaluation-only
+hardening will reject mismatched paired rosters and bind caches to input data
+and the environment seed; recorded candidate predictions stay frozen.
+
+### Phase 2.5 — operational checks and review hardening
+
+The final local suite passes 133 tests; pip check passes. Additional tests cover
+short-history and collinear/zero-residual bootstrap covariance, lagged filtering,
+missing/corrupt input panels, C1 boundaries, tie ordering, unequal-year bootstrap
+weighting, and malformed paired rosters. The coverage review found no statistical
+defect and passed its gate; its cache-dependency finding was fixed by including
+numeric/scoring dependency sources and package versions in cache fingerprints.
+
+Full official CLI scoring agrees with the frozen adapter on all 2,060 historical
+cards (max |difference| 8.88e-16) and all 88 practice proxies (2.22e-16), with zero
+inference failures. Evidence and measured source commit c9be66b are recorded in
+reports/phase2_5/official-crosscheck.json. Both original Phase 2 frozen files
+still match their pre-work SHA-256 hashes. The new runtime rule is unchanged.
+All three amd64 images pass offline smoke with a read-only root and no network.
+The ten-asset output triplet is 418,902 bytes. Public CI publication follows.
+
+### Phase 2.5 — public image and five-page PDF
+
+CI tag `numeric-v1.1-20261015-1` published source commit
+`1e7de4d27c044581985c569b42e6dd19f44a7ae6` through
+[workflow 38684362341](https://github.com/hhwolf/agenthon/actions/runs/38684362341).
+Linux CI passed 133 tests, 104/104 admissibility (max forecast 0.189 s), the
+linux/amd64 build, data-exclusion checks, and offline read-only smoke.
+
+Public image:
+`ghcr.io/hhwolf/agenthon-numeric-v1@sha256:f3ec5167b28f0172004a78e336d84a4ecd423d27da42d942693e51cfc085c507`.
+Separate convenience tag: `numeric_v1_1`; the old `numeric_v1` tag is preserved.
+Anonymous token/manifest and every blob check returned 200. A real Docker pull
+with a fresh empty credential directory passed. The pulled immutable digest
+then passed g0–g3 with network disabled and read-only root, using the v1.1 method
+without a fallback. Publication, anonymous-pull and exact-image smoke JSONs
+are tracked under reports/phase2_5/.
+
+The final results PDF is exactly five tagged letter-size pages with one-inch
+margins, page numbers, the full ablation table, paired CIs, capped changes and
+public-image evidence. The make-pdf wrapper was unavailable, so the existing
+Chromium browse renderer was used; the source renderer is tracked in scripts/.
+Visual checks and extracted text confirm no clipping or pending placeholders.
+No competition packing or submission upload was performed. Phase 2.5 delivery
+is complete; statistically robust accuracy and capped-card reductions remain
+unproven, as stated on the first PDF page.

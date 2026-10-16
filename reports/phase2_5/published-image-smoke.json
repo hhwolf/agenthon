@@ -1,0 +1,20 @@
+{
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:f3ec5167b28f0172004a78e336d84a4ecd423d27da42d942693e51cfc085c507",
+  "verdict": {
+    "card_id": "t2-EXAMPLE-ust-curve-1m",
+    "admissible": true,
+    "gates": {
+      "g0_integrity": "pass",
+      "g1_schema": "pass",
+      "g2_cutoff_resource": "pass",
+      "g3_domain_semantics": "pass"
+    },
+    "scored": false,
+    "note": "no --realized supplied: gates only, no score"
+  },
+  "network": "none",
+  "root_filesystem": "read-only",
+  "platform": "linux/amd64",
+  "source_commit": "1e7de4d27c044581985c569b42e6dd19f44a7ae6",
+  "numeric_fallback": false
+}

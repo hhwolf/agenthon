@@ -1,0 +1,17 @@
+{
+  "historical": {
+    "run": "backtest-numeric_v1_1-f8d1894970ab",
+    "cards": 2060,
+    "max_absolute_score_difference": 8.881784197001252e-16,
+    "failed": 0
+  },
+  "practice": {
+    "run": "eval-practice-numeric_v1_1-fa4e765ba942",
+    "cards": 88,
+    "max_absolute_score_difference": 2.220446049250313e-16,
+    "failed": 0
+  },
+  "measured_source_commit": "c9be66b816aa85bd74cadc1a97c9ea9a8993aeb6",
+  "frozen_signature_verified": "2b1ad69d10d3ff220777f3a9b5a46c88ab7617d1be961e9e2d98632288b3678b",
+  "post_freeze_changes": "Evaluation-only paired-roster guards and data/seed cache fingerprints; no numeric-rule or candidate-score changes."
+}
