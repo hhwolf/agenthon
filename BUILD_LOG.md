@@ -899,3 +899,35 @@ is published there, and the teammate branch has no newer commit. The remaining
 work is the two real cached-label ablations and final (non-provisional) ship
 choice. Changes are committed locally; no Phase 4 image, pack or submission
 upload has been published.
+### Dev-model sweep and LLM-label ablation, 2026-10-15
+
+Full sweep of the 104 practice units against `nvidia/nemotron-3-super-120b-a12b` on integrate.api.nvidia.com (`scripts/
+run_text_layer_practice.py --mode dev`, two passes: a network outage during the first pass turned 63 units neutral with
+"Connection error" after ~1 s each; the gap-fill pass re-ran only those from the cache boundary onward, with the new
+transient-retry logic, which was never needed because the link stayed up). Outputs: `.eval/text_signals/` (labels JSON + rationale
+per unit), `.eval/llm_cache/` (449 replies keyed by request hash; the whole ablation below replayed from it with zero network calls).
+
+- **100/104 units labelled**; 4 neutral (`ParseError: no JSON object found` after the single repair). Requests per unit: mean 4.4,
+  max 11 of the 20 cap; wall time per live unit mean ≈ 125 s, max 293 s (4 units over the 240 s soft target, none near the 400 s
+  hard stop). Self-consistency agreement mean 0.85; 29 units below 0.8.
+- **Label mix**: regime elevated 83, crisis 8, calm 9; event scheduled_binary 44, ongoing 13, none 43; disagreement flagged on
+  63 of 100 units (→ no drift, vol ≥ 1.15 by the table); per-asset directions: none 105, up 25, strong_up 8, down 20, strong_down 7,
+  48 of them established. The model is conservative on direction and liberal on disagreement and "elevated".
+- **Paired practice ablation** (88 proxies, same roster, 2,000 draws, `make eval-practice`, replayed from cache;
+  `.eval/ablations/labels_vs_numeric_v1.md`):
+
+  | arm | mean | Δ vs numeric_v1 2.4356 | 95 % CI | caps (base 9) | F1 Δ | F2 Δ | F3 Δ | F4 Δ |
+  |---|---:|---:|---|---:|---:|---:|---:|---:|
+  | notes-only, λ = 0.5 | 2.4122 | −0.023 | [−0.051, +0.001] | 9 | +0.013 | −0.058 | +0.007 | −0.039 |
+  | notes-only, λ = 1.0 | 2.3768 | −0.059 | [−0.108, −0.015] | 8 | +0.022 | −0.105 | +0.009 | −0.120 |
+  | **LLM labels, λ = 0.5** | **2.2905** | **−0.145** | **[−0.238, −0.060]** | **7** | +0.008 | −0.025 | −0.023 | −0.426 |
+  | LLM labels, λ = 1.0 | 2.2067 | −0.229 | [−0.378, −0.090] | 6 | +0.038 | −0.023 | −0.022 | −0.712 |
+
+- **Decision input for Phase 4 (balanced rule):** LLM labels at **λ = 0.5** improve the practice mean by 0.145 (CI clear of zero)
+  and cut caps from 9 to 7 → meets "practice mean improves and caps do not rise". λ = 1.0 is larger (−0.229, caps 6) but F1 is
+  +0.038 worse, so it fails "consistent across families"; the gain is concentrated in F4 (−0.71), i.e. the tail/shock cards where
+  the table's crisis/binary rows widen and fatten tails. Recommendation: ship LLM labels at λ = 0.5; keep notes-only as the
+  offline/fallback arm. Caveats: practice cards are historical episodes the model may remember (TEXT_LAYER.md §7), so these gains
+  are optimistic for the sealed 2025–26 set; the dev endpoint may serve a different snapshot than the House route; 4 % of units
+  fall back to neutral on JSON failures and 29 % of units have vote agreement below 0.8, so a rerun with a fresh seed can move
+  individual cards — the organisers' fresh-seed rerun check (P5) should be run on the final image.
