@@ -70,10 +70,13 @@ in-memory alias; the on-disk input is not claimed to be a fully sealed C5 file.
 Do not insert a fake team alias: the pack command refuses one that disagrees
 with the real team number/key.
 
-On the user's planned October 23 date, the human runs:
+The user supplied team number **756**. This is the website team number, not the
+derived `team-…` alias; do not write `756` into descriptor `team_id`.
+On the user's planned October 23 date, after the final descriptor is prepared,
+the human runs:
 
 ```sh
-.venv/bin/qfbench2 submission pack --descriptor submission.json --team-number N --out submission.zip
+.venv/bin/qfbench2 submission pack --descriptor submission.json --team-number 756 --out submission.zip
 ```
 
 The toolkit prompts privately for the Team Key, derives the alias, reseals the

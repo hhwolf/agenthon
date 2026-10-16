@@ -2,9 +2,10 @@
   "status": "pending",
   "mode": "card_notes_only",
   "lambda": 0.5,
+  "team_number": 756,
+  "team_binding": "Human pack derives the public alias locally; no Team Key handled here",
   "pending": [
     "Phase 3 dev-label and raw-response caches needed for integrated comparison and replay",
-    "User choice of code license",
-    "Public team alias optional; otherwise human pack derives and seals it"
+    "User choice of code license"
   ]
 }

@@ -966,3 +966,8 @@ Final publication, the four-mode 104-unit matrix with repeat/fresh-seed checks,
 and the actual descriptor remain pending the cache, selection and license.
 No final-* tag, GHCR final image, competition pack, or CodaBench upload was made.
 See `reports/phase5/STATUS.md` and `docs/FINAL_RELEASE.md` for the concrete handoff.
+
+Team handoff update: the user supplied **756**, recorded as the website team
+number, not descriptor `team_id`. The human command now uses `--team-number 756`;
+pack derives the public alias and seals locally. No Team Key was requested,
+stored or used. Cache and license inputs remain pending.

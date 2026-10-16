@@ -39,8 +39,8 @@ Required inputs and remaining work:
    Recorded parse failures must be distinguished from missing cache; do not
    manufacture neutral labels to fill absent data.
 3. Obtain the user's code-license choice; the repository currently has none.
-   A public derived team alias is optional: without it, human pack derives and
-   seals the descriptor. No Team Key is requested or handled by this workflow.
+   Team number **756** is recorded. Human pack will derive the public team alias
+   and seal the descriptor locally. No Team Key is requested or handled by this workflow.
 4. Publish through a final-* tag, verify anonymous access and all eight sweeps
    on that exact digest, and write actual submission metadata/verification.
 
