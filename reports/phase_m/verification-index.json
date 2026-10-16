@@ -1,0 +1,12 @@
+{
+  "matching_numeric_v1_triplets": 104,
+  "maximum_numeric_v1_output_bytes": 418931,
+  "local_test_count": 139,
+  "network_probe_assertions": 27,
+  "failure_labels": [
+    "container_crashed",
+    "resource_timeout",
+    "no_output",
+    "schema_invalid"
+  ]
+}

@@ -2,8 +2,12 @@ PYTHON ?= .venv/bin/python
 FORECASTER ?= m0
 CARDS ?= 2060
 ARGS ?=
+IMAGE ?=
+UNITS ?= practice
+NETWORK ?= none
+COMPARE_IMAGE ?=
 
-.PHONY: setup test backtest eval-practice admissibility calibration generate reference-smoke docker-smoke
+.PHONY: setup test backtest eval-practice admissibility calibration generate reference-smoke docker-smoke mock-final
 setup:
 	bash scripts/setup.sh
 test:
@@ -15,3 +19,5 @@ reference-smoke:
 	$(PYTHON) vendor/track2/scoring/scoring.py score --card vendor/track2/units/t2-EXAMPLE-ust-curve-1m/card.toml --forecast .context/reference-exemplar/forecast.parquet
 docker-smoke:
 	$(PYTHON) scripts/docker_smoke.py --forecaster $(FORECASTER)
+mock-final:
+	$(PYTHON) -m t2eval.mock_final --image "$(IMAGE)" --units "$(UNITS)" --network "$(NETWORK)" $(if $(COMPARE_IMAGE),--compare-image "$(COMPARE_IMAGE)") $(ARGS)

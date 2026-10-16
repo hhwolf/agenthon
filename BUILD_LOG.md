@@ -771,3 +771,66 @@ per unit), `.eval/llm_cache/` (449 replies keyed by request hash; the whole abla
   are optimistic for the sealed 2025–26 set; the dev endpoint may serve a different snapshot than the House route; 4 % of units
   fall back to neutral on JSON failures and 29 % of units have vote agreement below 0.8, so a rerun with a fresh seed can move
   individual cards — the organisers' fresh-seed rerun check (P5) should be run on the final image.
+
+## Phase M — public-contract mock Final harness
+
+Started on a separate branch from main. Read the pinned organizer staging,
+output-folder, resource, House-admission and clock contracts. Reuse the existing
+teammate mock House canned response implementation. Plan and interpretation are
+recorded in reports/phase_m/PLAN.md. In particular, oversized successful output
+is no_output (not schema_invalid), scoring has a separate clock, and cached
+image pulls cannot be represented as cold-layer download measurements.
+
+Implementation: `t2eval/mock_final.py`, `t2eval/mock_house_service.py`, and
+`make mock-final IMAGE=... UNITS=practice|exemplar|N NETWORK=none|restricted`.
+`practice` explicitly includes the exemplar (104 units). `COMPARE_IMAGE` runs a
+second digest against the same roster and seed policy. The runtime image,
+`numeric_config.json`, and frozen selection files are untouched.
+
+The input directory must pass the pinned official manifest verifier and a
+whole-tree file allowlist. The organizer's root panels are copied to panels/;
+only staged input and writable output are mounted into the solver. Restricted
+mode uses two internal Docker networks with a fixed-backend forward proxy,
+per-unit credentials/deadlines, and persistent atomic admission counts. The
+original `tests/mock_house.py` remains unchanged and supplies canned responses.
+Replay uses the teammate's exact ResponseCache hash format and preserves cached
+text, finish reason and usage. No real dev response cache was provided; replay
+is verified with a synthetic cache fixture, with no provider fallback.
+
+Independent coverage and plan audits caught and fixed unlisted input leakage,
+organizer faults incorrectly charged to images, and replay text modification.
+Additional checks cover token rotation, concurrent admission, cleanup, platform
+clock exhaustion, cold-pull timeout accounting, ARM-cache handling, and retrying
+a failed initial pull. The final local suite passed 139 tests (12 pre-existing
+M0 numeric warnings from adversarial fixtures). A dedicated GitHub Actions
+workflow tests the complete suite, all requested Docker failure labels, network
+probes, and numeric_v1 on 104 units in each mode.
+
+This is an internal evaluation-tool addition; VERSION and published model/data
+release identities remain unchanged. CHANGELOG records it under Unreleased.
+All per-unit runtime artifacts stay in ignored .eval; only compact measurement
+reports are committed. No submission archive is packed or uploaded.
+
+Measured local results (public digest execution, 2000 image-default draws):
+
+| Image / network | Passed | House requests | Proxy mean (88) | Caps | Ingestion |
+|---|---:|---:|---:|---:|---:|
+| numeric_v1 / none | 104/104 | 0 | 2.435740611 | 9 | 145.07 s |
+| numeric_v1 / restricted | 104/104 | 0 | 2.435740611 | 9 | 159.89 s |
+| numeric_v1.1 / none | 104/104 | 0 | 2.415744063 | 9 | 157.31 s |
+
+All 104 numeric_v1 output triplets and staged input fingerprints match byte for
+byte across network modes. Largest output tree: 418,931 bytes. The local CPU/
+memory caps were 4 CPUs / 6,645,681,356 bytes; all projections are below 21,600 s.
+All local images were cached, so measured registry pulls are not cold downloads.
+The local sweeps were measured while implementation was being finalized; the
+restricted report includes its exact source hashes and dirty-checkout flag.
+The dedicated Linux CI validates the final committed runner on all 104 units
+in both modes. See reports/phase_m/RESULTS.md and the compact JSON/CSV evidence.
+
+Final committed-code Docker verification reproduced container_crashed,
+resource_timeout, no_output (64 MiB + 1 byte), and schema_invalid, each at 8.0.
+All 27 network-probe assertions passed across canned/chaos/replay; admitted
+request counts were 25, 6, and 2 respectively. No Docker networks or containers
+from the harness remain after cleanup. Full logs and outputs are in
+.eval/mock-final/phase-m-{offline-comparison,restricted,verification-final}/.

@@ -1,0 +1,53 @@
+{
+  "units": 104,
+  "statuses": {
+    "passed": 104
+  },
+  "requests_used": 0,
+  "scored_units": 88,
+  "mean": 2.4357406110104836,
+  "caps": 9,
+  "proxy_units": 88,
+  "proxy_mean": 2.4357406110104836,
+  "proxy_caps": 9,
+  "sum_unit_wall_seconds": 159.8540071665775,
+  "mean_unit_wall_seconds": 1.5370577612170915,
+  "pull_seconds": 0.4995583329582587,
+  "projection_104_seconds": 159.8540071665775,
+  "platform_clock_seconds": 43200,
+  "over_half_platform_clock": false,
+  "score_denominator": "resolved practice proxies plus all failures; successful unlabeled units excluded",
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:25ffda44821a0493ba5ba69aeb570ec009a5e1081cd54d5e615fa3d51ac70a01",
+  "network": "restricted",
+  "house_mode": "canned",
+  "limits": {
+    "cpus": 4,
+    "memory_bytes": 6645681356,
+    "tmpfs_bytes": 67108864,
+    "platform": "linux/amd64"
+  },
+  "helper_image_id": "sha256:831aec6455bbbc253825c8fab6eefef4fe93d38a02158952f81710c5172a85e3",
+  "host": {
+    "NCPU": 4,
+    "MemTotal": 8307101696,
+    "Architecture": "aarch64",
+    "ServerVersion": "29.5.2"
+  },
+  "infrastructure_seconds": 2.128582915989682,
+  "ingestion_seconds": 159.89302299998235,
+  "scoring_seconds": 2.167527125100605,
+  "image_cached_before": true,
+  "pull_policy": "always",
+  "unit_timeout_seconds": 1800,
+  "vendor_commit": "b9c663d239a0e6b86ebd3f3f2d5aead88516067d",
+  "source_commit": "f3fb5068dc0a3abec9ca8d32bb59f8e953472f5a",
+  "source_dirty": true,
+  "harness_source_sha256": {
+    "t2eval/mock_final.py": "cc00c9be49669a3bac3c5f435cc7c2bbfbe5aa8f19658e272659917dddf5a523",
+    "t2eval/mock_house_service.py": "0d0e11ca13bf0989cc4d72f0205fee10f9f1f1125c7a1f6594ebe792bb7d4559",
+    "tests/mock_house.py": "57c2e38b87242d9e3d65b0e1d68f5952280f2bd1b2c35ac0372f2389fb18d057",
+    "t2eval/official.py": "4d465099b673ea61b5a1fc64e711f71178fb81488e576eebc29fe9e25693df80",
+    "t2eval/scales.py": "daec60cecb1e4c93105f331d4a1b152815ce5a1325c902f3fbf18bd3168223cd",
+    "t2agent/m0.py": "752809f0cda98ac7fd3005f8676e949893b74748d5911dd5c612efd161e18647"
+  }
+}

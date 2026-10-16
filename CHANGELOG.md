@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Rehearse published image digests against the public Final contract with isolated inputs, resource deadlines, and complete output-tree checks.
+- Exercise text clients against a restricted mock House proxy with request budgets, canned failures, and exact dev-cache replay.
+- Compare two digests using official scores on local practice proxies, alongside request counts and platform-clock projections.
+- Verify container failure labels and network isolation with reproducible Docker fixtures and a dedicated CI check.
+
 ## numeric_v1.1 experiment - 2026-10-15
 
 ### Added

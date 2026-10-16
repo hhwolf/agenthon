@@ -1,0 +1,48 @@
+name: Mock Final contract
+on:
+  pull_request:
+    paths:
+      - 't2eval/**'
+      - 'tests/**'
+      - 'scripts/verify_mock_final.py'
+      - 'Makefile'
+      - '.github/workflows/mock-final.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13'
+      - name: Set up pinned evaluation environment
+        run: bash scripts/setup.sh
+      - name: Unit and service tests
+        run: make test
+      - name: Docker failures and restricted-network probes
+        run: .venv/bin/python scripts/verify_mock_final.py --out .eval/mock-final/ci-verification
+      - name: Published numeric_v1 all 104 units in both network modes
+        env:
+          IMAGE: ghcr.io/hhwolf/agenthon-numeric-v1@sha256:25ffda44821a0493ba5ba69aeb570ec009a5e1081cd54d5e615fa3d51ac70a01
+        run: |
+          make mock-final IMAGE="$IMAGE" UNITS=practice NETWORK=none ARGS='--no-proxy-scores --out .eval/mock-final/ci-none'
+          make mock-final IMAGE="$IMAGE" UNITS=practice NETWORK=restricted ARGS='--no-proxy-scores --out .eval/mock-final/ci-restricted'
+      - name: Publish verification summary
+        run: |
+          .venv/bin/python - <<'PY'
+          import json, os
+          from pathlib import Path
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              for mode in ['none', 'restricted']:
+                  report = json.loads(Path(f'.eval/mock-final/ci-{mode}/a/summary.json').read_text())
+                  summary.write(f"{mode}: {report['statuses']}, {report['requests_used']} requests; ingestion {report['ingestion_seconds']:.2f}s, pull {report['pull_seconds']:.2f}s, cached initially: {report['image_cached_before']}\n\n")
+              evidence = json.loads(Path('.eval/mock-final/ci-verification/verification.json').read_text())
+              for row in evidence['failures']:
+                  summary.write(f"Fixture: {row['status']} → {row['score']}\n\n")
+              for probe in evidence['network_probes']:
+                  summary.write(f"House {probe['mode']}: {sum(probe['checks'].values())} checks passed\n\n")
+          PY
