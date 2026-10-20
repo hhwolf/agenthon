@@ -1,5 +1,6 @@
 {
   "mode": "card_notes_only",
   "lambda": 0.5,
-  "status": "provisional: full 88-card model-label replay unavailable"
+  "house_calls": false,
+  "status": "final: numeric_v1.1 + card-notes-only text at lambda 0.5; House calls disabled by config"
 }

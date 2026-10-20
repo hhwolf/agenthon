@@ -19,7 +19,7 @@ def test_publish_preflight_rejects_pending_incomplete_or_changed_freeze(tmp_path
     release_path.parent.mkdir(parents=True)
     (tmp_path/'t2agent').mkdir()
     config = tmp_path/'t2agent/text_config.json'
-    config.write_text(json.dumps(dict(mode='labels', **{'lambda':.5})))
+    config.write_text(json.dumps(dict(mode='labels', house_calls=True, **{'lambda':.5})))
     for name in BUILD_INPUTS:
         (tmp_path/name).write_text('build input\n')
     (tmp_path/'LICENSE').write_text('SPDX-License-Identifier: MIT\n')
@@ -35,6 +35,14 @@ def test_publish_preflight_rejects_pending_incomplete_or_changed_freeze(tmp_path
     with pytest.raises(ValueError, match='incomplete runtime'):
         release_preflight(tmp_path)
     (tmp_path/'t2agent/new.py').unlink()
+    config.write_text(json.dumps(dict(mode='labels', house_calls=False, **{'lambda':.5})))
+    obj['runtime_sha256']['t2agent/text_config.json'] = hashlib.sha256(config.read_bytes()).hexdigest()
+    release_path.write_text(json.dumps(obj))
+    with pytest.raises(ValueError, match='House setting'):
+        release_preflight(tmp_path)
+    config.write_text(json.dumps(dict(mode='labels', house_calls=True, **{'lambda':.5})))
+    obj['runtime_sha256']['t2agent/text_config.json'] = hashlib.sha256(config.read_bytes()).hexdigest()
+    release_path.write_text(json.dumps(obj))
     for path in [config, tmp_path/'Dockerfile', tmp_path/'requirements-runtime.txt']:
         original = path.read_text(); path.write_text(original+'\n')
         with pytest.raises(ValueError, match='runtime changed'):

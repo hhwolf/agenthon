@@ -2,7 +2,7 @@
 
 Phase 5 uses the existing mock Final harness and official scoring adapter. Its
 protocol is [reports/phase5/VALIDATION.md](../reports/phase5/VALIDATION.md).
-The current release is **pending**, not a published or verified Final image.
+The release is **frozen** (card-notes-only, lambda 0.5, House disabled, MIT); see [the release report](../reports/release/RELEASE.md).
 The Phase 3 branch now reports a successful dev sweep, but its raw cache and
 per-unit labels have not been shared in this workspace. Its comparison uses
 numeric_v1, whereas the integrated Phase 4 comparison uses numeric_v1.1.

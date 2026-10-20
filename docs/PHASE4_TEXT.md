@@ -1,10 +1,12 @@
 # Phase 4 text integration
 
-The default candidate is numeric_v1.1 plus **card-notes-only, lambda 0.5**.
-This is provisional: the 88-card dev-label cache is absent, so neither LLM-label
-arm has been scored. See [results](../reports/phase4/RESULTS.md) and the
-[precommitted protocol](../reports/phase4/VALIDATION.md). No new image is published
-by this integration experiment.
+The **final** shipped configuration is numeric_v1.1 plus **card-notes-only, lambda 0.5**,
+with `house_calls: false` in `t2agent/text_config.json`: the text layer is forced offline
+before any client exists, so the image makes zero network attempts even if `MODEL_*` is set.
+The LLM-label arms were never scored on the integrated engine (no dev-label cache here) and
+are not shipped. See [results](../reports/phase4/RESULTS.md), the
+[precommitted protocol](../reports/phase4/VALIDATION.md) and the
+[release report](../reports/release/RELEASE.md).
 
 On the 88 development proxies, card notes lower the mean from 2.415744 to
 2.378141; caps remain 9, with no new or removed capped cards. The paired as-of-year

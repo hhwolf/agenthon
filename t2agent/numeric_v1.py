@@ -281,16 +281,24 @@ def _wide_random_walk(card, panels, asof, n_draws, seed):
     return sample_frame(card, draws)
 
 
+HOUSE_ENV = ('MODEL_ENDPOINT', 'MODEL_TOKEN', 'MODEL_NAME')
+
+
+def text_settings():
+    return json.loads(Path(__file__).with_name('text_config.json').read_text())
+
+
 def read_forecast_text(card, panels, text_dir, asof, samples, *, text_signal=None,
                        text_mode=None, text_lambda=None):
     """Called only after numeric sampling; failures cannot change those draws."""
     signal = text_signal
+    disabled = ''
     if signal is None:
         if text_dir is None:
             return None, 'Text layer disabled; numeric draws unchanged.'
         import os
         from .text_overlay import apply_text_map, lambda_from_env
-        settings = json.loads(Path(__file__).with_name('text_config.json').read_text())
+        settings = text_settings()
         mode = text_mode or os.environ.get('TEXT_LAYER_MODE') or settings['mode']
         lam = (text_lambda if text_lambda is not None else lambda_from_env()
                if 'TEXT_LAYER_LAMBDA' in os.environ else settings['lambda'])
@@ -306,10 +314,20 @@ def read_forecast_text(card, panels, text_dir, asof, samples, *, text_signal=Non
         from .contracts import CallBudget
         from .text_layer import read_text
         summary = numeric_summary_from(card, panels, asof, samples=samples)
-        signal = read_text(Path(text_dir).parent, summary, CallBudget(), mode=mode)
+        env = None
+        if settings.get('house_calls') is not True:
+            # Release config disables House: offline before any client exists, whatever MODEL_* says.
+            env = {k: v for k, v in os.environ.items() if k not in HOUSE_ENV}
+            env['QFBENCH_NETWORK'] = 'none'
+        signal = read_text(Path(text_dir).parent, summary, CallBudget(), mode=mode, env=env)
         signal = apply_text_map(signal, summary, lam)
+        if env is not None and mode == 'labels':
+            disabled = ('House calls are disabled by text_config.json (house_calls=false); '
+                        'zero network attempts.')
     # Explicit signals retain the established numeric-hook semantics: already mapped.
     note = str(_get(signal, 'rationale_md', '')).rstrip()
+    if disabled:
+        note = (note + '\n\n' + disabled).strip()
     if _get(signal, 'evidence') is not None:
         from .text_overlay import evidence_ledger
         note += '\n\n' + evidence_ledger(signal)

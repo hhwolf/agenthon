@@ -549,6 +549,8 @@ def test_text_v1_forecaster_modes(unit, server, monkeypatch):
     for k, v in server.env().items():
         monkeypatch.setenv(k, v)
     monkeypatch.setenv("TEXT_LAYER_LAMBDA", "0.5")
+    # The release config disables House; this explicit labels experiment re-enables it.
+    monkeypatch.setattr(numeric_v1, "text_settings", lambda: {"mode": "labels", "lambda": .5, "house_calls": True})
     text = text_v1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
     numeric = numeric_v1_1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)
     assert not np.allclose(text.value.to_numpy(), numeric.value.to_numpy()) and len(server.requests) == 4
@@ -561,6 +563,41 @@ def test_text_v1_forecaster_modes(unit, server, monkeypatch):
     assert len(server.requests) == 4                       # neither offline nor notes-only touched the network
     no_text = text_v1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)
     assert np.array_equal(no_text.value.to_numpy(), numeric.value.to_numpy())
+
+
+def test_release_config_makes_zero_network_attempts_with_house_env(unit, server, monkeypatch):
+    """Final image: card notes, House disabled by text_config.json even when MODEL_* are present."""
+    import socket
+    settings = numeric_v1.text_settings()
+    assert settings["mode"] == "card_notes_only" and settings["lambda"] == 0.5 and settings["house_calls"] is False
+    card = {"task": {"id": "t2-TEST-brexit-2016"}, "provenance": {"data_cutoff": ASOF.isoformat()},
+            "targets": {"asset_ids": ["GBP"], "horizons": [21], "target_type": "level", "value_unit": "usd_per_gbp"},
+            "metadata": {"category": "T2-F2", "description": "GBP/USD into the EU referendum (21 BD)."},
+            "text": {"notes": "A scheduled binary risk event falls shortly after the as-of date."}}
+    import pandas as pd
+    dates = pd.bdate_range(end=ASOF, periods=400)
+    rng = np.random.default_rng(3)
+    panels = {"g10_fx_daily.parquet": pd.DataFrame({"asset_id": "GBP", "date": dates, "value": 1.45 + np.cumsum(rng.normal(0, 0.005, len(dates)))})}
+    for k, v in server.env().items():
+        monkeypatch.setenv(k, v)
+    for k in ("QFBENCH_NETWORK", "TEXT_LAYER_MODE", "TEXT_LAYER_LAMBDA"):
+        monkeypatch.delenv(k, raising=False)
+    connects = []
+    real_connect = socket.socket.connect
+    def counting_connect(self, address):
+        connects.append(address)
+        return real_connect(self, address)
+    monkeypatch.setattr(socket.socket, "connect", counting_connect)
+    default = numeric_v1_1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
+    assert "mode card_notes_only" in default.attrs["rationale"]
+    explicit = numeric_v1_1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11, text_mode="labels")
+    monkeypatch.setenv("TEXT_LAYER_MODE", "labels")
+    from_env = text_v1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
+    assert server.requests == [] and connects == []
+    numeric = numeric_v1_1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)
+    for out in (explicit, from_env):
+        assert np.array_equal(out.value.to_numpy(), numeric.value.to_numpy())
+        assert "house_calls=false" in out.attrs["rationale"]
 
 
 @pytest.mark.skipif(not (ROOT / "vendor" / "track2" / "units" / "t2-F2-abenomics-2012").exists(), reason="vendor units not checked out")

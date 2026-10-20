@@ -21,6 +21,9 @@ def release_preflight(root=Path('.')):
     require(release.get('status') == 'frozen', 'final selection is not frozen')
     require(config['mode'] == release['mode'] and config['lambda'] == release['lambda'],
             'runtime text config differs from final selection')
+    # models: [] is declared exactly when the frozen config cannot reach House.
+    require((config.get('house_calls') is True) == (release['mode'] == 'labels'),
+            'House setting disagrees with the descriptor models disclosure')
     for name, expected in release['runtime_sha256'].items():
         require(hashlib.sha256((root/name).read_bytes()).hexdigest() == expected,
                 f'runtime changed since freeze: {name}')

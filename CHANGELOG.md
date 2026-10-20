@@ -4,6 +4,9 @@
 
 ### Added
 
+- Freeze the final release: card-notes-only text at lambda 0.5, House calls disabled by config (`house_calls: false`, zero network attempts even with `MODEL_*` set), MIT license, final and fallback descriptors.
+- Include text-mode and House environment plus runtime JSON/subpackage sources in the evaluation run identity, so numeric-only and card-notes runs no longer overwrite each other.
+- Add the independent pre-submission audit under reports/audit.
 - Prepare final-* CI publication, strict eight-sweep release verification, and toolkit-based descriptor generation; final publication remains pending real replay data and a code license.
 - Make rationale output reproducible by sorting concurrent notes/requests and keeping measured timing in harness reports.
 
