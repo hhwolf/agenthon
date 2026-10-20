@@ -143,10 +143,15 @@ For the submission command:
 ```
 
 The image exposes this as `forecast` on PATH, defaulting to numeric_v1_1 with
-2,000 draws. Phase 4 provisionally adds card-notes-only at lambda 0.5; see [text integration and replay](docs/PHASE4_TEXT.md). Use `--text-mode numeric_only` for a numeric baseline. Use `--forecaster numeric_v1` for the Phase 2 freeze or `--forecaster m0` for the original baseline. Its context is allowlisted to runtime
+2,000 draws. The final release adds card-notes-only text at lambda 0.5 with House calls disabled by config (zero network attempts even when `MODEL_*` is set); see [text integration and replay](docs/PHASE4_TEXT.md). Use `--text-mode numeric_only` for a numeric baseline. Use `--forecaster numeric_v1` for the Phase 2 freeze or `--forecaster m0` for the original baseline. Its context is allowlisted to runtime
 source and dependencies. It contains no vendor tree, evaluation package, panels,
 realized values, practice unit IDs or lookup tables.
 
 The [final release guide](docs/FINAL_RELEASE.md) covers the `final-*` CI workflow,
 published-digest verification, and human October 23 packing/upload handoff.
-Phase 5 publication is pending; see [release status](reports/phase5/STATUS.md).
+The published final digest, verification and descriptors are recorded in [the release report](reports/release/RELEASE.md).
+
+## License
+
+Released under the MIT License (SPDX: `MIT`); see [LICENSE](LICENSE). Both final
+submission descriptors declare the same SPDX identifier.
