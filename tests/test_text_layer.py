@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 
 from mock_house import MockHouse, delay, error, ok
-from t2agent import numeric_v1, text_v1
+from t2agent import numeric_v1, numeric_v1_1, text_v1
 from t2agent.contracts import CallBudget, NumericSummary, TextSignal
 from t2agent.text_layer import constants as C
 from t2agent.text_layer import read_text
@@ -279,7 +279,7 @@ def test_out_of_schema_model_output_is_contained(unit, server):
 def test_failed_calls_count_against_budget(unit, server):
     server.push(error(500), error(502))
     sig, budget = run(unit, server)
-    assert numeric_neutral(sig) and "HTTP 502" in sig.fallback_reason and sig.labels["mode"] == "neutral"
+    assert numeric_neutral(sig) and "HTTP 502" in sig.fallback_reason and sig.labels["mode"] == "notes_only_fallback"
     assert budget.used == sig.calls_used == len(server.requests) == 1 + C.MAX_RETRIES_PER_CALL
 
 
@@ -550,7 +550,7 @@ def test_text_v1_forecaster_modes(unit, server, monkeypatch):
         monkeypatch.setenv(k, v)
     monkeypatch.setenv("TEXT_LAYER_LAMBDA", "0.5")
     text = text_v1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
-    numeric = numeric_v1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)
+    numeric = numeric_v1_1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)   # text_v1 wraps the image default engine
     assert not np.allclose(text.value.to_numpy(), numeric.value.to_numpy()) and len(server.requests) == 4
     assert "Label -> number mapping" in text.attrs["rationale"] and "### Labels" in text.attrs["rationale"]
     monkeypatch.setenv("QFBENCH_NETWORK", "none")
@@ -774,3 +774,45 @@ def test_deadline_stops_the_pipeline_mid_way(unit, server, monkeypatch):
     assert budget.used == 1 and len(server.requests) == 1   # no label call was started after the deadline
     time.sleep(0.3)
     assert len(server.requests) == 1
+
+
+
+# --------------------------------------------------------------------------- #
+# Phase 4 integration (2026-10-19)
+# --------------------------------------------------------------------------- #
+
+def test_model_failure_falls_back_to_notes_only_labels(unit, server):
+    server.push(error(500), error(502))
+    sig, budget = run(unit, server)
+    assert numeric_neutral(sig) and "HTTP 502" in sig.fallback_reason and budget.used == 2
+    L = sig.labels
+    assert L["mode"] == "notes_only_fallback" and L["event_in_horizon"] == "scheduled_binary" and L["fallback_reason"] == sig.fallback_reason
+    mapped = apply_text_map(sig, make_summary(), 0.5)
+    assert len(mapped.scenarios) == 2 and all(s.vol_mult > 1.0 for s in mapped.scenarios) and mapped.tail_mult > 1.0
+    offline, _ = run(unit, server, env=server.env(network="none"))          # offline stays fully neutral
+    assert offline.labels["mode"] == "neutral" and apply_text_map(offline, make_summary(), 1.0) is offline
+    nowhere = read_text(unit.parent / "missing", make_summary(), CallBudget(), env=server.env())
+    assert nowhere.labels["mode"] == "neutral"                                # no corpus -> stay neutral, do not widen on card prose
+
+
+def test_short_unit_clock_runs_one_label_call(unit, server, monkeypatch):
+    monkeypatch.setattr(C, "SAFETY_MARGIN_S", 0.0)
+    monkeypatch.setattr(C, "MIN_REQUEST_TIMEOUT_S", 0.1)
+    sig, budget = run(unit, server, time_budget_s=C.SYNTHESIS_TIMEOUT_S + C.SYNTHESIS_TIME_RESERVE_S - 5)
+    assert sig.fallback_reason is None and sig.labels["runs"] == 1 and budget.used == 2
+    assert "left on the unit clock" in sig.rationale_md
+
+
+def test_table_overrides_and_variants():
+    from t2agent.text_map import table_constants
+    s = make_summary()
+    labelled = _labelled(disagreement=True, assets={"GBP": {"direction": "up", "evidence": [1]}})
+    default = apply_text_map(labelled, s, 1.0)
+    half = apply_text_map(labelled, s, 1.0, table={"DISAGREEMENT_DRIFT_FACTOR": 0.5})
+    assert default.scenarios[0].drift_sd["GBP"] == 0.0 and half.scenarios[0].drift_sd["GBP"] == 0.125
+    binary = _labelled(event_in_horizon="scheduled_binary", branches=[{"label": "a", "prob": 0.5, "signs": {"GBP": 1}},
+                                                                      {"label": "b", "prob": 0.5, "signs": {"GBP": -1}}])
+    assert apply_text_map(binary, s, 1.0, table={"BINARY_BRANCH_DRIFT": 0.75}).scenarios[0].drift_sd["GBP"] == 0.75
+    with pytest.raises(KeyError):
+        table_constants({"NOT_A_CONSTANT": 1})
+    assert text_v1.forecast_labels_l05_dis_half.__name__ == "forecast_labels_lambda_0.5"
