@@ -3,6 +3,7 @@
 !Dockerfile
 !pyproject.toml
 !requirements-runtime.txt
+!LICENSE
 !t2agent/
 !t2agent/**
 t2agent/**/__pycache__/

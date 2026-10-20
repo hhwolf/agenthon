@@ -1,6 +1,6 @@
 {
   "status": "frozen",
-  "frozen_on": "2026-10-19",
+  "frozen_on": "2026-10-20",
   "mode": "card_notes_only",
   "lambda": 0.5,
   "house_calls": false,
@@ -10,8 +10,8 @@
   "team_binding": "Human pack derives the public alias locally; no Team Key handled here",
   "fallback_image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:f3ec5167b28f0172004a78e336d84a4ecd423d27da42d942693e51cfc085c507",
   "runtime_sha256": {
-    ".dockerignore": "0c563c3b88acd7e8a83e569b0bacf18d1528e7c96891383523ef6e22c8ab3889",
-    "Dockerfile": "380881cfd15a7c57dde7fef6f3ddbaa1fcb07d554a7bbf9601b9f4c5431f6399",
+    ".dockerignore": "c93c45b5258263c76e065f96ac31575ecd2f0469804a4f88372f43ef04fd1809",
+    "Dockerfile": "d442594a596304e844fd14a48ccf5222d9e8d7d899994f2aae01d381572b1c57",
     "LICENSE": "e9f9d757c872f247b5d279572af1ff64eca24293c48e0af4c1bf3bbcd8d2250d",
     "requirements-runtime.txt": "c1c9f9e20a5b1332428020cf87341c581fda4a26c85ec5496a2deb1b735e64d4",
     "t2agent/__init__.py": "b9edcc0c37f3eb716f92f6676fa8ae3f335224bab908e5923b28013e3792c9fa",

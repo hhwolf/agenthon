@@ -196,3 +196,12 @@ def test_full_verifier_requires_cold_pull_and_both_seed_checks(tmp_path, monkeyp
     with pytest.raises(ValueError, match='bootstrap'):
         final.verify(args)
     assert not json.loads(args.report.read_text())['passed']
+
+
+def test_image_ships_its_license():
+    root = Path(__file__).resolve().parents[1]
+    dockerfile = (root/'Dockerfile').read_text()
+    assert 'COPY LICENSE /app/LICENSE' in dockerfile
+    assert 'org.opencontainers.image.licenses="MIT"' in dockerfile
+    assert '!LICENSE' in (root/'.dockerignore').read_text().splitlines()
+    assert (root/'LICENSE').read_text().startswith('MIT License')

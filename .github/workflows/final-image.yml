@@ -29,7 +29,7 @@ jobs:
             -t "$IMAGE:$GITHUB_REF_NAME" .
           test "$(docker image inspect --format '{{.Os}}/{{.Architecture}}' "$IMAGE:$GITHUB_REF_NAME")" = linux/amd64
           docker run --rm --network=none "$IMAGE:$GITHUB_REF_NAME" python -c \
-            'import importlib.util, pathlib; assert importlib.util.find_spec("t2eval") is None; assert not list(pathlib.Path("/app").rglob("*.parquet")); assert not pathlib.Path("/app/vendor").exists()'
+            'import importlib.util, pathlib; assert importlib.util.find_spec("t2eval") is None; assert not list(pathlib.Path("/app").rglob("*.parquet")); assert not pathlib.Path("/app/vendor").exists(); assert pathlib.Path("/app/LICENSE").read_text().startswith("MIT License")'
       - name: Verify all 104 units offline before publication
         run: |
           make mock-final IMAGE="$IMAGE:$GITHUB_REF_NAME" UNITS=practice NETWORK=none \
