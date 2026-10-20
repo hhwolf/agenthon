@@ -1,14 +1,13 @@
 {
-  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:a197cfe0e065f6ddef7696fa0ad261b0a31d08259769b5040fc1176a63428bed",
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674",
   "date": "2026-10-20",
   "docker_host": "Colima profile agenthon (4 CPU, aarch64 VM, amd64 via Rosetta)",
-  "preparation": "docker image prune -a -f (0 images left) and docker builder prune -a -f; docker system df: images 0 B, build cache 0 B",
+  "preparation": "docker image prune -a -f and docker builder prune -a -f; docker system df: images 0 B, build cache 0 B",
   "docker_config": "fresh empty temporary directory (0 files)",
-  "seconds": 42.64,
+  "seconds": 4.64,
   "exit_code": 0,
-  "layers_pulled": 9,
+  "layers_pulled": 10,
   "layers_already_present": 0,
-  "image_bytes": 139841450,
-  "harness_cold_pull_seconds_in_first_verifier_sweep": 56.02,
-  "harness_note": "image removed again before the verifier; its first offline sweep pulled it cold inside the unit wall clock"
+  "harness_cold_pull_seconds_in_first_verifier_sweep": 4.82,
+  "note": "Local storage was empty and every layer was downloaded; the registry/CDN was warm after CI push and anonymous pull. The first final digest (a197cfe0) took 42.64 s under the same local conditions."
 }

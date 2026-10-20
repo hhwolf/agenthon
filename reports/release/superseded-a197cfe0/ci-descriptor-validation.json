@@ -1,0 +1,6 @@
+{
+  "sealed": false,
+  "toolkit_parser": "passed on in-memory validation alias only",
+  "json_schema": "passed on in-memory validation alias only",
+  "pending": "Human pack must derive team_id and seal; on-disk input is not a complete C5 descriptor"
+}

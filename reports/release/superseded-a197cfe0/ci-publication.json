@@ -1,0 +1,7 @@
+{
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:a197cfe0e065f6ddef7696fa0ad261b0a31d08259769b5040fc1176a63428bed",
+  "source_commit": "fd4f11a88648a64249415839ea44ac8dd1c794ab",
+  "tag": "final-20261019-1",
+  "workflow_run": "39366143060",
+  "full_phase5_suite": "must run on this published digest"
+}
