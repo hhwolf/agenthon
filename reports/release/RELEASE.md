@@ -52,7 +52,7 @@ model-cache evidence.
 |---|---|---|---|
 | 1 | `9668c63` | 4/5 | (1) image lacks license, (2) audit scripts not portable, (3) docs label example stays offline. All P2 |
 | 2 | `ffa67d1` | 5/5 | (2) and (3) fixed; (1) listed as non-blocking |
-| 3 | `f680ca6`+ | see BUILD_LOG | (1) fixed by this release |
+| 3 | `5061f0f` | **5/5** | none; (1) confirmed fixed |
 
 ## Commands
 

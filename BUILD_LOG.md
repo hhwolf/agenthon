@@ -1013,3 +1013,38 @@ byte-identical to the audited candidate. `submission.final.json` and `submission
 pass the toolkit 2.6.0 parser, schema and pack seal path without packing. All 17 digest sources are equal.
 Open: grep score on PR #9 (do not merge before 5); PR #8 conflicts with this release. Details:
 reports/release/RELEASE.md. Human packs `submission.final.json`; no zip was created.
+
+## Greptile review of PR #9 to 5/5 — 2026-10-20
+
+Greptile was enabled and triggered with `@greptileai`. Round 1 (`9668c63`) scored **4/5** with three P2
+findings, all resolved:
+
+1. **Image lacks its license** (runtime: Dockerfile/.dockerignore). Fixed in `f680ca6`: LICENSE is copied
+   to `/app/LICENSE` with the OCI `licenses=MIT` label, plus a CI smoke assertion and a test. Predicted
+   forecast impact was none (no `t2agent` file changed); a local build gave 312/312 identical files on
+   104 units versus the published `a197cfe0`.
+2. **Audit scripts cannot travel** (non-runtime). Fixed in `ffa67d1`: the root is derived from the script
+   path and runs are selected by saved metadata, not hash prefixes. Regenerated audit outputs are
+   byte-identical.
+3. **Label example stays offline** (non-runtime). Fixed in `ffa67d1`: the docs mark labels as unavailable
+   under `house_calls: false` and explain the separate experimental config needed.
+
+Round 2 (`ffa67d1`): 5/5 with (1) non-blocking. The runtime fix still shipped as a new image, per release
+policy. **Round 3 (`5061f0f`): 5/5, no findings.** No finding was disputed.
+
+The digest changed from `sha256:a197cfe0…63428bed` (`final-20261019-1`) to
+`ghcr.io/hhwolf/agenthon-numeric-v1@sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674`
+(`final-20261020-1`, `f680ca6`, CI 39382405566). Full re-verification:
+- CI: 244 tests, 104/104 admissibility.
+- Cold pull after pruning all images and build cache: 4.64 s, 10/10 layers downloaded (CDN warm; the first
+  digest took 42.64 s).
+- All eight `t2eval.final_release` sweeps: 104/104, 0 House requests, byte-identical same-seed reruns,
+  fresh-seed means inside each other's CI.
+- Audit seed variants: 2.378141 / 2.379504 / 2.389690.
+- Every output file is identical to the old digest (2,496/2,496 sweep files).
+- Image-level egress: 0 connections with `MODEL_*` and a labels override; the positive control made 2.
+- All 17 digest sources are equal. `submission.final.json` is updated and re-validated with toolkit 2.6.0
+  without packing; `submission.fallback.json` is unchanged.
+
+The old final digest stays public as a secondary fallback; no image or tag was deleted. PR #9 is not
+merged, PR #8 was not touched, and nothing was packed. Details: reports/release/RELEASE.md.
