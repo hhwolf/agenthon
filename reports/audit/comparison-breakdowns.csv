@@ -1,0 +1,185 @@
+arm,partition,dimension,group,cards,mean,caps
+M0 (2000),CV 2009–18,family,T2-F1,234,1.0803531779889854,0
+M0 (2000),CV 2009–18,family,T2-F2,281,0.9754975826639631,0
+M0 (2000),CV 2009–18,family,T2-F3,230,1.0738139324697387,0
+M0 (2000),CV 2009–18,family,T2-F4,328,1.0211326328155512,1
+M0 (2000),CV 2009–18,panel,factors_daily,169,1.0384816835772817,0
+M0 (2000),CV 2009–18,panel,g10_fx_daily,352,1.0834271746216197,0
+M0 (2000),CV 2009–18,panel,g10_fx_daily+rates_daily,63,1.080249262777259,0
+M0 (2000),CV 2009–18,panel,macro_monthly,38,1.3662310740458914,0
+M0 (2000),CV 2009–18,panel,rates_daily,451,0.9578357384688577,1
+M0 (2000),CV 2009–18,horizon_bucket,127+,234,1.0803531779889854,0
+M0 (2000),CV 2009–18,horizon_bucket,1–21,278,1.0056635630417383,0
+M0 (2000),CV 2009–18,horizon_bucket,22–63,302,0.9514967444268558,0
+M0 (2000),CV 2009–18,horizon_bucket,64–126,259,1.1162047931181487,1
+M0 (2000),CV 2009–18,shape,joint,450,1.0771402741219884,0
+M0 (2000),CV 2009–18,shape,single,623,1.0017865955933256,1
+M0 (2000),Held-out 2019–24 (report-only),family,T2-F1,122,2.1835735882950758,11
+M0 (2000),Held-out 2019–24 (report-only),family,T2-F2,144,1.2690544567976585,2
+M0 (2000),Held-out 2019–24 (report-only),family,T2-F3,121,1.4724859827412151,0
+M0 (2000),Held-out 2019–24 (report-only),family,T2-F4,167,1.1561289208743804,2
+M0 (2000),Held-out 2019–24 (report-only),panel,factors_daily,77,1.1042388930265392,1
+M0 (2000),Held-out 2019–24 (report-only),panel,g10_fx_daily,183,1.1455197897462388,2
+M0 (2000),Held-out 2019–24 (report-only),panel,g10_fx_daily+rates_daily,20,1.62920441673374,0
+M0 (2000),Held-out 2019–24 (report-only),panel,macro_monthly,26,1.6287839348265722,2
+M0 (2000),Held-out 2019–24 (report-only),panel,rates_daily,248,1.8177224448459666,10
+M0 (2000),Held-out 2019–24 (report-only),horizon_bucket,127+,122,2.1835735882950758,11
+M0 (2000),Held-out 2019–24 (report-only),horizon_bucket,1–21,137,1.0788783312793457,1
+M0 (2000),Held-out 2019–24 (report-only),horizon_bucket,22–63,158,1.368430006741007,0
+M0 (2000),Held-out 2019–24 (report-only),horizon_bucket,64–126,137,1.3866416279286264,3
+M0 (2000),Held-out 2019–24 (report-only),shape,joint,236,1.7829013522925496,10
+M0 (2000),Held-out 2019–24 (report-only),shape,single,318,1.2566648871305939,5
+M0 (2000),Practice (88),family,T2-F1,19,0.9321480106067991,0
+M0 (2000),Practice (88),family,T2-F2,23,2.0002534254045714,0
+M0 (2000),Practice (88),family,T2-F3,18,1.3755913494588705,0
+M0 (2000),Practice (88),family,T2-F4,28,4.817443306108534,10
+M0 (2000),Practice (88),panel,factors_daily,13,4.711849524090795,4
+M0 (2000),Practice (88),panel,factors_daily+rates_daily,2,1.0683604010269385,0
+M0 (2000),Practice (88),panel,g10_fx_daily,28,2.0714576674472744,1
+M0 (2000),Practice (88),panel,g10_fx_daily+rates_daily,3,1.0595629518541647,0
+M0 (2000),Practice (88),panel,macro_monthly,3,5.804233364249172,2
+M0 (2000),Practice (88),panel,rates_daily,39,2.086736656283719,3
+M0 (2000),Practice (88),horizon_bucket,127+,19,0.9321480106067991,0
+M0 (2000),Practice (88),horizon_bucket,1–21,23,4.881678724649249,8
+M0 (2000),Practice (88),horizon_bucket,22–63,28,1.9604295934104445,1
+M0 (2000),Practice (88),horizon_bucket,64–126,18,2.1380136868432533,1
+M0 (2000),Practice (88),shape,joint,36,1.5019327786913723,0
+M0 (2000),Practice (88),shape,single,52,3.255694573350837,10
+numeric_v1,CV 2009–18,family,T2-F1,234,0.985919137587155,0
+numeric_v1,CV 2009–18,family,T2-F2,281,0.906712238185005,0
+numeric_v1,CV 2009–18,family,T2-F3,230,0.9594734539090681,0
+numeric_v1,CV 2009–18,family,T2-F4,328,0.9648836866320654,1
+numeric_v1,CV 2009–18,panel,factors_daily,169,0.992253199970709,0
+numeric_v1,CV 2009–18,panel,g10_fx_daily,352,1.004275460796508,1
+numeric_v1,CV 2009–18,panel,g10_fx_daily+rates_daily,63,0.9889451652700637,0
+numeric_v1,CV 2009–18,panel,macro_monthly,38,1.2830214703624343,0
+numeric_v1,CV 2009–18,panel,rates_daily,451,0.8656271540101477,0
+numeric_v1,CV 2009–18,horizon_bucket,127+,234,0.985919137587155,0
+numeric_v1,CV 2009–18,horizon_bucket,1–21,278,0.9650626029675953,1
+numeric_v1,CV 2009–18,horizon_bucket,22–63,302,0.9044558814211203,0
+numeric_v1,CV 2009–18,horizon_bucket,64–126,259,0.9672347595761377,0
+numeric_v1,CV 2009–18,shape,joint,450,0.9757709927871544,0
+numeric_v1,CV 2009–18,shape,single,623,0.9366854157071658,1
+numeric_v1,Held-out 2019–24 (report-only),family,T2-F1,122,2.06096159047811,12
+numeric_v1,Held-out 2019–24 (report-only),family,T2-F2,144,1.2367999166634511,1
+numeric_v1,Held-out 2019–24 (report-only),family,T2-F3,121,1.4983556219067338,2
+numeric_v1,Held-out 2019–24 (report-only),family,T2-F4,167,1.1735780049105191,2
+numeric_v1,Held-out 2019–24 (report-only),panel,factors_daily,77,1.0849992746383228,1
+numeric_v1,Held-out 2019–24 (report-only),panel,g10_fx_daily,183,1.08641436898828,2
+numeric_v1,Held-out 2019–24 (report-only),panel,g10_fx_daily+rates_daily,20,1.7232189522454444,1
+numeric_v1,Held-out 2019–24 (report-only),panel,macro_monthly,26,2.014310648473615,2
+numeric_v1,Held-out 2019–24 (report-only),panel,rates_daily,248,1.7646364094008422,11
+numeric_v1,Held-out 2019–24 (report-only),horizon_bucket,127+,122,2.06096159047811,12
+numeric_v1,Held-out 2019–24 (report-only),horizon_bucket,1–21,137,1.125822586346846,1
+numeric_v1,Held-out 2019–24 (report-only),horizon_bucket,22–63,158,1.3110675192767383,1
+numeric_v1,Held-out 2019–24 (report-only),horizon_bucket,64–126,137,1.4160684868252988,3
+numeric_v1,Held-out 2019–24 (report-only),shape,joint,236,1.7469067370481837,13
+numeric_v1,Held-out 2019–24 (report-only),shape,single,318,1.2407392112115299,4
+numeric_v1,Practice (88),family,T2-F1,19,0.8481850896897098,0
+numeric_v1,Practice (88),family,T2-F2,23,2.027477467556568,0
+numeric_v1,Practice (88),family,T2-F3,18,1.284841376403549,0
+numeric_v1,Practice (88),family,T2-F4,28,4.587834600196255,9
+numeric_v1,Practice (88),panel,factors_daily,13,4.501597156226739,5
+numeric_v1,Practice (88),panel,factors_daily+rates_daily,2,0.990053352070803,0
+numeric_v1,Practice (88),panel,g10_fx_daily,28,2.17365315360512,1
+numeric_v1,Practice (88),panel,g10_fx_daily+rates_daily,3,1.0418705016104577,0
+numeric_v1,Practice (88),panel,macro_monthly,3,3.9344355332248866,1
+numeric_v1,Practice (88),panel,rates_daily,39,2.001075279439129,2
+numeric_v1,Practice (88),horizon_bucket,127+,19,0.8481850896897098,0
+numeric_v1,Practice (88),horizon_bucket,1–21,23,4.601233041023858,7
+numeric_v1,Practice (88),horizon_bucket,22–63,28,2.1400651866116305,1
+numeric_v1,Practice (88),horizon_bucket,64–126,18,1.8037950092158752,1
+numeric_v1,Practice (88),shape,joint,36,1.4049518879761105,1
+numeric_v1,Practice (88),shape,single,52,3.1491489244523967,8
+numeric_v1.1,CV 2009–18,family,T2-F1,234,0.9810856873689383,0
+numeric_v1.1,CV 2009–18,family,T2-F2,281,0.906255779261861,0
+numeric_v1.1,CV 2009–18,family,T2-F3,230,0.9605537887380059,0
+numeric_v1.1,CV 2009–18,family,T2-F4,328,0.9614350307266724,1
+numeric_v1.1,CV 2009–18,panel,factors_daily,169,0.980217629732892,0
+numeric_v1.1,CV 2009–18,panel,g10_fx_daily,352,1.0057899445854106,1
+numeric_v1.1,CV 2009–18,panel,g10_fx_daily+rates_daily,63,0.9927449475966963,0
+numeric_v1.1,CV 2009–18,panel,macro_monthly,38,1.2783434369921731,0
+numeric_v1.1,CV 2009–18,panel,rates_daily,451,0.8640690999596157,0
+numeric_v1.1,CV 2009–18,horizon_bucket,127+,234,0.9810856873689383,0
+numeric_v1.1,CV 2009–18,horizon_bucket,1–21,278,0.9627731120407684,1
+numeric_v1.1,CV 2009–18,horizon_bucket,22–63,302,0.9037669146524471,0
+numeric_v1.1,CV 2009–18,horizon_bucket,64–126,259,0.9665922860552131,0
+numeric_v1.1,CV 2009–18,shape,joint,450,0.9720614312970828,0
+numeric_v1.1,CV 2009–18,shape,single,623,0.9359267130358223,1
+numeric_v1.1,Held-out 2019–24 (report-only),family,T2-F1,122,2.048289558722841,13
+numeric_v1.1,Held-out 2019–24 (report-only),family,T2-F2,144,1.2448156017532188,1
+numeric_v1.1,Held-out 2019–24 (report-only),family,T2-F3,121,1.4980354162891938,2
+numeric_v1.1,Held-out 2019–24 (report-only),family,T2-F4,167,1.1690064303729335,2
+numeric_v1.1,Held-out 2019–24 (report-only),panel,factors_daily,77,1.066460822326025,1
+numeric_v1.1,Held-out 2019–24 (report-only),panel,g10_fx_daily,183,1.091771640979391,2
+numeric_v1.1,Held-out 2019–24 (report-only),panel,g10_fx_daily+rates_daily,20,1.7337314017951566,1
+numeric_v1.1,Held-out 2019–24 (report-only),panel,macro_monthly,26,1.9397190947316039,2
+numeric_v1.1,Held-out 2019–24 (report-only),panel,rates_daily,248,1.7685972336397788,12
+numeric_v1.1,Held-out 2019–24 (report-only),horizon_bucket,127+,122,2.048289558722841,13
+numeric_v1.1,Held-out 2019–24 (report-only),horizon_bucket,1–21,137,1.121882196086343,1
+numeric_v1.1,Held-out 2019–24 (report-only),horizon_bucket,22–63,158,1.3134518637434092,1
+numeric_v1.1,Held-out 2019–24 (report-only),horizon_bucket,64–126,137,1.4198288362076512,3
+numeric_v1.1,Held-out 2019–24 (report-only),shape,joint,236,1.7382463928589675,14
+numeric_v1.1,Held-out 2019–24 (report-only),shape,single,318,1.2434118973119692,4
+numeric_v1.1,Practice (88),family,T2-F1,19,0.8415658375515376,0
+numeric_v1.1,Practice (88),family,T2-F2,23,2.0339216425405633,0
+numeric_v1.1,Practice (88),family,T2-F3,18,1.2777049209380622,0
+numeric_v1.1,Practice (88),family,T2-F4,28,4.5291728681833,9
+numeric_v1.1,Practice (88),panel,factors_daily,13,4.437891135359848,5
+numeric_v1.1,Practice (88),panel,factors_daily+rates_daily,2,1.0046417856414738,0
+numeric_v1.1,Practice (88),panel,g10_fx_daily,28,2.149914377212936,1
+numeric_v1.1,Practice (88),panel,g10_fx_daily+rates_daily,3,1.0325240440167505,0
+numeric_v1.1,Practice (88),panel,macro_monthly,3,3.875993706659136,1
+numeric_v1.1,Practice (88),panel,rates_daily,39,1.9989859854609966,2
+numeric_v1.1,Practice (88),horizon_bucket,127+,19,0.8415658375515376,0
+numeric_v1.1,Practice (88),horizon_bucket,1–21,23,4.526281360350657,7
+numeric_v1.1,Practice (88),horizon_bucket,22–63,28,2.140514183631826,1
+numeric_v1.1,Practice (88),horizon_bucket,64–126,18,1.8087143463719022,1
+numeric_v1.1,Practice (88),shape,joint,36,1.3946002052471564,1
+numeric_v1.1,Practice (88),shape,single,52,3.12268981132754,8
+final (card-notes λ0.5),CV 2009–18,family,T2-F1,234,0.9810856873689383,0
+final (card-notes λ0.5),CV 2009–18,family,T2-F2,281,0.906255779261861,0
+final (card-notes λ0.5),CV 2009–18,family,T2-F3,230,0.9605537887380059,0
+final (card-notes λ0.5),CV 2009–18,family,T2-F4,328,0.9614350307266724,1
+final (card-notes λ0.5),CV 2009–18,panel,factors_daily,169,0.980217629732892,0
+final (card-notes λ0.5),CV 2009–18,panel,g10_fx_daily,352,1.0057899445854106,1
+final (card-notes λ0.5),CV 2009–18,panel,g10_fx_daily+rates_daily,63,0.9927449475966963,0
+final (card-notes λ0.5),CV 2009–18,panel,macro_monthly,38,1.2783434369921731,0
+final (card-notes λ0.5),CV 2009–18,panel,rates_daily,451,0.8640690999596157,0
+final (card-notes λ0.5),CV 2009–18,horizon_bucket,127+,234,0.9810856873689383,0
+final (card-notes λ0.5),CV 2009–18,horizon_bucket,1–21,278,0.9627731120407684,1
+final (card-notes λ0.5),CV 2009–18,horizon_bucket,22–63,302,0.9037669146524471,0
+final (card-notes λ0.5),CV 2009–18,horizon_bucket,64–126,259,0.9665922860552131,0
+final (card-notes λ0.5),CV 2009–18,shape,joint,450,0.9720614312970828,0
+final (card-notes λ0.5),CV 2009–18,shape,single,623,0.9359267130358223,1
+final (card-notes λ0.5),Held-out 2019–24 (report-only),family,T2-F1,122,2.048289558722841,13
+final (card-notes λ0.5),Held-out 2019–24 (report-only),family,T2-F2,144,1.2448156017532188,1
+final (card-notes λ0.5),Held-out 2019–24 (report-only),family,T2-F3,121,1.4980354162891938,2
+final (card-notes λ0.5),Held-out 2019–24 (report-only),family,T2-F4,167,1.1690064303729335,2
+final (card-notes λ0.5),Held-out 2019–24 (report-only),panel,factors_daily,77,1.066460822326025,1
+final (card-notes λ0.5),Held-out 2019–24 (report-only),panel,g10_fx_daily,183,1.091771640979391,2
+final (card-notes λ0.5),Held-out 2019–24 (report-only),panel,g10_fx_daily+rates_daily,20,1.7337314017951566,1
+final (card-notes λ0.5),Held-out 2019–24 (report-only),panel,macro_monthly,26,1.9397190947316039,2
+final (card-notes λ0.5),Held-out 2019–24 (report-only),panel,rates_daily,248,1.7685972336397788,12
+final (card-notes λ0.5),Held-out 2019–24 (report-only),horizon_bucket,127+,122,2.048289558722841,13
+final (card-notes λ0.5),Held-out 2019–24 (report-only),horizon_bucket,1–21,137,1.121882196086343,1
+final (card-notes λ0.5),Held-out 2019–24 (report-only),horizon_bucket,22–63,158,1.3134518637434092,1
+final (card-notes λ0.5),Held-out 2019–24 (report-only),horizon_bucket,64–126,137,1.4198288362076512,3
+final (card-notes λ0.5),Held-out 2019–24 (report-only),shape,joint,236,1.7382463928589675,14
+final (card-notes λ0.5),Held-out 2019–24 (report-only),shape,single,318,1.2434118973119692,4
+final (card-notes λ0.5),Practice (88),family,T2-F1,19,0.8429773296437509,0
+final (card-notes λ0.5),Practice (88),family,T2-F2,23,1.974978283707262,0
+final (card-notes λ0.5),Practice (88),family,T2-F3,18,1.2766597128935442,0
+final (card-notes λ0.5),Practice (88),family,T2-F4,28,4.45912312521125,9
+final (card-notes λ0.5),Practice (88),panel,factors_daily,13,4.426851897496112,5
+final (card-notes λ0.5),Practice (88),panel,factors_daily+rates_daily,2,1.0046417856414738,0
+final (card-notes λ0.5),Practice (88),panel,g10_fx_daily,28,2.0586409744104595,1
+final (card-notes λ0.5),Practice (88),panel,g10_fx_daily+rates_daily,3,1.0325240440167505,0
+final (card-notes λ0.5),Practice (88),panel,macro_monthly,3,3.875993706659136,1
+final (card-notes λ0.5),Practice (88),panel,rates_daily,39,1.9833470090319019,2
+final (card-notes λ0.5),Practice (88),horizon_bucket,127+,19,0.8429773296437509,0
+final (card-notes λ0.5),Practice (88),horizon_bucket,1–21,23,4.441782470266242,7
+final (card-notes λ0.5),Practice (88),horizon_bucket,22–63,28,2.0943157619307695,1
+final (card-notes λ0.5),Practice (88),horizon_bucket,64–126,18,1.8032213729489297,1
+final (card-notes λ0.5),Practice (88),shape,joint,36,1.3940776012248977,1
+final (card-notes λ0.5),Practice (88),shape,single,52,3.059415355430785,8

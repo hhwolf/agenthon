@@ -971,3 +971,23 @@ Team handoff update: the user supplied **756**, recorded as the website team
 number, not descriptor `team_id`. The human command now uses `--team-number 756`;
 pack derives the public alias and seals locally. No Team Key was requested,
 stored or used. Cache and license inputs remain pending.
+
+## Independent pre-submission audit — 2026-10-16
+
+Auditor re-ran everything at `ee31323`; no runtime code, config or frozen selection was changed and nothing
+was packed or uploaded. Full report: [reports/audit/AUDIT.md](reports/audit/AUDIT.md) and the four-page PDF.
+**Verdict: GO WITH FIXES.** Upload the card-notes candidate (numeric_v1.1 + card-notes λ0.5, `models: []`)
+once these blockers are cleared: no final image/digest/submission.json (release pending), no LICENSE
+(descriptor requires SPDX), no grep score on any of the 7 PRs, and the candidate branch is unpushed. Keep
+public numeric_v1.1 `sha256:f3ec5167…c085c507` as the prepared fallback. Do not ship LLM labels: no response
+cache exists anywhere reachable, so their claimed gain is unreproducible.
+
+Reproduced: 241 tests; 104/104 admissibility; all 13 reported means within 5e-7 and per-card scores within
+1.8e-15 of the frozen CSVs (no difference > 0.002); C1 + held-out veto pass for v1.1; tails variance-normalized;
+card-notes clamps hold (drift 0, vol_mult ≥ 1). Mock Final (empty DOCKER_CONFIG) passed 104/104 in offline,
+canned, chaos and replay for the fallback digest (cold anonymous pull) and the locally built candidate:
+0 requests, byte-identical reruns, fresh-seed means 2.3795/2.3897 inside bootstrap CIs, about 190 s per 100
+units. An LLM-labels variant handled 65 injected House faults with neutral fallbacks and no crash.
+Warnings: the card-notes gain is partly in-sample; the monthly 2022 regression is unfixed (2.659 vs M0 0.842);
+caps never fell; EM transfer is unmeasured; the eval run id ignores TEXT_LAYER_MODE and lets runs overwrite
+each other. Audit scratch outputs are in `.context/audit/`.
