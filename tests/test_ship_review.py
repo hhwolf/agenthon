@@ -148,6 +148,46 @@ def test_eval_retains_plugin_failure_and_continues_roster(tmp_path, monkeypatch)
     assert not rows.loc[1, "failed"]
 
 
+def test_eval_run_directory_separates_text_modes(tmp_path, monkeypatch):
+    """numeric-only and card-notes runs once shared one directory and overwrote each other."""
+    from t2eval import cli
+
+    root = tmp_path / "units"
+    make_unit(root, "a-unit")
+    seen = []
+
+    def run(name, unit, out, *args, **kwargs):
+        seen.append(cli.os.environ.get("TEXT_LAYER_MODE"))
+        out.parent.mkdir(parents=True, exist_ok=True)
+
+    monkeypatch.setattr(cli, "run_forecaster", run)
+    monkeypatch.setattr(cli, "score", lambda *args: {"admissible": True, "gates": []})
+    monkeypatch.setattr(cli.subprocess, "check_output", lambda *args, **kwargs: "test-revision\n")
+    monkeypatch.setenv("MODEL_TOKEN", "secret-token-value")
+    work = tmp_path / "eval"
+    directories = {}
+    for mode in ["numeric_only", "card_notes_only", "numeric_only"]:
+        monkeypatch.setenv("TEXT_LAYER_MODE", mode)
+        before = set((work / "runs").glob("*")) if (work / "runs").exists() else set()
+        assert cli.main(["admissibility", "--units", str(root), "--work", str(work),
+                         "--forecaster", "numeric_v1_1"]) == 0
+        new = set((work / "runs").glob("*")) - before
+        directories.setdefault(mode, new.pop() if new else directories.get(mode))
+    assert seen == ["numeric_only", "card_notes_only", "numeric_only"]
+    assert directories["numeric_only"] != directories["card_notes_only"]
+    assert len(list((work / "runs").glob("*"))) == 2  # same mode reuses its own directory
+    summary = json.loads((directories["card_notes_only"] / "summary.json").read_text())
+    assert summary["metadata"]["output_env"]["TEXT_LAYER_MODE"] == "card_notes_only"
+    assert summary["metadata"]["output_env"]["MODEL_TOKEN_set"] is True
+    assert "secret-token-value" not in json.dumps(summary)
+
+    monkeypatch.setenv("TEXT_LAYER_MODE", "card_notes_only")
+    monkeypatch.setenv("TEXT_LAYER_LAMBDA", "1.0")
+    assert cli.main(["admissibility", "--units", str(root), "--work", str(work),
+                     "--forecaster", "numeric_v1_1"]) == 0
+    assert len(list((work / "runs").glob("*"))) == 3  # lambda changes output, so it changes identity
+
+
 @pytest.mark.parametrize("values,dates,message", [
     ([.1, .2, .3], ["2024-01-01", "2024-01-02", "2024-01-12"], "Incomplete"),
     ([.1, .2, -1.], ["2024-01-01", "2024-01-02", "2024-01-03"], "Invalid simple"),
