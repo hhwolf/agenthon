@@ -1,34 +1,38 @@
 """Independent audit analysis: recompute tables and gates from fresh audit runs only."""
-import glob
+import argparse
 import json
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-ROOT = Path('/Users/henryhe/conductor/workspaces/agenthon/louisville')
-A, N = ROOT/'.context/audit/eval-A/runs', ROOT/'.context/audit/eval-N/runs'
-OUT = ROOT/'reports/audit'
+from runs import ROOT, find_run
+
+cli = argparse.ArgumentParser(description=__doc__)
+cli.add_argument('--eval-a', type=Path, default=ROOT/'.context/audit/eval-A', help='work dir with default-env runs')
+cli.add_argument('--eval-n', type=Path, default=ROOT/'.context/audit/eval-N', help='work dir with TEXT_LAYER_MODE=numeric_only runs')
+cli.add_argument('--out', type=Path, default=ROOT/'reports/audit')
+args = cli.parse_args()
+A, N, OUT = args.eval_a, args.eval_n, args.out
 OUT.mkdir(parents=True, exist_ok=True)
 
 
-def run(base, prefix):
-    hits = sorted(glob.glob(str(base/f'{prefix}*')))
-    assert len(hits) == 1, (prefix, hits)
-    df = pd.read_csv(Path(hits[0])/'cards.csv')
+def run(base, mode, forecaster, n_draws, text_mode=None):
+    path = find_run(base, mode, forecaster, n_draws, text_mode)
+    df = pd.read_csv(path/'cards.csv')
     df['year'] = pd.to_datetime(df['asof']).dt.year
     df['capped'] = df.score >= 8
-    return df, Path(hits[0]).name
+    return df, path.name
 
 
-arms = {}
-hist = {'M0 (500)': run(A, 'backtest-m0-dd1d'), 'M0 (2000)': run(A, 'backtest-m0-ffa6'),
-        'numeric_v1': run(A, 'backtest-numeric_v1-5'), 'numeric_v1.1': run(A, 'backtest-numeric_v1_1-')}
+hist = {'M0 (500)': run(A, 'backtest', 'm0', 500), 'M0 (2000)': run(A, 'backtest', 'm0', 2000),
+        'numeric_v1': run(A, 'backtest', 'numeric_v1', 2000), 'numeric_v1.1': run(A, 'backtest', 'numeric_v1_1', 2000)}
 # Historical cards carry no text dir, so final == numeric_v1.1 there by construction (checked below).
 hist['final (card-notes λ0.5)'] = hist['numeric_v1.1']
-prac = {'M0 (500)': run(A, 'eval-practice-m0-54b0'), 'M0 (2000)': run(A, 'eval-practice-m0-89ad'),
-        'numeric_v1': run(N, 'eval-practice-numeric_v1-5'), 'numeric_v1.1': run(N, 'eval-practice-numeric_v1_1-'),
-        'final (card-notes λ0.5)': run(A, 'eval-practice-numeric_v1_1-')}
+prac = {'M0 (500)': run(A, 'eval-practice', 'm0', 500), 'M0 (2000)': run(A, 'eval-practice', 'm0', 2000),
+        'numeric_v1': run(N, 'eval-practice', 'numeric_v1', 2000, 'numeric_only'),
+        'numeric_v1.1': run(N, 'eval-practice', 'numeric_v1_1', 2000, 'numeric_only'),
+        'final (card-notes λ0.5)': run(A, 'eval-practice', 'numeric_v1_1', 2000)}
 runs = {f'hist/{k}': v[1] for k, v in hist.items()} | {f'practice/{k}': v[1] for k, v in prac.items()}
 
 

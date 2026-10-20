@@ -4,7 +4,7 @@ import subprocess
 
 import markdown
 
-ROOT = Path('/Users/henryhe/conductor/workspaces/agenthon/louisville')
+ROOT = Path(__file__).resolve().parents[3]
 BROWSE = Path.home()/'.claude/skills/gstack/browse/dist/browse'
 src = (ROOT/'reports/audit/AUDIT_PDF.md').read_text()
 pages = [p.strip() for p in src.split('\n<!-- pagebreak -->\n')]
@@ -25,6 +25,7 @@ code {font:7.2pt/1.2 Menlo,monospace; overflow-wrap:anywhere;}
 pre {white-space:pre-wrap; margin:4pt 0; padding:5pt; background:#f2f5f7;}
 '''
 html = ROOT/'.context/audit/audit.html'
+html.parent.mkdir(parents=True, exist_ok=True)
 html.write_text('<!doctype html><html><head><meta charset="utf-8"><title>Agenthon Track 2 pre-submission audit</title><style>'
                 + css + '</style></head><body>' + body + '</body></html>')
 out = ROOT/'reports/audit/Agenthon_Track2_PreSubmission_Audit_2026-10-16.pdf'

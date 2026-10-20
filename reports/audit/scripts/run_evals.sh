@@ -1,7 +1,7 @@
 #!/bin/bash
 # Independent audit reproduction; writes only under .context/audit.
 set -u
-cd /Users/henryhe/conductor/workspaces/agenthon/louisville
+cd "$(dirname "$0")/../../.."
 P=.venv/bin/python
 A=.context/audit/eval-A; N=.context/audit/eval-N
 L=.context/audit/logs; mkdir -p $A $N $L

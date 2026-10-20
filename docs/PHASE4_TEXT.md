@@ -21,18 +21,24 @@ Both numeric engines keep the six positional forecast arguments. They sample
 first, call `read_text` if enabled, map categorical labels, then apply the text
 signal to completed draws. `numeric_v1_1` remains the default engine. The numeric
 configuration files and Phase 2 selection are unchanged; `text_config.json`
-contains the separate provisional text choice.
+contains the separate, final text choice (`card_notes_only`, lambda 0.5,
+`house_calls: false`).
 
 ```sh
-# Default candidate: card prose only, zero model calls, including restricted mode.
+# Shipped default: card prose only, zero model calls, including restricted mode.
 forecast --panels /input/panels --text /input/text --asof YYYY-MM-DD --out /output/forecast.parquet
 
 # Reproduce a numeric baseline explicitly.
 forecast --panels /input/panels --asof YYYY-MM-DD --out /output/forecast.parquet --text-mode numeric_only
-
-# Explicit House-label experiment; the normal House/proxy environment is required.
-forecast --panels /input/panels --text /input/text --asof YYYY-MM-DD --out /output/forecast.parquet --text-mode labels --text-lambda 0.5
 ```
+
+**House-label experiments are unavailable in the frozen release.** With the shipped
+`house_calls: false`, `--text-mode labels` (or `TEXT_LAYER_MODE=labels`) is forced offline
+before any client exists and yields a neutral signal, even with valid `MODEL_*` credentials;
+the rationale says so. Running labels requires a separate experimental configuration with
+`"house_calls": true` in `t2agent/text_config.json` (and the normal House/proxy environment).
+That is a different image from the release and would need the House row in `models`;
+`scripts/prepare_final.py --check` refuses a House setting that disagrees with the disclosure.
 
 `text_mode` and `text_lambda` are optional forecast keywords. CLI flags override
 `TEXT_LAYER_MODE` / `TEXT_LAYER_LAMBDA`, which override the committed selection.

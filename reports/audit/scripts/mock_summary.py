@@ -6,9 +6,16 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path('/Users/henryhe/conductor/workspaces/agenthon/louisville')
-M = ROOT/'.context/audit/mock'
-OUT = ROOT/'reports/audit'
+import argparse
+
+from runs import ROOT, find_run
+
+cli = argparse.ArgumentParser(description=__doc__)
+cli.add_argument('--mock', type=Path, default=ROOT/'.context/audit/mock', help='parent of the sweep --out dirs')
+cli.add_argument('--eval-a', type=Path, default=ROOT/'.context/audit/eval-A', help='work dir holding the M0 practice run')
+cli.add_argument('--out', type=Path, default=ROOT/'reports/audit')
+args = cli.parse_args()
+M, OUT = args.mock, args.out
 LIMIT_BYTES, LIMIT_FILES = 64*1024**2, 256
 
 
@@ -86,7 +93,7 @@ for x, y in [('fin-offline', 'fin-canned'), ('fin-offline', 'fin-chaos'), ('fin-
         checks[f'{x}_vs_{y}_identical_triplets'] = sum(a[k] == b[k] for k in a)
 if {'fin-seed-a', 'fin-seed-b'} <= set(units):
     ca = pd.read_csv(M/'fin-seed-a/a/cards.csv'); cb = pd.read_csv(M/'fin-seed-b/a/cards.csv')
-    roster = pd.read_csv(sorted((ROOT/'.context/audit/eval-A/runs').glob('eval-practice-m0-54b*'))[0]/'cards.csv')[['unit_id', 'asof']]
+    roster = pd.read_csv(find_run(args.eval_a, 'eval-practice', 'm0', 500)/'cards.csv')[['unit_id', 'asof']]
     ca = ca.dropna(subset=['score']).merge(roster, on='unit_id'); cb = cb.dropna(subset=['score']).merge(roster, on='unit_id')
     ci_a, ci_b = boot_mean_ci(ca), boot_mean_ci(cb)
     pa, pb = ca.set_index('unit_id').score, cb.set_index('unit_id').score.reindex(ca.unit_id)
