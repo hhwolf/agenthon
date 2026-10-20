@@ -1,0 +1,17 @@
+{
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:a197cfe0e065f6ddef7696fa0ad261b0a31d08259769b5040fc1176a63428bed",
+  "unit": "t2-EXAMPLE-ust-curve-1m (staged input)",
+  "network": "internal Docker network with a TCP listener aliased house:8000",
+  "release_config_run": {
+    "env": "MODEL_ENDPOINT=http://house:8000 MODEL_TOKEN=fake MODEL_NAME=house TEXT_LAYER_MODE=labels",
+    "exit": 0,
+    "listener_connections": 0,
+    "rationale": "House calls are disabled by text_config.json (house_calls=false); mode neutral; House requests used: 0"
+  },
+  "positive_control": {
+    "change": "text_config.json bind-mounted with house_calls=true (control only; not the shipped config)",
+    "exit": 0,
+    "listener_connections": 2,
+    "rationale": "mode neutral; House requests used: 2"
+  }
+}

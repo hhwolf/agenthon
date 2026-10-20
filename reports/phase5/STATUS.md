@@ -1,6 +1,6 @@
 # Phase 5 status — 2026-10-16
 
-**Prepared, not published. No final tag, final digest, or submission.json exists yet.**
+**Superseded 2026-10-20: published and verified. See [the release report](../release/RELEASE.md).** The text below is the 2026-10-16 pre-release status.
 
 Implemented:
 

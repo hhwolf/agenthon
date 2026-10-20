@@ -1,0 +1,36 @@
+{
+  "default": {
+    "statuses": {
+      "passed": 104
+    },
+    "requests_used": 0,
+    "proxy_mean": 2.3781408196192855,
+    "proxy_caps": 9,
+    "mean_unit_wall_seconds": 1.806533011688421,
+    "projection_104_seconds": 187.87943321559578,
+    "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:a197cfe0e065f6ddef7696fa0ad261b0a31d08259769b5040fc1176a63428bed"
+  },
+  "seed1111": {
+    "statuses": {
+      "passed": 104
+    },
+    "requests_used": 0,
+    "proxy_mean": 2.379503688431961,
+    "proxy_caps": 9,
+    "mean_unit_wall_seconds": 1.7856440356778107,
+    "projection_104_seconds": 185.7069797104923,
+    "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:a197cfe0e065f6ddef7696fa0ad261b0a31d08259769b5040fc1176a63428bed"
+  },
+  "seed2222": {
+    "statuses": {
+      "passed": 104
+    },
+    "requests_used": 0,
+    "proxy_mean": 2.3896902721351214,
+    "proxy_caps": 9,
+    "mean_unit_wall_seconds": 1.8127216498318235,
+    "projection_104_seconds": 188.52305158250965,
+    "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:a197cfe0e065f6ddef7696fa0ad261b0a31d08259769b5040fc1176a63428bed"
+  },
+  "outputs_identical_to_audited_candidate_fin_offline": "312/312 files (parquet, meta, rationale x 104 units)"
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.1.0",
+  "interface_version": "2.0",
+  "competition_id": "agenthon2026-forecasting-final",
+  "track": "forecasting",
+  "phase": "final",
+  "category": "api",
+  "image": {
+    "registry": "ghcr.io",
+    "repository": "hhwolf/agenthon-numeric-v1",
+    "digest": "sha256:a197cfe0e065f6ddef7696fa0ad261b0a31d08259769b5040fc1176a63428bed"
+  },
+  "image_access": "public",
+  "models": [],
+  "license": "MIT"
+}

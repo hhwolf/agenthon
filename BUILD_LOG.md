@@ -991,3 +991,25 @@ units. An LLM-labels variant handled 65 injected House faults with neutral fallb
 Warnings: the card-notes gain is partly in-sample; the monthly 2022 regression is unfixed (2.659 vs M0 0.842);
 caps never fell; EM transfer is unmeasured; the eval run id ignores TEXT_LAYER_MODE and lets runs overwrite
 each other. Audit scratch outputs are in `.context/audit/`.
+
+## Final release candidate — 2026-10-20 (stopped before pack)
+
+Shipped numeric_v1.1 + card-notes λ0.5 per the audit; no forecaster logic, numeric config, clamp, λ or
+text rule changed, and the LLM-label layer is not enabled. Merged origin/main (#5–#7; conflicts kept this
+branch's versions), added the MIT license (LICENSE, PEP 639 pyproject, README), and fixed the eval run
+identity to include text mode, lambda and House env (token presence only) plus runtime JSON/subpackage
+sources. Reruns in one work dir now use separate directories and reproduce 2.415744 / 2.378141 exactly.
+`text_config.json` is final with `house_calls: false`: the dispatch forces the text layer offline before any
+client exists. A unit test and an image-level listener (0 connections; positive control 2) confirm zero
+network attempts with `MODEL_*` set, even under a labels override. `release.json` is frozen; 243 tests.
+
+PR #9 opened. Tag `final-20261019-1` (commit `fd4f11a`) published via CI run 39366143060:
+`ghcr.io/hhwolf/agenthon-numeric-v1@sha256:a197cfe0e065f6ddef7696fa0ad261b0a31d08259769b5040fc1176a63428bed`.
+After pruning all images and build cache, the anonymous cold pull took 42.64 s (9/9 layers, 139.8 MB).
+`t2eval.final_release` passed all eight sweeps on that digest: 104/104 each, 0 requests, byte-identical
+same-seed reruns, fresh-seed means 2.382360/2.382383 inside CIs, and at most 242 s projected per 104 units
+including the cold pull. Audit seed variants reproduce 2.378141 / 2.379504 / 2.389690, with outputs
+byte-identical to the audited candidate. `submission.final.json` and `submission.fallback.json` (`f3ec5167…`)
+pass the toolkit 2.6.0 parser, schema and pack seal path without packing. All 17 digest sources are equal.
+Open: grep score on PR #9 (do not merge before 5); PR #8 conflicts with this release. Details:
+reports/release/RELEASE.md. Human packs `submission.final.json`; no zip was created.

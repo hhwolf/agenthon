@@ -1,0 +1,195 @@
+{
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:a197cfe0e065f6ddef7696fa0ad261b0a31d08259769b5040fc1176a63428bed",
+  "seed": 20261016,
+  "fresh_seed": 20261017,
+  "runs": {
+    "offline": {
+      "units": 104,
+      "passed": 104,
+      "mean_wall_seconds": 2.3242629222726325,
+      "max_wall_seconds": 58.64403437497094,
+      "max_requests": 0,
+      "requests": 0,
+      "proxy_units": 88,
+      "proxy_mean": 2.3823600748337017,
+      "proxy_caps": 9,
+      "max_output_bytes": 424848,
+      "pull_seconds": 56.021379707963206,
+      "image_cached_before": false,
+      "projection_104_seconds": 241.72334391635377,
+      "over_half_platform_clock": false
+    },
+    "canned": {
+      "units": 104,
+      "passed": 104,
+      "mean_wall_seconds": 1.8234752491944863,
+      "max_wall_seconds": 2.301873499993235,
+      "max_requests": 0,
+      "requests": 0,
+      "proxy_units": 88,
+      "proxy_mean": 2.3823600748337017,
+      "proxy_caps": 9,
+      "max_output_bytes": 424848,
+      "pull_seconds": 0.0,
+      "image_cached_before": true,
+      "projection_104_seconds": 189.64142591622658,
+      "over_half_platform_clock": false
+    },
+    "chaos": {
+      "units": 104,
+      "passed": 104,
+      "mean_wall_seconds": 1.7997266875284437,
+      "max_wall_seconds": 2.2694926670519635,
+      "max_requests": 0,
+      "requests": 0,
+      "proxy_units": 88,
+      "proxy_mean": 2.3823600748337017,
+      "proxy_caps": 9,
+      "max_output_bytes": 424848,
+      "pull_seconds": 0.0,
+      "image_cached_before": true,
+      "projection_104_seconds": 187.17157550295815,
+      "over_half_platform_clock": false
+    },
+    "replay": {
+      "units": 104,
+      "passed": 104,
+      "mean_wall_seconds": 1.8161595832957222,
+      "max_wall_seconds": 2.2009483749279752,
+      "max_requests": 0,
+      "requests": 0,
+      "proxy_units": 88,
+      "proxy_mean": 2.3823600748337017,
+      "proxy_caps": 9,
+      "max_output_bytes": 424848,
+      "pull_seconds": 0.0,
+      "image_cached_before": true,
+      "projection_104_seconds": 188.88059666275512,
+      "over_half_platform_clock": false
+    },
+    "offline-repeat": {
+      "units": 104,
+      "passed": 104,
+      "mean_wall_seconds": 1.7971498742330227,
+      "max_wall_seconds": 2.1954322919482365,
+      "max_requests": 0,
+      "requests": 0,
+      "proxy_units": 88,
+      "proxy_mean": 2.3823600748337017,
+      "proxy_caps": 9,
+      "max_output_bytes": 424848,
+      "pull_seconds": 0.0,
+      "image_cached_before": true,
+      "projection_104_seconds": 186.90358692023437,
+      "over_half_platform_clock": false
+    },
+    "offline-fresh": {
+      "units": 104,
+      "passed": 104,
+      "mean_wall_seconds": 1.77008437862969,
+      "max_wall_seconds": 2.281919957953505,
+      "max_requests": 0,
+      "requests": 0,
+      "proxy_units": 88,
+      "proxy_mean": 2.3823829298549364,
+      "proxy_caps": 9,
+      "max_output_bytes": 424848,
+      "pull_seconds": 0.0,
+      "image_cached_before": true,
+      "projection_104_seconds": 184.08877537748776,
+      "over_half_platform_clock": false
+    },
+    "replay-repeat": {
+      "units": 104,
+      "passed": 104,
+      "mean_wall_seconds": 1.864988733122188,
+      "max_wall_seconds": 2.2655403750250116,
+      "max_requests": 0,
+      "requests": 0,
+      "proxy_units": 88,
+      "proxy_mean": 2.3823600748337017,
+      "proxy_caps": 9,
+      "max_output_bytes": 424848,
+      "pull_seconds": 0.0,
+      "image_cached_before": true,
+      "projection_104_seconds": 193.95882824470755,
+      "over_half_platform_clock": false
+    },
+    "replay-fresh": {
+      "units": 104,
+      "passed": 104,
+      "mean_wall_seconds": 1.8234588998043013,
+      "max_wall_seconds": 2.30458441702649,
+      "max_requests": 0,
+      "requests": 0,
+      "proxy_units": 88,
+      "proxy_mean": 2.3823829298549364,
+      "proxy_caps": 9,
+      "max_output_bytes": 424848,
+      "pull_seconds": 0.0,
+      "image_cached_before": true,
+      "projection_104_seconds": 189.63972557964735,
+      "over_half_platform_clock": false
+    }
+  },
+  "cold_pull_scope": "Final image absent; shared base layers may already be cached.",
+  "determinism": {
+    "offline": {
+      "forecasts_identical": true,
+      "metadata_identical": true,
+      "rationales_identical": true,
+      "rationale_differences": []
+    },
+    "replay": {
+      "forecasts_identical": true,
+      "metadata_identical": true,
+      "rationales_identical": true,
+      "rationale_differences": []
+    }
+  },
+  "seed_stability": {
+    "offline": {
+      "passed": true,
+      "proxies": 88,
+      "baseline_mean": 2.3823600748337017,
+      "fresh_mean": 2.382382929854937,
+      "baseline_ci": [
+        1.7320079419627004,
+        3.2015726783833296
+      ],
+      "fresh_ci": [
+        1.7339764192717635,
+        3.2023803287430965
+      ],
+      "paired_delta": 2.28550212348065e-05,
+      "paired_delta_ci": [
+        -0.013335710972764725,
+        0.01055498279680129
+      ],
+      "bootstrap": "10000 paired whole-year resamples; seed 20261016",
+      "changed_forecasts": 104
+    },
+    "replay": {
+      "passed": true,
+      "proxies": 88,
+      "baseline_mean": 2.3823600748337017,
+      "fresh_mean": 2.382382929854937,
+      "baseline_ci": [
+        1.7320079419627004,
+        3.2015726783833296
+      ],
+      "fresh_ci": [
+        1.7339764192717635,
+        3.2023803287430965
+      ],
+      "paired_delta": 2.28550212348065e-05,
+      "paired_delta_ci": [
+        -0.013335710972764725,
+        0.01055498279680129
+      ],
+      "bootstrap": "10000 paired whole-year resamples; seed 20261016",
+      "changed_forecasts": 104
+    }
+  },
+  "passed": true
+}
