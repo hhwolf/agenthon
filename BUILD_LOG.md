@@ -834,3 +834,58 @@ All 27 network-probe assertions passed across canned/chaos/replay; admitted
 request counts were 25, 6, and 2 respectively. No Docker networks or containers
 from the harness remain after cleanup. Full logs and outputs are in
 .eval/mock-final/phase-m-{offline-comparison,restricted,verification-final}/.
+
+## Phase 4 — integration and ship decision, 2026-10-19
+
+Branch `aiden/phase4-integration` on top of main (numeric_v1.1 + text layer + mock Final merged).
+
+### Changes
+
+- `t2agent/text_v1.py` now wraps **`numeric_v1_1.forecast`** (the image default) through the same `text_signal` hook; it had
+  been built against numeric_v1 before Phase 2.5 landed. Env-free variants added for the pre-declared ablation below.
+- **B4 as the fallback.** When the model path fails on a unit whose corpus loaded (HTTP errors after retries, JSON failures
+  after the repair, every label run failing, budget or clock exhausted), `read_text` now returns the deterministic pre-pass
+  labels with `labels.mode = "notes_only_fallback"` and the failure in `fallback_reason`; `text_map` maps them like any other
+  labels. Offline, a missing text directory or an empty corpus still return the fully neutral signal, so local
+  `QFBENCH_NETWORK=none` runs stay bit-identical to numeric_v1.1.
+- **Clock guard.** With less than `SYNTHESIS_TIMEOUT_S + 30 s` left on the 400 s unit clock, one label call runs instead of three
+  (recorded in the rationale). Budget-driven reduction is unchanged.
+- `text_map.table_constants()` exposes the table with named overrides so variants are declared in code, not edited by hand.
+- 211 tests pass in the merged suite (new: fallback mapping and its neutral exceptions, clock guard, table overrides).
+
+### Ablation against numeric_v1.1 (88 practice proxies, paired, replayed from the dev cache with zero network calls;
+`.eval/ablations/phase4_vs_numeric_v1_1.md`)
+
+| arm | mean | Δ vs 2.4157 | 95 % CI | caps (base 9) | F1 Δ | F2 Δ | F3 Δ | F4 Δ |
+|---|---:|---:|---|---:|---:|---:|---:|---:|
+| notes-only, λ = 0.5 | 2.3955 | −0.020 | [−0.053, +0.008] | 9 | | | | |
+| **LLM labels, λ = 0.5** | **2.2958** | **−0.120** | **[−0.205, −0.040]** | **6** | +0.008 | +0.008 | −0.025 | −0.373 |
+| LLM labels, λ = 0.75 | 2.2403 | −0.176 | [−0.294, −0.064] | 6 | +0.014 | +0.011 | −0.028 | −0.552 |
+| LLM labels, λ = 1.0 | 2.2104 | −0.205 | [−0.349, −0.071] | 6 | +0.028 | +0.016 | −0.020 | −0.665 |
+| variant: disagreement keeps half the drift, λ = 0.5 | 2.2925 | −0.123 | [−0.209, −0.042] | 6 | +0.008 | −0.004 | −0.022 | −0.376 |
+| variant: binary branch drift 0.75, λ = 0.5 | 2.3067 | −0.109 | [−0.187, −0.037] | 6 | +0.005 | +0.004 | −0.024 | −0.334 |
+
+The variants were declared before scoring with the rule "keep the current table unless a variant improves the mean, caps do
+not rise, and no family is more than 10 % worse". The half-drift variant improves the mean by 0.003 (noise) and the smaller
+branch drift is worse, so **the table is unchanged**.
+
+### Decision (balanced rule, C2)
+
+**Ship `text_v1` on numeric_v1.1 at λ = 0.5** as the image default (`ENV T2_DEFAULT_FORECASTER=text_v1 TEXT_LAYER_LAMBDA=0.5`
+in the Dockerfile; `--forecaster numeric_v1_1` remains available). Practice mean improves with the CI clear of zero and caps fall
+from 9 to 6; F1/F2 move by less than 1 % (inside noise, far below the 10 % veto), F3 and F4 improve. λ = 1.0 is rejected under
+"consistent across families" (F1 +3.3 %), and λ = 0.75 for the same reason at smaller size. Caveats as before: the practice
+episodes are historical and may be remembered by the model, so the gain is optimistic for the sealed window; the dev snapshot may
+differ from the House route.
+
+### Still to do (Phase 5, needs Docker — not installed on this Mac)
+
+- Build the image from this branch and run `make mock-final` in `none`, `restricted` canned, `restricted` chaos and `restricted`
+  replay (`t2eval/mock_house_service.py` already replays the flat Phase 3 cache; the bundle
+  `.eval/share/text_layer_dev_bundle_2026-10-19.tgz` holds `llm_cache/`, `text_signals/` and `ablations/`). Verify 104/104
+  admissible in every mode, zero requests offline, ≤ 20 per unit restricted, wall time per unit ≤ 240 s mean / < 600 s max.
+- Fresh-seed rerun check on the final image: the LLM seed is a constant independent of `QFBENCH_SEED`, so a rerun changes the
+  numeric draws, not the labels.
+- `submission.json`: `qfbench2 submission pack` (toolkit schema `submission.schema.json`); `models[]` must now carry the House
+  model row with training cutoff "unpublished"; no `ARTIFACT_PROVENANCE.md` is needed (nothing fitted is stored; the BM25 index
+  is built per unit at runtime and lexicons are dictionaries).
