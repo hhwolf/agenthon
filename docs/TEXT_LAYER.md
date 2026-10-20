@@ -174,7 +174,8 @@ scored, but it is screened by humans at the top of the board.
   Tests: `make test`. Sweeps over all practice units: `scripts/run_text_layer_practice.py --mode dev|replay|mock|notes_only|offline`
   (outputs under `.eval/text_signals*/`, dev responses cached under `.eval/llm_cache/`, replayable by `tests/mock_house.py
   --replay-dir`). Paired practice comparison of forecaster arms: `scripts/compare_runs.py numeric_v1 t2agent.text_v1:<variant> ...`.
-  Results and decisions: BUILD_LOG "Text layer — Phase 3".
+  Results and decisions: BUILD_LOG "Text layer — Phase 3" and "Phase 4 — integration and ship decision" (image default:
+  `text_v1` on numeric_v1.1 at λ = 0.5; model failures fall back to the deterministic pre-pass labels; offline stays neutral).
 - Ablation (with the dev model): `make eval-practice` numeric-only vs numeric+text on the 88 practice
   proxies, reported by family. Text ships only if it helps there and does not increase capped cards.
   The historical backtest (`make backtest`) has no text, so it cannot measure this.
