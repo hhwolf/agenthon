@@ -1074,3 +1074,26 @@ Pre-flight on `main` (evidence: reports/release/preflight/):
 Handoff: reports/release/UPLOAD_CHECKLIST.md. Caveats recorded there: the "Failed uploads are free" rule
 is documented for Development (Final allows one submission), and admin@agenthon.net comes from the team
 brief rather than the pinned docs.
+
+## F4 tail experiment — NO-GO, 2026-10-21
+
+Pre-registered in reports/f4_tails/PLAN.md (commit `42ce8bb`, pushed 12:44 UTC) before any candidate was
+scored. Two corrections to the brief are recorded there: numeric_v1.1 uses FHS empirical tails (`fhs5`), not
+Gaussian; and 28 of the 31 F4 practice units have proxies. Three F4-only, variance-normalized candidates ran
+through an evaluation-only wrapper (`t2eval/f4_tails.py`; runtime untouched), with the same seeds, draws
+and card-notes text as the final: (a) t5·√(3/5), (b) t4·√(1/2), (c) a 10% × 2.5 mixture / √1.525.
+
+| candidate | CV F4 (328) | practice F4 (28) | practice overall (88) | caps |
+|---|---:|---:|---:|---:|
+| current final | 0.961435 | 4.459123 | 2.378141 | 9 |
+| t5 | 0.959481 | 4.521720 | 2.398058 | 8 |
+| t4 | 0.957627 | 4.576086 | 2.415356 | 8 |
+| mix10 | 0.956612 | 4.537206 | 2.402986 | 8 |
+
+All three fail gate 1 (practice mean must fall by ≥ 0.02; instead it rises 0.020–0.037) and pass gates 2–5:
+caps 8 ≤ 9, CV F4 within +1%, worst group +3.0%, non-F4 byte-identical (1,440 historical scores, 60 practice
+triplets). The only cap removed is t2-F4-mkt-debt-ceiling-2011; 15 of 28 F4 proxies worsen, mostly through
+the tail penalty, as the plan predicted. **NO-GO: the current final
+`sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674` remains the submission.** No
+runtime code, config, image, tag or descriptor changed; nothing was packed or uploaded. Details:
+reports/f4_tails/results.md.

@@ -1,0 +1,207 @@
+{
+  "decision": {
+    "decision": "NO-GO",
+    "selected": null,
+    "baselines": {
+      "historical": "backtest-numeric_v1_1-6ca79f9a0acd",
+      "practice": "eval-practice-numeric_v1_1-c84ae68f2396"
+    }
+  },
+  "candidates": {
+    "t5": {
+      "cv_f4": {
+        "cards": 328,
+        "mean": 0.959480662226049,
+        "caps": 1,
+        "base": 0.961435,
+        "ci_delta": [
+          -0.01595849155300109,
+          0.012628841889162601
+        ]
+      },
+      "heldout_f4_report_only": {
+        "cards": 167,
+        "mean": 1.1759642772807615,
+        "caps": 2,
+        "base": 1.1690064303729335
+      },
+      "practice_f4": {
+        "cards": 28,
+        "mean": 4.521719665909257,
+        "caps": 8,
+        "base": 4.45912312521125
+      },
+      "practice": {
+        "cards": 88,
+        "mean": 2.3980579007504694,
+        "median": 1.371824088850975,
+        "caps": 8,
+        "base": 2.378141,
+        "ci_delta": [
+          -0.011662479422848654,
+          0.044289805017625285
+        ]
+      },
+      "worst_group_cv": {
+        "dimension": "panel",
+        "group": "factors_daily",
+        "cards": 169,
+        "before": 0.980217629732892,
+        "after": 0.9909155338917486,
+        "rel": 0.010913805092213957
+      },
+      "worst_group_practice": {
+        "dimension": "panel",
+        "group": "factors_daily",
+        "cards": 13,
+        "before": 4.426851897496112,
+        "after": 4.492878579488627,
+        "rel": 0.014915042003067702
+      },
+      "nonf4_hist_scores_identical": true,
+      "nonf4_practice_triplets_identical": "60/60",
+      "runs": {
+        "historical": "backtest-t2eval.f4_tails_forecast_t5-66334ba8effb",
+        "practice": "eval-practice-t2eval.f4_tails_forecast_t5-f7d797ca834a"
+      },
+      "gates": {
+        "1 practice mean <= 2.358141": false,
+        "2 practice caps <= 9": true,
+        "3 CV F4 mean <= 0.971049": true,
+        "4 no family/panel group > +10%": true,
+        "5 non-F4 byte-identical": true
+      },
+      "passes": false
+    },
+    "t4": {
+      "cv_f4": {
+        "cards": 328,
+        "mean": 0.9576272733102016,
+        "caps": 1,
+        "base": 0.961435,
+        "ci_delta": [
+          -0.020216449906330283,
+          0.013875253859279697
+        ]
+      },
+      "heldout_f4_report_only": {
+        "cards": 167,
+        "mean": 1.1784458327196712,
+        "caps": 2,
+        "base": 1.1690064303729335
+      },
+      "practice_f4": {
+        "cards": 28,
+        "mean": 4.576086030027179,
+        "caps": 8,
+        "base": 4.45912312521125
+      },
+      "practice": {
+        "cards": 88,
+        "mean": 2.415356289333445,
+        "median": 1.371824088850975,
+        "caps": 8,
+        "base": 2.378141,
+        "ci_delta": [
+          0.0073836911689259,
+          0.06582896137365109
+        ]
+      },
+      "worst_group_cv": {
+        "dimension": "panel",
+        "group": "factors_daily",
+        "cards": 169,
+        "before": 0.980217629732892,
+        "after": 0.9925067516125056,
+        "rel": 0.012537136149002315
+      },
+      "worst_group_practice": {
+        "dimension": "panel",
+        "group": "factors_daily",
+        "cards": 13,
+        "before": 4.426851897496112,
+        "after": 4.561134216576827,
+        "rel": 0.030333591949770478
+      },
+      "nonf4_hist_scores_identical": true,
+      "nonf4_practice_triplets_identical": "60/60",
+      "runs": {
+        "historical": "backtest-t2eval.f4_tails_forecast_t4-f952045640bc",
+        "practice": "eval-practice-t2eval.f4_tails_forecast_t4-1525605db703"
+      },
+      "gates": {
+        "1 practice mean <= 2.358141": false,
+        "2 practice caps <= 9": true,
+        "3 CV F4 mean <= 0.971049": true,
+        "4 no family/panel group > +10%": true,
+        "5 non-F4 byte-identical": true
+      },
+      "passes": false
+    },
+    "mix10": {
+      "cv_f4": {
+        "cards": 328,
+        "mean": 0.956611563150505,
+        "caps": 1,
+        "base": 0.961435,
+        "ci_delta": [
+          -0.017955422519650484,
+          0.009494308993673466
+        ]
+      },
+      "heldout_f4_report_only": {
+        "cards": 167,
+        "mean": 1.1768187741390506,
+        "caps": 2,
+        "base": 1.1690064303729335
+      },
+      "practice_f4": {
+        "cards": 28,
+        "mean": 4.53720648216526,
+        "caps": 8,
+        "base": 4.45912312521125
+      },
+      "practice": {
+        "cards": 88,
+        "mean": 2.402985524104652,
+        "median": 1.371824088850975,
+        "caps": 8,
+        "base": 2.378141,
+        "ci_delta": [
+          0.0005976792725082764,
+          0.04746559018083854
+        ]
+      },
+      "worst_group_cv": {
+        "dimension": "panel",
+        "group": "factors_daily",
+        "cards": 169,
+        "before": 0.980217629732892,
+        "after": 0.9878346343857972,
+        "rel": 0.0077707280728882555
+      },
+      "worst_group_practice": {
+        "dimension": "family",
+        "group": "T2-F4",
+        "cards": 28,
+        "before": 4.45912312521125,
+        "after": 4.53720648216526,
+        "rel": 0.01751092193721626
+      },
+      "nonf4_hist_scores_identical": true,
+      "nonf4_practice_triplets_identical": "60/60",
+      "runs": {
+        "historical": "backtest-t2eval.f4_tails_forecast_mix10-35224464268f",
+        "practice": "eval-practice-t2eval.f4_tails_forecast_mix10-a631d29cd5da"
+      },
+      "gates": {
+        "1 practice mean <= 2.358141": false,
+        "2 practice caps <= 9": true,
+        "3 CV F4 mean <= 0.971049": true,
+        "4 no family/panel group > +10%": true,
+        "5 non-F4 byte-identical": true
+      },
+      "passes": false
+    }
+  }
+}
