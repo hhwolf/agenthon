@@ -566,11 +566,11 @@ def test_text_v1_forecaster_modes(unit, server, monkeypatch):
     assert np.array_equal(no_text.value.to_numpy(), numeric.value.to_numpy())
 
 
-def test_release_config_makes_zero_network_attempts_with_house_env(unit, server, monkeypatch):
-    """Final image: card notes, House disabled by text_config.json even when MODEL_* are present."""
-    import socket
+def test_candidate_config_uses_house_when_present_and_degrades_to_card_labels(unit, server, monkeypatch):
+    """LLM-label candidate: labels mode with House calls enabled; offline is numeric-only; a failed House route
+    degrades to the frozen release's card-only labels."""
     settings = numeric_v1.text_settings()
-    assert settings["mode"] == "card_notes_only" and settings["lambda"] == 0.5 and settings["house_calls"] is False
+    assert settings["mode"] == "labels" and settings["lambda"] == 0.5 and settings["house_calls"] is True
     card = {"task": {"id": "t2-TEST-brexit-2016"}, "provenance": {"data_cutoff": ASOF.isoformat()},
             "targets": {"asset_ids": ["GBP"], "horizons": [21], "target_type": "level", "value_unit": "usd_per_gbp"},
             "metadata": {"category": "T2-F2", "description": "GBP/USD into the EU referendum (21 BD)."},
@@ -583,22 +583,22 @@ def test_release_config_makes_zero_network_attempts_with_house_env(unit, server,
         monkeypatch.setenv(k, v)
     for k in ("QFBENCH_NETWORK", "TEXT_LAYER_MODE", "TEXT_LAYER_LAMBDA"):
         monkeypatch.delenv(k, raising=False)
-    connects = []
-    real_connect = socket.socket.connect
-    def counting_connect(self, address):
-        connects.append(address)
-        return real_connect(self, address)
-    monkeypatch.setattr(socket.socket, "connect", counting_connect)
-    default = numeric_v1_1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
-    assert "mode card_notes_only" in default.attrs["rationale"]
-    explicit = numeric_v1_1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11, text_mode="labels")
-    monkeypatch.setenv("TEXT_LAYER_MODE", "labels")
-    from_env = text_v1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
-    assert server.requests == [] and connects == []
     numeric = numeric_v1_1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)
-    for out in (explicit, from_env):
-        assert np.array_equal(out.value.to_numpy(), numeric.value.to_numpy())
-        assert "house_calls=false" in out.attrs["rationale"]
+    with_house = numeric_v1_1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
+    assert 4 <= len(server.requests) <= 6 and all(r["admitted"] for r in server.requests)
+    assert not np.allclose(with_house.value.to_numpy(), numeric.value.to_numpy())
+    assert "mode llm" in with_house.attrs["rationale"] and "Label -> number mapping" in with_house.attrs["rationale"]
+    server.requests.clear()
+    monkeypatch.setenv("QFBENCH_NETWORK", "none")
+    offline = numeric_v1_1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
+    assert server.requests == [] and np.array_equal(offline.value.to_numpy(), numeric.value.to_numpy())
+    monkeypatch.delenv("QFBENCH_NETWORK")
+    server.scenario = "server_error"
+    server.reset_accounting()
+    degraded = numeric_v1_1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
+    card_only = numeric_v1_1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11, text_mode="card_notes_only")
+    assert np.array_equal(degraded.value.to_numpy(), card_only.value.to_numpy())      # worst case == frozen release
+    assert "notes_only_fallback" in degraded.attrs["rationale"]
 
 
 @pytest.mark.skipif(not (ROOT / "vendor" / "track2" / "units" / "t2-F2-abenomics-2012").exists(), reason="vendor units not checked out")

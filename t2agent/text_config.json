@@ -1,6 +1,6 @@
 {
-  "mode": "card_notes_only",
+  "mode": "labels",
   "lambda": 0.5,
-  "house_calls": false,
-  "status": "final: numeric_v1.1 + card-notes-only text at lambda 0.5; House calls disabled by config"
+  "house_calls": true,
+  "status": "CANDIDATE (not released): numeric_v1.1 + LLM labels at lambda 0.5 with House calls enabled; falls back to the card_notes_only labels when the House path fails"
 }
