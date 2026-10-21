@@ -57,7 +57,8 @@ if a directory exists. The tools refuse to overwrite selection or confirmation e
 ```
 
 Expected roster: **1,158** cases, development **738**, report-only **420**. Seeds are fixed at
-1111/2222/3333, 2,000 draws; the selection is **B**, followed by **NO-GO** on confirmation.
+1111/2222/3333, 2,000 draws. The **recorded original outcome** selected B and returned
+**NO-GO**; a fresh versioned replication must report its own results.
 No arm combinations are evaluated. The new code validates unique declared seeds, the exact declared development roster, per-card
 new failures/fallbacks and boundary rounding. Before confirmation it also checks live source,
 config, dependency and scorer fingerprints against the development snapshot. Do not edit
