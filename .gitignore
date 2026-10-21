@@ -12,3 +12,6 @@ realized*
 .DS_Store
 .gstack/
 .env
+
+# Isolated compatibility evaluation environments
+.venv-*

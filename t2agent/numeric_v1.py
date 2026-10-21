@@ -34,8 +34,8 @@ class Prepared:
     monthly: dict[str, bool]
 
 
-def prepare(card, panels, asof):
-    baseline = m0.distribution(card, panels, asof)
+def prepare(card, panels, asof, *, strict_ratio=False):
+    baseline = m0.distribution(card, panels, asof, strict_ratio=strict_ratio)
     histories, steps, names, monthly = {}, {}, {}, {}
     for asset in sorted(baseline.histories):
         for name in sorted(panels):
@@ -87,6 +87,11 @@ def moments(p: Prepared, config: Config):
             variances[j] = np.sum(weights*(s.to_numpy()-mu)**2)/max(1.-np.sum(weights**2), .01)
         elif config.volatility == 'blend':
             variances[j] = .5*recent[j] + .5*max(float(s.var(ddof=1)), 1e-15)
+        elif config.volatility == 'short_blend20':
+            prior = p.increments[a].ewm(halflife=20, min_periods=20).var().shift(1).iloc[-1]
+            if not np.isfinite(prior) or prior < 0:
+                raise ValueError('Insufficient lagged EWMA history')
+            variances[j] = .5*recent[j] + .5*max(float(prior), 1e-15)
         elif config.volatility != 'recent':
             raise ValueError('Unknown volatility rule')
     scale = np.sqrt(variances[indexes]/recent[indexes])
@@ -253,7 +258,7 @@ def apply_text_signal(samples, card, signal, seed):
     return center + residual*vol[labels,None]*tail_scale + drift[labels]*sd
 
 
-def _wide_random_walk(card, panels, asof, n_draws, seed):
+def _wide_random_walk(card, panels, asof, n_draws, seed, *, strict_ratio=False):
     assets = card['targets']['asset_ids']; horizons = card['targets']['horizons']
     histories = {}
     for a in assets:
@@ -262,7 +267,7 @@ def _wide_random_walk(card, panels, asof, n_draws, seed):
         except Exception:
             histories[a] = pd.Series([0.], index=[pd.Timestamp(asof)])
     try:
-        steps = m0.horizon_steps(card, histories)
+        steps = m0.horizon_steps(card, histories, strict_ratio=strict_ratio)
     except Exception:
         steps = np.array([max(float(h),1.) for a in assets for h in horizons])
     rng = np.random.default_rng(seed)

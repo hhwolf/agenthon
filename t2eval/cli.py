@@ -90,7 +90,7 @@ def main(argv=None):
     parser.add_argument("--strict-dates", action="store_true", help="practice: refuse inferred business-day targets")
     args = parser.parse_args(argv)
     if args.n_draws is None:
-        args.n_draws = 2000 if args.forecaster in {"numeric_v1", "numeric_v1_1"} else 500
+        args.n_draws = 2000 if args.forecaster in {"numeric_v1", "numeric_v1_1", "numeric_alignment"} else 500
     if args.cards <= 0 or args.n_draws < 200 or (args.limit is not None and args.limit <= 0):
         parser.error("cards/limit must be positive and n-draws >=200")
     if importlib.metadata.version("qfbench2-common") != "2.6.0":

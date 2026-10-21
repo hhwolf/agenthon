@@ -194,15 +194,15 @@ def sample(p, config, n_draws=2000, seed=None):
 
 
 def forecast(card, panels, text_dir, asof, n_draws=2000, seed=None, *, text_signal=None,
-             text_mode=None, text_lambda=None):
+             text_mode=None, text_lambda=None, config=None, strict_ratio=False):
     seed = m0.resolve_seed(card, seed)
     n_draws = max(200, int(n_draws), card.get('scoring', {}).get('params', {}).get('n_draws_min', 200))
     reasons = []
     text_note = 'No text overlay applied.'
     signal = None
     try:
-        config = selected_config()
-        draws = sample(v1.prepare(card, panels, asof), config, n_draws, seed)
+        config = selected_config() if config is None else config
+        draws = sample(v1.prepare(card, panels, asof, strict_ratio=strict_ratio), config, n_draws, seed)
         try:
             signal, text_note = v1.read_forecast_text(card, panels, text_dir, asof, draws,
                 text_signal=text_signal, text_mode=text_mode, text_lambda=text_lambda)
@@ -219,13 +219,13 @@ def forecast(card, panels, text_dir, asof, n_draws=2000, seed=None, *, text_sign
     except Exception as exc:
         reasons.append(f'Numeric fallback: {type(exc).__name__}: {exc}')
         try:
-            frame = m0.forecast(card, panels, None, asof, n_draws, seed)
+            frame = m0.forecast(card, panels, None, asof, n_draws, seed, strict_ratio=strict_ratio)
             if not np.isfinite(frame.value).all():
                 raise ValueError('Nonfinite M0 draws')
             method = fallback = 'M0 fallback'
         except Exception as exc:
             reasons.append(f'M0 fallback: {type(exc).__name__}: {exc}')
-            frame = v1._wide_random_walk(card, panels, asof, n_draws, seed)
+            frame = v1._wide_random_walk(card, panels, asof, n_draws, seed, strict_ratio=strict_ratio)
             method = fallback = 'last-resort wide random walk'
     frame.attrs['fallback'] = fallback
     frame.attrs['rationale'] = (f"# Numeric forecast: {card['task']['id']}\n\nMethod: {method}. "

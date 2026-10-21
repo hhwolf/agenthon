@@ -71,7 +71,7 @@ def cell_metadata(card: dict, field: str, question_field: str) -> dict[tuple[str
     return result
 
 
-def horizon_steps(card: dict, histories: dict[str, pd.Series]) -> np.ndarray:
+def horizon_steps(card: dict, histories: dict[str, pd.Series], *, strict_ratio=False) -> np.ndarray:
     periods = cell_metadata(card, "observation_periods", "observation_period")
     dates = cell_metadata(card, "target_dates", "target_date")
     result = []
@@ -97,7 +97,8 @@ def horizon_steps(card: dict, histories: dict[str, pd.Series]) -> np.ndarray:
                     spacing = gaps[valid].mean()
                     counted = (target.to_period("M").ordinal - s.index[-1].to_period("M").ordinal
                                if spacing > 20 else round((target - s.index[-1]).days / spacing))
-                    if counted > 0 and max(counted, h) / max(min(counted, h), 1) >= 2:
+                    ratio = max(counted, h) / max(min(counted, h), 1)
+                    if counted > 0 and (ratio > 2 if strict_ratio else ratio >= 2):
                         steps = counted
             result.append(steps)
     return np.asarray(result, dtype=float)
@@ -116,7 +117,7 @@ class Distribution:
     diagonal_fallback: bool
 
 
-def distribution(card: dict, panels: dict[str, pd.DataFrame], asof: str) -> Distribution:
+def distribution(card: dict, panels: dict[str, pd.DataFrame], asof: str, *, strict_ratio=False) -> Distribution:
     if str(card["provenance"]["data_cutoff"]) != str(asof):
         raise ValueError("asof must equal the card cutoff")
     assets = sorted(card["targets"]["asset_ids"])
@@ -138,7 +139,7 @@ def distribution(card: dict, panels: dict[str, pd.DataFrame], asof: str) -> Dist
     mu = aligned.mean().to_numpy()
     sigma = np.atleast_2d(np.cov(aligned.to_numpy(), rowvar=False, ddof=1))
     indexes = [assets.index(a) for a in card["targets"]["asset_ids"] for _ in card["targets"]["horizons"]]
-    steps = horizon_steps(card, histories)
+    steps = horizon_steps(card, histories, strict_ratio=strict_ratio)
     anchor = np.array([histories[assets[i]].iloc[-1] if kind == "level" else 0.0 for i in indexes])
     mean = anchor + steps * mu[indexes]
     cov = np.minimum.outer(steps, steps) * sigma[np.ix_(indexes, indexes)]
@@ -163,8 +164,8 @@ def resolve_seed(card: dict, seed: int | None) -> int:
 
 
 def forecast(card: dict, panels: dict[str, pd.DataFrame], text_dir: Path | None,
-             asof: str, n_draws: int = 500, seed: int | None = None) -> pd.DataFrame:
-    model = distribution(card, panels, asof)
+             asof: str, n_draws: int = 500, seed: int | None = None, *, strict_ratio=False) -> pd.DataFrame:
+    model = distribution(card, panels, asof, strict_ratio=strict_ratio)
     seed = resolve_seed(card, seed)
     z = np.random.default_rng(seed).standard_normal((n_draws, len(model.mean)))
     samples = model.mean + z @ model.factor.T
