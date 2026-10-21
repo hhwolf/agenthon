@@ -1,0 +1,8 @@
+{
+ "toolkit": "2.6.1",
+ "fixture_schema_version": "1.0.0",
+ "fixture_interface": "2.0",
+ "fixture_competition_id": "agenthon2026-forecasting-final",
+ "final": "passed: pack seal path + C5 parser + JSON schema (throwaway in-memory key, no zip)",
+ "fallback": "passed: pack seal path + C5 parser + JSON schema (throwaway in-memory key, no zip)"
+}

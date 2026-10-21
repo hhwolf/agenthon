@@ -81,8 +81,18 @@ make mock-final IMAGE=…@sha256:400fe710… UNITS=practice NETWORK=none ARGS='-
 Team number on record: 756. The toolkit prompts for the Team Key privately. Keep the GHCR package public
 through results.
 
+## Release protection (until results are published)
+
+- **No GHCR version of `ghcr.io/hhwolf/agenthon-numeric-v1` may be deleted, untagged or made private until
+  final results are published.** Organizers re-pull the submitted digest for verification reruns. This covers
+  all three release digests: final `400fe710…`, secondary fallback `a197cfe0…` and fallback `f3ec5167…`.
+  GHCR has no deletion lock, so this is a team rule.
+- GitHub ruleset `protect-final-release-tags` (id 25516830, active, no bypass actors) blocks deletion,
+  update and force-push of `refs/tags/final-*`; new `final-*` tags can still be created.
+- Upload steps for the human: [UPLOAD_CHECKLIST.md](UPLOAD_CHECKLIST.md).
+
 ## Open items
 
-- Do not merge PR #9 unless Greptile's latest review of the head commit is 5/5.
+- PR #9 was merged on 2026-10-21 as `0baf535` after Greptile scored head `face303` 5/5 with all checks green.
 - PR #8 (LLM labels as image default) contradicts this release; it was not touched.
 - Model risks are unchanged from `reports/audit/AUDIT.md` (monthly macro 2022, F4 caps, EM transfer unmeasured).

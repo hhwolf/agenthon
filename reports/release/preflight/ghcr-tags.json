@@ -1,0 +1,29 @@
+{
+ "anonymous_token": "issued without credentials (package is public)",
+ "tag_count": 6,
+ "tags": [
+  "1e7de4d27c044581985c569b42e6dd19f44a7ae6",
+  "b1f2225a5ef35a06c6f68e63c4f2c617cf49d300",
+  "final-20261019-1",
+  "final-20261020-1",
+  "numeric_v1",
+  "numeric_v1_1"
+ ],
+ "checks": {
+  "final-20261020-1": {
+   "present": true,
+   "digest": "sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674",
+   "matches": true
+  },
+  "final-20261019-1": {
+   "present": true,
+   "digest": "sha256:a197cfe0e065f6ddef7696fa0ad261b0a31d08259769b5040fc1176a63428bed",
+   "matches": true
+  },
+  "numeric_v1_1": {
+   "present": true,
+   "digest": "sha256:f3ec5167b28f0172004a78e336d84a4ecd423d27da42d942693e51cfc085c507",
+   "matches": true
+  }
+ }
+}

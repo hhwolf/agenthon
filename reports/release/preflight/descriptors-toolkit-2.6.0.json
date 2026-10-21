@@ -1,0 +1,43 @@
+{
+ "toolkit": "2.6.0",
+ "final": {
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674",
+  "schema_version": "1.1.0",
+  "interface_version": "2.0",
+  "field_checks": {
+   "digest": true,
+   "registry": true,
+   "repository": true,
+   "competition_id": true,
+   "phase": true,
+   "category": true,
+   "models": true,
+   "license": true,
+   "track": true,
+   "image_access": true,
+   "no_team_id": true
+  },
+  "all_fields_ok": true,
+  "toolkit_validation": "passed (seal path, C5 parser, JSON schema; no pack)"
+ },
+ "fallback": {
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:f3ec5167b28f0172004a78e336d84a4ecd423d27da42d942693e51cfc085c507",
+  "schema_version": "1.1.0",
+  "interface_version": "2.0",
+  "field_checks": {
+   "digest": true,
+   "registry": true,
+   "repository": true,
+   "competition_id": true,
+   "phase": true,
+   "category": true,
+   "models": true,
+   "license": true,
+   "track": true,
+   "image_access": true,
+   "no_team_id": true
+  },
+  "all_fields_ok": true,
+  "toolkit_validation": "passed (seal path, C5 parser, JSON schema; no pack)"
+ }
+}

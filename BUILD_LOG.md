@@ -1048,3 +1048,29 @@ The digest changed from `sha256:a197cfe0…63428bed` (`final-20261019-1`) to
 
 The old final digest stays public as a secondary fallback; no image or tag was deleted. PR #9 is not
 merged, PR #8 was not touched, and nothing was packed. Details: reports/release/RELEASE.md.
+
+## Merge, pre-flight and upload handoff — 2026-10-21
+
+Merge gate passed: PR #9's head was still `face303`, Greptile's latest summary scored that exact commit 5/5,
+and Greptile Review, contract and integration were green. Merged with a merge commit (head-commit guard)
+as **`0baf535`**; the branch is kept and local `main` is fast-forwarded. No runtime code, config or
+descriptor changed; PR #8 untouched; nothing packed or uploaded; the Team Key was never requested or handled.
+
+Pre-flight on `main` (evidence: reports/release/preflight/):
+- `submission.final.json` → `…@sha256:400fe710…0d674`; `submission.fallback.json` → `…@sha256:f3ec5167…c085c507`.
+  Both declare agenthon2026-forecasting-final / final / api / forecasting / public, `models: []`, MIT, and no
+  team_id. Both pass toolkit 2.6.0 and 2.6.1 (pack seal path with a throwaway in-memory key, C5 parser,
+  JSON schema; no zip). The 2.6.0↔2.6.1 differences in `team_claim.py`/`cli.py` are Windows-only.
+- Anonymous checks with an empty DOCKER_CONFIG on all three digests (`400fe710`, `a197cfe0`, `f3ec5167`):
+  manifest and every blob HTTP 200, real pull passed, linux/amd64, user `runner`, no VOLUME.
+- The GHCR package is public (anonymous token). Tags `final-20261020-1` → 400fe710, `final-20261019-1` →
+  a197cfe0 and `numeric_v1_1` → f3ec5167 all resolve to the expected digests.
+- Smoke on the final digest (offline, read-only root): t2-F3-dollar-squeeze-2020 (10-asset joint),
+  t2-F4-cpi-vintage-2022 (monthly) and t2-F1-fed-put-2019 (log_return) are all admissible (g0–g3 pass),
+  0 House requests.
+- Added GitHub tag ruleset `protect-final-release-tags` (id 25516830): blocks deletion, update and
+  force-push of `final-*`. RELEASE.md records that no GHCR version may be deleted until results.
+
+Handoff: reports/release/UPLOAD_CHECKLIST.md. Caveats recorded there: the "Failed uploads are free" rule
+is documented for Development (Final allows one submission), and admin@agenthon.net comes from the team
+brief rather than the pinned docs.

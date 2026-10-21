@@ -1,0 +1,72 @@
+{
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674",
+  "checked_at": "2026-10-21T00:57:28.879772+00:00",
+  "token_request": "anonymous; no credentials",
+  "manifests": [
+    {
+      "digest": "sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674",
+      "http_status": 200
+    }
+  ],
+  "blobs": [
+    {
+      "digest": "sha256:bcc0b8447470f129ffe005baf3df41ebd25847883ee4f8ce54697cf17d6248ef",
+      "http_status": 200,
+      "bytes": 8717
+    },
+    {
+      "digest": "sha256:56d14e8ac0f63e3493f7ebeff7526ecd2517aebd1260a98cf7b4af110b542115",
+      "http_status": 200,
+      "bytes": 29166224
+    },
+    {
+      "digest": "sha256:29a6e787b2e07b2b8a2c88b600812f9f7588374cf74e6f17d696695c8984d900",
+      "http_status": 200,
+      "bytes": 3342349
+    },
+    {
+      "digest": "sha256:aded561bdc17f79b65ec824282d38146fac0eb9d8951b9a7a4ca462bbea8c21d",
+      "http_status": 200,
+      "bytes": 14892797
+    },
+    {
+      "digest": "sha256:29d8700fe216d98a8d918ecf891265355e2ca697f9c11e8290d00813caaed60d",
+      "http_status": 200,
+      "bytes": 250
+    },
+    {
+      "digest": "sha256:2fd0d562ab21994360c8b5ad90411550ba9650d5c24ca3bf1ca7cdc12f2d509e",
+      "http_status": 200,
+      "bytes": 93
+    },
+    {
+      "digest": "sha256:9c4cfc0112872a2781cee4b6101969b3ecaeaf409231508c7b49b4e08eaf782b",
+      "http_status": 200,
+      "bytes": 194
+    },
+    {
+      "digest": "sha256:f7edddae0fc473bf823bdbc48a21c1dba988a432a8a28cadf608b6f49a162940",
+      "http_status": 200,
+      "bytes": 92369829
+    },
+    {
+      "digest": "sha256:b636a8537fca3cf9114ebde95fe8095f7178f6843898c5951af22b6b8db8404e",
+      "http_status": 200,
+      "bytes": 801
+    },
+    {
+      "digest": "sha256:2820c412a64469a20e2a588f836f32572cf9f6200e048e03631b36dda1fc8939",
+      "http_status": 200,
+      "bytes": 54979
+    },
+    {
+      "digest": "sha256:65a98607f7dbd23b60204a192793f1ad5399dec7d5fbbdc7b9a3be8d27a974a6",
+      "http_status": 200,
+      "bytes": 3398
+    }
+  ],
+  "docker_pull": "passed with fresh empty DOCKER_CONFIG",
+  "architecture": "linux/amd64",
+  "user": "runner",
+  "volumes": null
+}

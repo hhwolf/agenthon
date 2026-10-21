@@ -1,0 +1,39 @@
+{
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674",
+  "run": "docker run --network none --read-only --tmpfs /tmp:noexec,nosuid,size=64m, staged practice input read-only",
+  "units": {
+    "t2-F3-dollar-squeeze-2020": {
+      "kind": "joint (10 assets)",
+      "admissible": true,
+      "gates": {
+        "g0_integrity": "pass",
+        "g1_schema": "pass",
+        "g2_cutoff_resource": "pass",
+        "g3_domain_semantics": "pass"
+      },
+      "house_requests": 0
+    },
+    "t2-F4-cpi-vintage-2022": {
+      "kind": "monthly (macro_monthly)",
+      "admissible": true,
+      "gates": {
+        "g0_integrity": "pass",
+        "g1_schema": "pass",
+        "g2_cutoff_resource": "pass",
+        "g3_domain_semantics": "pass"
+      },
+      "house_requests": 0
+    },
+    "t2-F1-fed-put-2019": {
+      "kind": "log_return",
+      "admissible": true,
+      "gates": {
+        "g0_integrity": "pass",
+        "g1_schema": "pass",
+        "g2_cutoff_resource": "pass",
+        "g3_domain_semantics": "pass"
+      },
+      "house_requests": 0
+    }
+  }
+}
