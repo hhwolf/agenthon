@@ -1,0 +1,266 @@
+{
+  "comparisons": {
+    "A": {
+      "gates": {
+        "caps_nonincreasing_each_seed": true,
+        "ci_upper_negative": false,
+        "improvement_1pct": false,
+        "improvement_each_seed": false,
+        "leave_best_week_out_improves": false,
+        "no_major_group_5pct_harm": true,
+        "no_new_failures": true,
+        "no_new_fallbacks": true
+      },
+      "groups": {
+        "EM_ECB": {
+          "adequate": true,
+          "cards": 184,
+          "relative_change": -0.001144641517108913,
+          "weeks": 92
+        },
+        "G10_FedH10": {
+          "adequate": true,
+          "cards": 189,
+          "relative_change": 0.0014976727379341082,
+          "weeks": 100
+        },
+        "UST_bills": {
+          "adequate": true,
+          "cards": 178,
+          "relative_change": 0.0052545694031398416,
+          "weeks": 91
+        },
+        "UST_other": {
+          "adequate": true,
+          "cards": 187,
+          "relative_change": 0.0003520805820538264,
+          "weeks": 100
+        }
+      },
+      "mean": 1.1262431415769638,
+      "passed": false,
+      "relative_change": 0.0016159823355381686,
+      "seeds": {
+        "1111": {
+          "baseline": 1.1243961713165413,
+          "baseline_caps": 4,
+          "baseline_failures": 0,
+          "baseline_fallbacks": 0,
+          "caps": 4,
+          "failures": 0,
+          "fallbacks": 0,
+          "mean": 1.1262973523789426
+        },
+        "2222": {
+          "baseline": 1.1231034403817788,
+          "baseline_caps": 4,
+          "baseline_failures": 0,
+          "baseline_fallbacks": 0,
+          "caps": 4,
+          "failures": 0,
+          "fallbacks": 0,
+          "mean": 1.1249136647097673
+        },
+        "3333": {
+          "baseline": 1.1257786549408273,
+          "baseline_caps": 4,
+          "baseline_failures": 0,
+          "baseline_fallbacks": 0,
+          "caps": 4,
+          "failures": 0,
+          "fallbacks": 0,
+          "mean": 1.1275184076421814
+        }
+      },
+      "uncertainty": {
+        "ci95": [
+          -0.00011988751392039807,
+          0.0038548881419563814
+        ],
+        "delta": 0.0018170526972479787,
+        "delta_without_best_week": 0.0020213133963087617,
+        "most_helpful_week": "2013-W32",
+        "weeks": 112
+      }
+    },
+    "B": {
+      "gates": {
+        "caps_nonincreasing_each_seed": true,
+        "ci_upper_negative": true,
+        "improvement_1pct": true,
+        "improvement_each_seed": true,
+        "leave_best_week_out_improves": true,
+        "no_major_group_5pct_harm": true,
+        "no_new_failures": true,
+        "no_new_fallbacks": true
+      },
+      "groups": {
+        "EM_ECB": {
+          "adequate": true,
+          "cards": 184,
+          "relative_change": -0.027945236824008846,
+          "weeks": 92
+        },
+        "G10_FedH10": {
+          "adequate": true,
+          "cards": 189,
+          "relative_change": -0.03845617628795861,
+          "weeks": 100
+        },
+        "UST_bills": {
+          "adequate": true,
+          "cards": 178,
+          "relative_change": -0.018074640899783057,
+          "weeks": 91
+        },
+        "UST_other": {
+          "adequate": true,
+          "cards": 187,
+          "relative_change": -0.009277514106389884,
+          "weeks": 100
+        }
+      },
+      "mean": 1.0977212950702346,
+      "passed": true,
+      "relative_change": -0.023749710250931422,
+      "seeds": {
+        "1111": {
+          "baseline": 1.1243961713165413,
+          "baseline_caps": 4,
+          "baseline_failures": 0,
+          "baseline_fallbacks": 0,
+          "caps": 4,
+          "failures": 0,
+          "fallbacks": 0,
+          "mean": 1.0973914618564664
+        },
+        "2222": {
+          "baseline": 1.1231034403817788,
+          "baseline_caps": 4,
+          "baseline_failures": 0,
+          "baseline_fallbacks": 0,
+          "caps": 4,
+          "failures": 0,
+          "fallbacks": 0,
+          "mean": 1.0967373482581655
+        },
+        "3333": {
+          "baseline": 1.1257786549408273,
+          "baseline_caps": 4,
+          "baseline_failures": 0,
+          "baseline_fallbacks": 0,
+          "caps": 4,
+          "failures": 0,
+          "fallbacks": 0,
+          "mean": 1.0990350750960713
+        }
+      },
+      "uncertainty": {
+        "ci95": [
+          -0.036769568852688034,
+          -0.016621710184193467
+        ],
+        "delta": -0.026704793809481323,
+        "delta_without_best_week": -0.025093235839900013,
+        "most_helpful_week": "2014-W49",
+        "weeks": 112
+      }
+    },
+    "C": {
+      "gates": {
+        "caps_nonincreasing_each_seed": true,
+        "ci_upper_negative": true,
+        "improvement_1pct": false,
+        "improvement_each_seed": true,
+        "leave_best_week_out_improves": true,
+        "no_major_group_5pct_harm": true,
+        "no_new_failures": true,
+        "no_new_fallbacks": true
+      },
+      "groups": {
+        "EM_ECB": {
+          "adequate": true,
+          "cards": 184,
+          "relative_change": 0.0,
+          "weeks": 92
+        },
+        "G10_FedH10": {
+          "adequate": true,
+          "cards": 189,
+          "relative_change": -0.00046838281418770666,
+          "weeks": 100
+        },
+        "UST_bills": {
+          "adequate": true,
+          "cards": 178,
+          "relative_change": 0.0,
+          "weeks": 91
+        },
+        "UST_other": {
+          "adequate": true,
+          "cards": 187,
+          "relative_change": 0.0,
+          "weeks": 100
+        }
+      },
+      "mean": 1.124280138228903,
+      "passed": false,
+      "relative_change": -0.00012980012848906597,
+      "seeds": {
+        "1111": {
+          "baseline": 1.1243961713165413,
+          "baseline_caps": 4,
+          "baseline_failures": 0,
+          "baseline_fallbacks": 0,
+          "caps": 4,
+          "failures": 0,
+          "fallbacks": 0,
+          "mean": 1.1242558319565679
+        },
+        "2222": {
+          "baseline": 1.1231034403817788,
+          "baseline_caps": 4,
+          "baseline_failures": 0,
+          "baseline_fallbacks": 0,
+          "caps": 4,
+          "failures": 0,
+          "fallbacks": 0,
+          "mean": 1.122953194386245
+        },
+        "3333": {
+          "baseline": 1.1257786549408273,
+          "baseline_caps": 4,
+          "baseline_failures": 0,
+          "baseline_fallbacks": 0,
+          "caps": 4,
+          "failures": 0,
+          "fallbacks": 0,
+          "mean": 1.125631388343896
+        }
+      },
+      "uncertainty": {
+        "ci95": [
+          -0.0003354942690214188,
+          -1.7885492113173686e-05
+        ],
+        "delta": -0.00014595065081291191,
+        "delta_without_best_week": -8.708487956353099e-05,
+        "most_helpful_week": "2012-W48",
+        "weeks": 112
+      }
+    }
+  },
+  "confirmation_unopened": true,
+  "development_identity_sha256": "b5a627d355e1c1c091da82dd9b5e93b0b2f2eba0e5e0cd2d31b7ec43ca1b03dd",
+  "development_pass": true,
+  "development_scores_sha256": "160f197bb0f75efe032331001bf51c986fbdf186f3bfffb3924c60dd4af6bdba",
+  "frozen_at": "2026-10-21T18:11:49.077897+00:00",
+  "plan_sha256": "53eee9f8251b96a7630d3ee08c16f966824c84f6ec3f84b99cbb6b170a150539",
+  "release_mean": 1.124426088879716,
+  "seeds": [
+    1111,
+    2222,
+    3333
+  ],
+  "winner": "B"
+}
