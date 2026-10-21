@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,6 +7,8 @@ name = "t2agent"
 version = "0.1.0"
 description = "Track 2 numeric baseline and local measurement harness"
 requires-python = ">=3.13"
+license = "MIT"
+license-files = ["LICENSE"]
 dependencies = ["numpy==2.1.3", "pandas==2.2.3", "pyarrow==18.1.0", "openai==3.31.0"]
 
 [project.optional-dependencies]
@@ -20,7 +22,7 @@ t2-eval = "t2eval.cli:main"
 include = ["t2agent*", "t2eval*"]
 
 [tool.setuptools.package-data]
-t2agent = ["numeric_config.json", "numeric_v1_1_config.json"]
+t2agent = ["numeric_config.json", "numeric_v1_1_config.json", "text_config.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

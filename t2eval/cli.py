@@ -21,6 +21,19 @@ from .official import normalize, run_forecaster, score
 from .scales import expected_errors
 
 
+# Environment read by the forecasters that can change their output. The run directory identity
+# includes these so, e.g., numeric-only and card-notes practice runs never share a directory.
+OUTPUT_ENV = ("QFBENCH_NETWORK", "TEXT_LAYER_MODE", "TEXT_LAYER_LAMBDA", "TEXT_LAYER_CACHE_DIR",
+              "TEXT_LAYER_REPLAY_ONLY", "TEXT_LAYER_SYNTHESIS_RUNS", "TEXT_LAYER_TIME_BUDGET_S",
+              "MODEL_ENDPOINT", "MODEL_NAME")
+
+
+def output_env() -> dict:
+    env = {name: os.environ.get(name) for name in OUTPUT_ENV}
+    env["MODEL_TOKEN_set"] = bool(os.environ.get("MODEL_TOKEN"))  # presence only; never the secret
+    return env
+
+
 def describe(card: dict) -> dict:
     targets = card["targets"]
     horizons = targets["horizons"]
@@ -84,13 +97,15 @@ def main(argv=None):
         parser.error("This measurement environment requires qfbench2-common==2.6.0")
     args.work.mkdir(parents=True, exist_ok=True)
     metadata = {"mode":args.mode,"forecaster":args.forecaster,"n_draws":args.n_draws,
-                "forecast_seed":args.seed,"QFBENCH_SEED":os.environ.get("QFBENCH_SEED"),
+                "forecast_seed":args.seed,"QFBENCH_SEED":os.environ.get("QFBENCH_SEED"),"output_env":output_env(),
                 "dataset_seed":args.dataset_seed,"limit":args.limit,"strict_dates":args.strict_dates,
                 "packages":{p:importlib.metadata.version(p) for p in
                             ["qfbench2-common","qfbench2-track-forecasting","numpy","pandas","scipy","pyarrow"]}}
     project = Path(__file__).resolve().parents[1]
     source_hash = hashlib.sha256()
-    for source in sorted([*project.glob("t2agent/*.py"), *project.glob("t2eval/*.py")]):
+    # Runtime configs and the text_layer subpackage change output too, so hash them as well.
+    for source in sorted([*project.glob("t2agent/**/*.py"), *project.glob("t2agent/**/*.json"),
+                          *project.glob("t2eval/*.py")]):
         source_hash.update(str(source.relative_to(project)).encode())
         source_hash.update(source.read_bytes())
     metadata["source_sha256"] = source_hash.hexdigest()

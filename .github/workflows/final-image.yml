@@ -1,0 +1,71 @@
+name: Publish final forecasting image
+on:
+  push:
+    tags: ['final-*']
+permissions:
+  contents: read
+  packages: write
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      IMAGE: ghcr.io/hhwolf/agenthon-numeric-v1
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - name: Pinned environment, frozen configuration, tests, admissibility
+        run: |
+          bash scripts/setup.sh
+          .venv/bin/python scripts/prepare_final.py --check
+          make test
+          QFBENCH_NETWORK=none make admissibility FORECASTER=numeric_v1_1
+      - name: Build the frozen amd64 runtime
+        run: |
+          docker buildx build --platform linux/amd64 --load \
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            -t "$IMAGE:$GITHUB_REF_NAME" .
+          test "$(docker image inspect --format '{{.Os}}/{{.Architecture}}' "$IMAGE:$GITHUB_REF_NAME")" = linux/amd64
+          docker run --rm --network=none "$IMAGE:$GITHUB_REF_NAME" python -c \
+            'import importlib.util, pathlib; assert importlib.util.find_spec("t2eval") is None; assert not list(pathlib.Path("/app").rglob("*.parquet")); assert not pathlib.Path("/app/vendor").exists(); assert pathlib.Path("/app/LICENSE").read_text().startswith("MIT License")'
+      - name: Verify all 104 units offline before publication
+        run: |
+          make mock-final IMAGE="$IMAGE:$GITHUB_REF_NAME" UNITS=practice NETWORK=none \
+            ARGS="--allow-local-image --no-proxy-scores --seed 20261016 --out .eval/mock-final/final-ci-offline"
+      - name: Push the public package under the final tag
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker push "$IMAGE:$GITHUB_REF_NAME"
+          docker logout ghcr.io
+          mkdir -p .context
+          docker image inspect --format '{{index .RepoDigests 0}}' "$IMAGE:$GITHUB_REF_NAME" > .context/final-image.txt
+      - name: Anonymous manifest, blob access, and logged-out pull check
+        run: |
+          .venv/bin/python scripts/verify_ghcr_public.py "$(cat .context/final-image.txt)" --out reports/phase5/anonymous-pull.json
+      - name: Prepare human-pack input and publication evidence
+        run: |
+          .venv/bin/python scripts/prepare_final.py --image "$(cat .context/final-image.txt)"
+          .venv/bin/python - <<'PY'
+          import json, os
+          from pathlib import Path
+          image = Path('.context/final-image.txt').read_text().strip()
+          record = dict(image=image, source_commit=os.environ['GITHUB_SHA'], tag=os.environ['GITHUB_REF_NAME'],
+                        workflow_run=os.environ['GITHUB_RUN_ID'], full_phase5_suite='must run on this published digest')
+          Path('reports/phase5/publication.json').write_text(json.dumps(record, indent=2)+'\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write(f'Published `{image}`. Anonymous pull passed. No competition pack/upload.\n')
+          PY
+      - name: Retain publication evidence and pack input
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: final-publication
+          path: |
+            submission.json
+            reports/phase5/publication.json
+            reports/phase5/anonymous-pull.json
+            reports/phase5/descriptor-validation.json
+          retention-days: 90

@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 
 from mock_house import MockHouse, delay, error, ok
-from t2agent import numeric_v1, text_v1
+from t2agent import numeric_v1, numeric_v1_1, text_v1
 from t2agent.contracts import CallBudget, NumericSummary, TextSignal
 from t2agent.text_layer import constants as C
 from t2agent.text_layer import read_text
@@ -22,7 +22,7 @@ from t2agent.text_layer.labels import AssetLabel, Branch, Labels, parse_labels, 
 from t2agent.text_layer.parse import ParseError, RawEvidence, extract_json
 from t2agent.text_layer.prepass import find_events, horizon_window, run_prepass
 from t2agent.text_layer.relevance import score_documents
-from t2agent.text_map import apply_text_map
+from t2agent.text_overlay import apply_text_map
 
 ROOT = Path(__file__).resolve().parents[1]
 ASOF = date(2016, 6, 17)
@@ -523,14 +523,14 @@ def test_text_map_table_values_and_lambda():
     binary = apply_text_map(_labelled(event_in_horizon="scheduled_binary", regime="elevated",
                                       branches=[{"label": "leave", "prob": 0.9, "signs": {"GBP": -1}}, {"label": "remain", "prob": 0.1, "signs": {"GBP": 1}}]), s, 1.0)
     assert [round(x.weight, 2) for x in binary.scenarios] == [0.8, 0.2]
-    # branch drifts start at -1.0/+1.0 (mean -0.6) and are rescaled to keep |mean| <= 0.5, preserving the sign split
-    assert binary.scenarios[0].drift_sd["GBP"] == pytest.approx(-0.8333, abs=1e-3) and binary.scenarios[1].drift_sd["GBP"] > 0
-    assert abs(sum(x.weight * x.drift_sd["GBP"] for x in binary.scenarios)) <= 0.5 + 1e-9 and binary.tail_mult == 1.25
+    # Explicit Phase 4 branches retain +/-1 sd at the clipped 80/20 weights.
+    assert [x.drift_sd["GBP"] for x in binary.scenarios] == [-1., 1.]
+    assert abs(sum(x.weight * x.drift_sd["GBP"] for x in binary.scenarios)) <= 0.6 + 1e-9 and binary.tail_mult == 1.25
     even = apply_text_map(_labelled(event_in_horizon="scheduled_binary", regime="elevated",
                                     branches=[{"label": "a", "prob": 0.5, "signs": {"GBP": -1}}, {"label": "b", "prob": 0.5, "signs": {"GBP": 1}}]), s, 1.0)
     assert [x.drift_sd["GBP"] for x in even.scenarios] == [-1.0, 1.0] and [x.vol_mult for x in even.scenarios] == [1.25, 1.25]
     shock = apply_text_map(_labelled(regime="crisis", assets={"GBP": {"direction": "down", "evidence": [1]}}), s, 1.0)
-    assert len(shock.scenarios) == 2 and shock.scenarios[1].weight == 0.2 and shock.scenarios[1].drift_sd["GBP"] == -0.5
+    assert len(shock.scenarios) == 1 and shock.tail_signs == {"GBP": -1} and shock.tail_mult == 1.5
     assert apply_text_map(_labelled(regime="crisis"), s, 0.0).scenarios[0].vol_mult == 1.0            # λ = 0 -> numeric only
     neutral = TextSignal.neutral(("GBP",), reason="offline")
     assert apply_text_map(neutral, s, 1.0) is neutral
@@ -549,8 +549,10 @@ def test_text_v1_forecaster_modes(unit, server, monkeypatch):
     for k, v in server.env().items():
         monkeypatch.setenv(k, v)
     monkeypatch.setenv("TEXT_LAYER_LAMBDA", "0.5")
+    # The release config disables House; this explicit labels experiment re-enables it.
+    monkeypatch.setattr(numeric_v1, "text_settings", lambda: {"mode": "labels", "lambda": .5, "house_calls": True})
     text = text_v1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
-    numeric = numeric_v1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)
+    numeric = numeric_v1_1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)
     assert not np.allclose(text.value.to_numpy(), numeric.value.to_numpy()) and len(server.requests) == 4
     assert "Label -> number mapping" in text.attrs["rationale"] and "### Labels" in text.attrs["rationale"]
     monkeypatch.setenv("QFBENCH_NETWORK", "none")
@@ -561,6 +563,41 @@ def test_text_v1_forecaster_modes(unit, server, monkeypatch):
     assert len(server.requests) == 4                       # neither offline nor notes-only touched the network
     no_text = text_v1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)
     assert np.array_equal(no_text.value.to_numpy(), numeric.value.to_numpy())
+
+
+def test_release_config_makes_zero_network_attempts_with_house_env(unit, server, monkeypatch):
+    """Final image: card notes, House disabled by text_config.json even when MODEL_* are present."""
+    import socket
+    settings = numeric_v1.text_settings()
+    assert settings["mode"] == "card_notes_only" and settings["lambda"] == 0.5 and settings["house_calls"] is False
+    card = {"task": {"id": "t2-TEST-brexit-2016"}, "provenance": {"data_cutoff": ASOF.isoformat()},
+            "targets": {"asset_ids": ["GBP"], "horizons": [21], "target_type": "level", "value_unit": "usd_per_gbp"},
+            "metadata": {"category": "T2-F2", "description": "GBP/USD into the EU referendum (21 BD)."},
+            "text": {"notes": "A scheduled binary risk event falls shortly after the as-of date."}}
+    import pandas as pd
+    dates = pd.bdate_range(end=ASOF, periods=400)
+    rng = np.random.default_rng(3)
+    panels = {"g10_fx_daily.parquet": pd.DataFrame({"asset_id": "GBP", "date": dates, "value": 1.45 + np.cumsum(rng.normal(0, 0.005, len(dates)))})}
+    for k, v in server.env().items():
+        monkeypatch.setenv(k, v)
+    for k in ("QFBENCH_NETWORK", "TEXT_LAYER_MODE", "TEXT_LAYER_LAMBDA"):
+        monkeypatch.delenv(k, raising=False)
+    connects = []
+    real_connect = socket.socket.connect
+    def counting_connect(self, address):
+        connects.append(address)
+        return real_connect(self, address)
+    monkeypatch.setattr(socket.socket, "connect", counting_connect)
+    default = numeric_v1_1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
+    assert "mode card_notes_only" in default.attrs["rationale"]
+    explicit = numeric_v1_1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11, text_mode="labels")
+    monkeypatch.setenv("TEXT_LAYER_MODE", "labels")
+    from_env = text_v1.forecast(card, panels, unit / "text", ASOF.isoformat(), 500, 11)
+    assert server.requests == [] and connects == []
+    numeric = numeric_v1_1.forecast(card, panels, None, ASOF.isoformat(), 500, 11)
+    for out in (explicit, from_env):
+        assert np.array_equal(out.value.to_numpy(), numeric.value.to_numpy())
+        assert "house_calls=false" in out.attrs["rationale"]
 
 
 @pytest.mark.skipif(not (ROOT / "vendor" / "track2" / "units" / "t2-F2-abenomics-2012").exists(), reason="vendor units not checked out")

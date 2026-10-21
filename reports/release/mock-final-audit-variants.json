@@ -1,0 +1,36 @@
+{
+  "default": {
+    "statuses": {
+      "passed": 104
+    },
+    "requests_used": 0,
+    "proxy_mean": 2.3781408196192855,
+    "proxy_caps": 9,
+    "mean_unit_wall_seconds": 1.7534751583007164,
+    "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674",
+    "identical_files_vs_a197cfe0": "312/312"
+  },
+  "seed1111": {
+    "statuses": {
+      "passed": 104
+    },
+    "requests_used": 0,
+    "proxy_mean": 2.379503688431961,
+    "proxy_caps": 9,
+    "mean_unit_wall_seconds": 1.746626628213562,
+    "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674",
+    "identical_files_vs_a197cfe0": "312/312"
+  },
+  "seed2222": {
+    "statuses": {
+      "passed": 104
+    },
+    "requests_used": 0,
+    "proxy_mean": 2.3896902721351214,
+    "proxy_caps": 9,
+    "mean_unit_wall_seconds": 1.7472776418636875,
+    "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674",
+    "identical_files_vs_a197cfe0": "312/312"
+  },
+  "eight_sweeps_identical_files_vs_a197cfe0": "2496/2496"
+}

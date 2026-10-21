@@ -9,7 +9,7 @@ produces draws itself, never fails the unit, and returns a neutral signal whenev
 wrong. Owner: teammate. Integration point (`apply_text_signal`) is owned by the numeric engine.
 
 Contract types live in `t2agent/contracts.py`. Do not change them without telling the other owner.
-The engine side is `numeric_v1.forecast(..., text_signal=...)` → `apply_text_signal`; see `docs/NUMERIC_V1.md`.
+Both numeric engines now call `read_text` after sampling, then apply the mapped signal. See [Phase 4 integration](PHASE4_TEXT.md) for the provisional card-notes choice, fixed mapping and replay procedure.
 
 ---
 
@@ -21,7 +21,7 @@ make test
 ```
 
 `vendor/` and `.eval/` are gitignored, and `.dockerignore` is an allowlist, so neither reaches the
-image. Add `openai` to the runtime dependencies (pinned) when the client lands. Required reading in `vendor/track2`:
+image. `openai==3.31.0` is pinned in the runtime dependencies. Required reading in `vendor/track2`:
 `README.md` (network contract, leakage rules), `docs/SOLVER-PLAYBOOK.md` §3 (turning text into
 drift / width / scenarios), `docs/CATEGORIES.md` (what text does in F1–F4), `docs/NVIDIA-STACK.md`,
 `docs/RATIONALE-REVIEW.md`, and `SUBMISSION_CLI.md` → "Rules for model-API use".
@@ -112,12 +112,12 @@ read_text(unit_dir: Path, summary: NumericSummary, budget: CallBudget) -> TextSi
   and CHF are quoted per USD). Joint cards: each scenario moves every asset (sign-consistent legs).
 - `TextSignal.neutral(assets)` is the fallback, and applying it must reproduce the numeric forecast exactly.
 
-### Clamps (initial values — will be tuned by ablation, keep them as named constants)
+### Clamps (fixed for the Phase 4 ablation)
 
 | Quantity | Range |
 |---|---|
 | per-scenario `drift_sd` | [-1.5, 1.5] |
-| weighted mean drift per asset | [-0.5, 0.5] (rescale scenario drifts if exceeded) |
+| weighted mean drift per asset | [-0.5, 0.5]; fixed binary shifts retain their +/-1-SD-by-sign magnitudes (opposing branches imply mean [-0.6, 0.6]) |
 | `vol_mult` | [0.8, 2.0]; **< 1.0 only if backed by `established=True` evidence** |
 | `tail_mult` | [1.0, 2.0] |
 | scenario weight | each ≥ 0.05 |
@@ -131,7 +131,7 @@ When documents disagree, keep the disagreement: widen or split into scenarios. D
 `TextSignal.labels` (added 2026-10-15; the numeric owner was told) holds `regime ∈ {calm, elevated, crisis}`,
 `event_in_horizon ∈ {none, scheduled_binary, ongoing}`, per-asset `direction ∈ {strong_down, down, none, up, strong_up}` with
 `direction_established`, `disagreement`, two `branches` (prob + per-asset signs) for a scheduled binary event, the vote
-`agreement`, and the pre-pass facts. The Phase 3 signal itself is numerically neutral; `t2agent/text_map.py` maps labels to
+`agreement`, and the pre-pass facts. The Phase 3 signal itself is numerically neutral; `t2agent/text_overlay.py` uses constants from `text_map.py` to map labels to
 scenarios (elevated → vol 1.25; crisis → vol 1.6 + tail 1.5; scheduled_binary → two branches with ±1.0 sd drift by sign, probs
 clipped to [0.2, 0.8], tail 1.25; direction ±0.25 / strong ±0.5 sd; disagreement → no drift and vol ≥ 1.15), shrinks toward
 neutral with λ, then applies the clamps above. Notes-only labels (no LLM) come from the pre-pass alone and carry no direction.
@@ -167,9 +167,9 @@ scored, but it is screened by humans at the top of the board.
   notes-only labels), `relevance.py` (BM25 over asset/bank terms), `corpus.py` (prioritise, chunk), `prompts.py`, `parse.py`,
   `labels.py` (schema, validation, majority vote), `client.py` (House client, cache, replay), `pipeline.py` (`read_text`),
   `constants.py` (every bound). `TextSignal.labels` carries the classification; `t2agent/text_map.py` holds the label→number
-  table and `apply_text_map(signal, summary, λ)`; `t2agent/text_v1.py` is the text-aware forecaster (`--forecaster text_v1`,
+  constants; `text_overlay.py` implements `apply_text_map(signal, summary, λ)`; `t2agent/text_v1.py` is the text-aware forecaster (`--forecaster text_v1`,
   `FORECASTER=t2agent.text_v1:forecast` or the env-free variants `forecast_notes_only_l05/l10`, `forecast_labels_l05/l10`).
-  Env: `TEXT_LAYER_MODE=labels|notes_only`, `TEXT_LAYER_LAMBDA` (default 0.5), `TEXT_LAYER_CACHE_DIR`, `TEXT_LAYER_REPLAY_ONLY=1`,
+  Env: `TEXT_LAYER_MODE=labels|notes_only|card_notes_only|numeric_only`, `TEXT_LAYER_LAMBDA` (default 0.5), `TEXT_LAYER_CACHE_DIR`, `TEXT_LAYER_REPLAY_ONLY=1`,
   `TEXT_LAYER_TIME_BUDGET_S` (default 400), `TEXT_LAYER_SYNTHESIS_RUNS` (default 3).
   Tests: `make test`. Sweeps over all practice units: `scripts/run_text_layer_practice.py --mode dev|replay|mock|notes_only|offline`
   (outputs under `.eval/text_signals*/`, dev responses cached under `.eval/llm_cache/`, replayable by `tests/mock_house.py

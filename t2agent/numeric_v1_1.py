@@ -193,19 +193,26 @@ def sample(p, config, n_draws=2000, seed=None):
     return draws
 
 
-def forecast(card, panels, text_dir, asof, n_draws=2000, seed=None, *, text_signal=None):
+def forecast(card, panels, text_dir, asof, n_draws=2000, seed=None, *, text_signal=None,
+             text_mode=None, text_lambda=None):
     seed = m0.resolve_seed(card, seed)
     n_draws = max(200, int(n_draws), card.get('scoring', {}).get('params', {}).get('n_draws_min', 200))
     reasons = []
+    text_note = 'No text overlay applied.'
+    signal = None
     try:
         config = selected_config()
         draws = sample(v1.prepare(card, panels, asof), config, n_draws, seed)
         try:
-            adjusted = v1.apply_text_signal(draws, card, text_signal, seed)
+            signal, text_note = v1.read_forecast_text(card, panels, text_dir, asof, draws,
+                text_signal=text_signal, text_mode=text_mode, text_lambda=text_lambda)
+            adjusted = v1.apply_text_signal(draws, card, signal, seed)
             if not np.isfinite(adjusted).all():
                 raise ValueError('Nonfinite text result')
             draws = adjusted
         except Exception as exc:
+            signal = None
+            text_note = 'Text overlay failed; completed numeric draws preserved.'
             reasons.append(f'Text hook ignored: {type(exc).__name__}: {exc}')
         frame = sample_frame(card, draws)
         method = f'numeric_v1.1; rules={asdict(config)}'; fallback = None
@@ -223,6 +230,8 @@ def forecast(card, panels, text_dir, asof, n_draws=2000, seed=None, *, text_sign
     frame.attrs['fallback'] = fallback
     frame.attrs['rationale'] = (f"# Numeric forecast: {card['task']['id']}\n\nMethod: {method}. "
         f"Cutoff: {asof}. Seed: {seed}. Draws: {n_draws}.\n\n"
-        'Only pre-cutoff numeric history is used. Monthly release/observation mapping is preserved. '
+        'The numeric engine uses only pre-cutoff history. Monthly release/observation mapping is preserved. '
         'Neutral text signals leave numeric draws identical.\n\n'+ ('\n'.join(reasons) or 'No fallback was required.'))
+    frame.attrs['rationale'] += '\n\n' + text_note + '\n'
+    frame.attrs['text_signal'] = signal
     return frame

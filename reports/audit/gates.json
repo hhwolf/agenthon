@@ -1,0 +1,437 @@
+{
+  "runs": {
+    "hist/M0 (500)": "backtest-m0-dd1d5792e9e5",
+    "hist/M0 (2000)": "backtest-m0-ffa6b5f629c8",
+    "hist/numeric_v1": "backtest-numeric_v1-583451ac0423",
+    "hist/numeric_v1.1": "backtest-numeric_v1_1-6ca79f9a0acd",
+    "hist/final (card-notes \u03bb0.5)": "backtest-numeric_v1_1-6ca79f9a0acd",
+    "practice/M0 (500)": "eval-practice-m0-54b031ed16e7",
+    "practice/M0 (2000)": "eval-practice-m0-89ad9fc76645",
+    "practice/numeric_v1": "eval-practice-numeric_v1-5e43075c55c9",
+    "practice/numeric_v1.1": "eval-practice-numeric_v1_1-99549fcc9541",
+    "practice/final (card-notes \u03bb0.5)": "eval-practice-numeric_v1_1-99549fcc9541"
+  },
+  "reproduction": {
+    "numeric_v1 hist vs reports/phase2_5/cards-numeric_v1.csv": {
+      "cards": 2060,
+      "missing": 0,
+      "max_abs_diff": 8.881784197001252e-16
+    },
+    "numeric_v1 practice vs reports/phase2_5/cards-numeric_v1.csv": {
+      "cards": 88,
+      "missing": 0,
+      "max_abs_diff": 2.220446049250313e-16
+    },
+    "numeric_v1.1 hist vs reports/phase2_5/cards-A1_fhs5.csv": {
+      "cards": 2060,
+      "missing": 0,
+      "max_abs_diff": 8.881784197001252e-16
+    },
+    "numeric_v1.1 practice vs reports/phase4/numeric_v1_1.csv": {
+      "cards": 88,
+      "missing": 0,
+      "max_abs_diff": 0.0
+    },
+    "final practice vs reports/phase4/card_notes_l05.csv": {
+      "cards": 88,
+      "missing": 0,
+      "max_abs_diff": 0.0
+    },
+    "M0(2000) CV vs reports/phase2/development-m0.csv": {
+      "cards": 1506,
+      "missing": 0,
+      "max_abs_diff": 1.7763568394002505e-15
+    },
+    "M0(2000) held-out vs reports/phase2/holdout-m0.csv": {
+      "cards": 554,
+      "missing": 0,
+      "max_abs_diff": 1.7763568394002505e-15
+    }
+  },
+  "c1": {
+    "cv_mean": [
+      0.95307731662608,
+      0.9510810683178046
+    ],
+    "practice_mean": [
+      2.4356137731666436,
+      2.415744063385565
+    ],
+    "cv_plus_practice_caps": [
+      10,
+      10
+    ],
+    "cv_regressions": [
+      {
+        "dimension": "family",
+        "group": "T2-F1",
+        "cards": 234,
+        "before": 0.985919137587155,
+        "after": 0.9810856873689383,
+        "rel": -0.0049024813840672365,
+        "breach": false
+      },
+      {
+        "dimension": "family",
+        "group": "T2-F2",
+        "cards": 281,
+        "before": 0.906712238185005,
+        "after": 0.906255779261861,
+        "rel": -0.0005034220383500765,
+        "breach": false
+      },
+      {
+        "dimension": "family",
+        "group": "T2-F3",
+        "cards": 230,
+        "before": 0.9594734539090681,
+        "after": 0.9605537887380059,
+        "rel": 0.0011259663563762956,
+        "breach": false
+      },
+      {
+        "dimension": "family",
+        "group": "T2-F4",
+        "cards": 328,
+        "before": 0.9648836866320654,
+        "after": 0.9614350307266724,
+        "rel": -0.003574167491037783,
+        "breach": false
+      },
+      {
+        "dimension": "panel",
+        "group": "factors_daily",
+        "cards": 169,
+        "before": 0.992253199970709,
+        "after": 0.980217629732892,
+        "rel": -0.012129535322408014,
+        "breach": false
+      },
+      {
+        "dimension": "panel",
+        "group": "g10_fx_daily",
+        "cards": 352,
+        "before": 1.004275460796508,
+        "after": 1.0057899445854106,
+        "rel": 0.0015080362390826885,
+        "breach": false
+      },
+      {
+        "dimension": "panel",
+        "group": "g10_fx_daily+rates_daily",
+        "cards": 63,
+        "before": 0.9889451652700637,
+        "after": 0.9927449475966963,
+        "rel": 0.003842257852178177,
+        "breach": false
+      },
+      {
+        "dimension": "panel",
+        "group": "macro_monthly",
+        "cards": 38,
+        "before": 1.2830214703624343,
+        "after": 1.2783434369921731,
+        "rel": -0.0036461068488119475,
+        "breach": false
+      },
+      {
+        "dimension": "panel",
+        "group": "rates_daily",
+        "cards": 451,
+        "before": 0.8656271540101477,
+        "after": 0.8640690999596157,
+        "rel": -0.001799913557833821,
+        "breach": false
+      },
+      {
+        "dimension": "horizon_bucket",
+        "group": "127+",
+        "cards": 234,
+        "before": 0.985919137587155,
+        "after": 0.9810856873689383,
+        "rel": -0.0049024813840672365,
+        "breach": false
+      },
+      {
+        "dimension": "horizon_bucket",
+        "group": "1\u201321",
+        "cards": 278,
+        "before": 0.9650626029675953,
+        "after": 0.9627731120407684,
+        "rel": -0.002372375553447603,
+        "breach": false
+      },
+      {
+        "dimension": "horizon_bucket",
+        "group": "22\u201363",
+        "cards": 302,
+        "before": 0.9044558814211203,
+        "after": 0.9037669146524471,
+        "rel": -0.0007617472370136102,
+        "breach": false
+      },
+      {
+        "dimension": "horizon_bucket",
+        "group": "64\u2013126",
+        "cards": 259,
+        "before": 0.9672347595761377,
+        "after": 0.9665922860552131,
+        "rel": -0.0006642374196789147,
+        "breach": false
+      },
+      {
+        "dimension": "shape",
+        "group": "joint",
+        "cards": 450,
+        "before": 0.9757709927871544,
+        "after": 0.9720614312970828,
+        "rel": -0.0038016722340513676,
+        "breach": false
+      },
+      {
+        "dimension": "shape",
+        "group": "single",
+        "cards": 623,
+        "before": 0.9366854157071658,
+        "after": 0.9359267130358223,
+        "rel": -0.0008099866386525045,
+        "breach": false
+      }
+    ],
+    "practice_regressions": [
+      {
+        "dimension": "shape",
+        "group": "single",
+        "cards": 52,
+        "before": 3.1491489244523967,
+        "after": 3.12268981132754,
+        "rel": -0.008401988524394,
+        "breach": false
+      }
+    ],
+    "heldout_veto": [
+      {
+        "dimension": "family",
+        "group": "T2-F1",
+        "cards": 122,
+        "before": 2.06096159047811,
+        "after": 2.048289558722841,
+        "rel": -0.006148601610925342,
+        "breach": false
+      },
+      {
+        "dimension": "family",
+        "group": "T2-F2",
+        "cards": 144,
+        "before": 1.2367999166634511,
+        "after": 1.2448156017532188,
+        "rel": 0.006480987734371668,
+        "breach": false
+      },
+      {
+        "dimension": "family",
+        "group": "T2-F3",
+        "cards": 121,
+        "before": 1.4983556219067338,
+        "after": 1.4980354162891938,
+        "rel": -0.00021370468589587688,
+        "breach": false
+      },
+      {
+        "dimension": "family",
+        "group": "T2-F4",
+        "cards": 167,
+        "before": 1.1735780049105191,
+        "after": 1.1690064303729335,
+        "rel": -0.0038954160000077565,
+        "breach": false
+      },
+      {
+        "dimension": "panel",
+        "group": "factors_daily",
+        "cards": 77,
+        "before": 1.0849992746383228,
+        "after": 1.066460822326025,
+        "rel": -0.017086142586111408,
+        "breach": false
+      },
+      {
+        "dimension": "panel",
+        "group": "g10_fx_daily",
+        "cards": 183,
+        "before": 1.08641436898828,
+        "after": 1.091771640979391,
+        "rel": 0.0049311497933335335,
+        "breach": false
+      },
+      {
+        "dimension": "panel",
+        "group": "macro_monthly",
+        "cards": 26,
+        "before": 2.014310648473615,
+        "after": 1.9397190947316039,
+        "rel": -0.037030809422833655,
+        "breach": false
+      },
+      {
+        "dimension": "panel",
+        "group": "rates_daily",
+        "cards": 248,
+        "before": 1.7646364094008422,
+        "after": 1.7685972336397788,
+        "rel": 0.0022445554324028727,
+        "breach": false
+      },
+      {
+        "dimension": "horizon_bucket",
+        "group": "127+",
+        "cards": 122,
+        "before": 2.06096159047811,
+        "after": 2.048289558722841,
+        "rel": -0.006148601610925342,
+        "breach": false
+      },
+      {
+        "dimension": "horizon_bucket",
+        "group": "1\u201321",
+        "cards": 137,
+        "before": 1.125822586346846,
+        "after": 1.121882196086343,
+        "rel": -0.0035000099556442565,
+        "breach": false
+      },
+      {
+        "dimension": "horizon_bucket",
+        "group": "22\u201363",
+        "cards": 158,
+        "before": 1.3110675192767383,
+        "after": 1.3134518637434092,
+        "rel": 0.0018186282793324349,
+        "breach": false
+      },
+      {
+        "dimension": "horizon_bucket",
+        "group": "64\u2013126",
+        "cards": 137,
+        "before": 1.4160684868252988,
+        "after": 1.4198288362076512,
+        "rel": 0.002655485534306834,
+        "breach": false
+      },
+      {
+        "dimension": "shape",
+        "group": "joint",
+        "cards": 236,
+        "before": 1.7469067370481837,
+        "after": 1.7382463928589675,
+        "rel": -0.004957530934851073,
+        "breach": false
+      },
+      {
+        "dimension": "shape",
+        "group": "single",
+        "cards": 318,
+        "before": 1.2407392112115299,
+        "after": 1.2434118973119692,
+        "rel": 0.0021541078707665307,
+        "breach": false
+      }
+    ],
+    "boot_cv": {
+      "delta": -0.001996248308275251,
+      "ci95": [
+        -0.005100734382035268,
+        0.0009931796898191942
+      ],
+      "years": 10
+    },
+    "boot_practice": {
+      "delta": -0.019869709781078656,
+      "ci95": [
+        -0.04108855984534958,
+        0.0034379083903854314
+      ],
+      "years": 22
+    },
+    "boot_heldout": {
+      "delta": -0.0021551029760204987,
+      "ci95": [
+        -0.010985178451842782,
+        0.00417728597004175
+      ],
+      "years": 6
+    },
+    "pass": {
+      "cv": true,
+      "practice": true,
+      "caps": true,
+      "no_major_group_gt10": true,
+      "no_heldout_veto": true
+    }
+  },
+  "text": {
+    "numeric": {
+      "cards": 88,
+      "mean": 2.415744063385565,
+      "median": 1.365855760616008,
+      "caps": 9,
+      "failures": 0
+    },
+    "final": {
+      "cards": 88,
+      "mean": 2.3781408196192855,
+      "median": 1.3554526997004412,
+      "caps": 9,
+      "failures": 0
+    },
+    "boot": {
+      "delta": -0.03760324376627957,
+      "ci95": [
+        -0.06812732370235404,
+        -0.01318275910376745
+      ],
+      "years": 22
+    },
+    "families": [
+      {
+        "family": "T2-F1",
+        "cards": 19,
+        "numeric": 0.8415658375515376,
+        "final": 0.8429773296437509,
+        "delta": 0.0014114920922133622,
+        "caps_numeric": 0,
+        "caps_final": 0
+      },
+      {
+        "family": "T2-F2",
+        "cards": 23,
+        "numeric": 2.0339216425405633,
+        "final": 1.974978283707262,
+        "delta": -0.05894335883330126,
+        "caps_numeric": 0,
+        "caps_final": 0
+      },
+      {
+        "family": "T2-F3",
+        "cards": 18,
+        "numeric": 1.2777049209380622,
+        "final": 1.2766597128935442,
+        "delta": -0.00104520804451802,
+        "caps_numeric": 0,
+        "caps_final": 0
+      },
+      {
+        "family": "T2-F4",
+        "cards": 28,
+        "numeric": 4.5291728681833,
+        "final": 4.45912312521125,
+        "delta": -0.07004974297205013,
+        "caps_numeric": 9,
+        "caps_final": 9
+      }
+    ],
+    "changed_cards": 15,
+    "new_caps": [],
+    "removed_caps": []
+  }
+}

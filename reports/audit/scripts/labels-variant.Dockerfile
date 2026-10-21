@@ -1,0 +1,2 @@
+FROM audit-final:ee31323
+ENV TEXT_LAYER_MODE=labels TEXT_LAYER_LAMBDA=0.5

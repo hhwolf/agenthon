@@ -36,7 +36,7 @@ def _vol_ratio(series, level: bool) -> float:
     return float(np.clip(recent / long_run, 0.2, 5.0))
 
 
-def numeric_summary_from(card: dict, panels: dict, asof: str) -> NumericSummary:
+def numeric_summary_from(card: dict, panels: dict, asof: str, *, samples=None) -> NumericSummary:
     targets = card["targets"]
     assets = tuple(targets["asset_ids"])
     horizons = tuple(int(h) for h in targets["horizons"])
@@ -60,6 +60,9 @@ def numeric_summary_from(card: dict, panels: dict, asof: str) -> NumericSummary:
             # approximate the level sd around the engine's centre exp(mean), not the spot
             value *= float(np.exp(np.clip(mean[k], -50, 50)))
         horizon_sd[(a, h)] = value
+    if samples is not None:
+        # The text overlay acts on completed draws, including the v1.1 tail engine.
+        horizon_sd = dict(zip(grid, map(float, np.asarray(samples).std(axis=0, ddof=1))))
     family = str(card.get("metadata", {}).get("category") or card.get("forecast_spec", {}).get("card_family") or "")
     return NumericSummary(
         unit_id=str(card["task"]["id"]),

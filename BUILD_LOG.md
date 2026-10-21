@@ -546,6 +546,68 @@ changed. The forecaster is not wired; the numeric owner applies the signal via
   Verify `enable_thinking=False` on the dev endpoint and the real token counts per request.
 - Prompt and clamp values are initial; tune `constants.py` from the ablation, never per unit.
 
+## Phase M — public-contract mock Final harness
+
+Started on a separate branch from main. Read the pinned organizer staging,
+output-folder, resource, House-admission and clock contracts. Reuse the existing
+teammate mock House canned response implementation. Plan and interpretation are
+recorded in reports/phase_m/PLAN.md. In particular, oversized successful output
+is no_output (not schema_invalid), scoring has a separate clock, and cached
+image pulls cannot be represented as cold-layer download measurements.
+
+Implementation: `t2eval/mock_final.py`, `t2eval/mock_house_service.py`, and
+`make mock-final IMAGE=... UNITS=practice|exemplar|N NETWORK=none|restricted`.
+`practice` explicitly includes the exemplar (104 units). `COMPARE_IMAGE` runs a
+second digest against the same roster and seed policy. The runtime image,
+`numeric_config.json`, and frozen selection files are untouched.
+
+The input directory must pass the pinned official manifest verifier and a
+whole-tree file allowlist. The organizer's root panels are copied to panels/;
+only staged input and writable output are mounted into the solver. Restricted
+mode uses two internal Docker networks with a fixed-backend forward proxy,
+per-unit credentials/deadlines, and persistent atomic admission counts. The
+original `tests/mock_house.py` remains unchanged and supplies canned responses.
+Replay uses the teammate's exact ResponseCache hash format and preserves cached
+text, finish reason and usage. No real dev response cache was provided; replay
+is verified with a synthetic cache fixture, with no provider fallback.
+
+Independent coverage and plan audits caught and fixed unlisted input leakage,
+organizer faults incorrectly charged to images, and replay text modification.
+Additional checks cover token rotation, concurrent admission, cleanup, platform
+clock exhaustion, cold-pull timeout accounting, ARM-cache handling, and retrying
+a failed initial pull. The final local suite passed 139 tests (12 pre-existing
+M0 numeric warnings from adversarial fixtures). A dedicated GitHub Actions
+workflow tests the complete suite, all requested Docker failure labels, network
+probes, and numeric_v1 on 104 units in each mode.
+
+This is an internal evaluation-tool addition; VERSION and published model/data
+release identities remain unchanged. CHANGELOG records it under Unreleased.
+All per-unit runtime artifacts stay in ignored .eval; only compact measurement
+reports are committed. No submission archive is packed or uploaded.
+
+Measured local results (public digest execution, 2000 image-default draws):
+
+| Image / network | Passed | House requests | Proxy mean (88) | Caps | Ingestion |
+|---|---:|---:|---:|---:|---:|
+| numeric_v1 / none | 104/104 | 0 | 2.435740611 | 9 | 145.07 s |
+| numeric_v1 / restricted | 104/104 | 0 | 2.435740611 | 9 | 159.89 s |
+| numeric_v1.1 / none | 104/104 | 0 | 2.415744063 | 9 | 157.31 s |
+
+All 104 numeric_v1 output triplets and staged input fingerprints match byte for
+byte across network modes. Largest output tree: 418,931 bytes. The local CPU/
+memory caps were 4 CPUs / 6,645,681,356 bytes; all projections are below 21,600 s.
+All local images were cached, so measured registry pulls are not cold downloads.
+The local sweeps were measured while implementation was being finalized; the
+restricted report includes its exact source hashes and dirty-checkout flag.
+The dedicated Linux CI validates the final committed runner on all 104 units
+in both modes. See reports/phase_m/RESULTS.md and the compact JSON/CSV evidence.
+
+Final committed-code Docker verification reproduced container_crashed,
+resource_timeout, no_output (64 MiB + 1 byte), and schema_invalid, each at 8.0.
+All 27 network-probe assertions passed across canned/chaos/replay; admitted
+request counts were 25, 6, and 2 respectively. No Docker networks or containers
+from the harness remain after cleanup. Full logs and outputs are in
+.eval/mock-final/phase-m-{offline-comparison,restricted,verification-final}/.
 ## Phase 2.5 — protocol before scoring, 2026-10-15
 
 Read the Phase 2 diagnosis, validation, results and numeric guide. Existing
@@ -620,7 +682,6 @@ Visual checks and extracted text confirm no clipping or pending placeholders.
 No competition packing or submission upload was performed. Phase 2.5 delivery
 is complete; statistically robust accuracy and capped-card reductions remain
 unproven, as stated on the first PDF page.
-
 ## Text layer — Phase 3 (labels design), 2026-10-15
 
 Rebuilt `t2agent/text_layer/` to the Phase 3 brief: the model classifies, a fixed table sets magnitudes. Contract change:
@@ -739,6 +800,105 @@ per token on these corpora (one extraction prompt reached 68,818 real tokens aga
 and extraction replies truncated at 3,000 output tokens, so extraction now uses the 4,000 cap with at most 18 items per chunk and
 quotes of ≤ 200 characters. The first three units will be re-labelled by the sweep because the prompts changed.
 
+
+## Phase 4 — text integration and provisional ship decision (2026-10-15)
+
+Integrated the existing Phase M, numeric_v1.1 and teammate Phase 3 branches on
+`hhwolf/phase4-text-integration`. The protocol was committed as `27c4402` before
+any Phase 4 score was computed; see reports/phase4/VALIDATION.md. The Phase 2
+numeric config and frozen selection remain unchanged, as does numeric_v1.1's
+frozen numeric config.
+
+The constants-only t2agent/text_map.py holds the user's fixed starting values;
+text_overlay.py performs the mapping. SOLVER-PLAYBOOK §§3–5 supplies the design
+principles, not those exact coefficients. Corrected binary drift surviving the
+disagreement rule, removed the extra inherited crisis-shock mixture, and added
+named-side tail expansion for crisis/F4. Binary probabilities normalize then
+clip to 20–80%; one branch covers every asset/horizon of a draw. The explicit
++/-1-SD binary branches permit a 0.6-SD weighted mean at 80/20; other signals keep
+the 0.5-SD mean bound. Lambda scales drift and excess vol/tail width. The existing
+event vol floor 1.15 and binary tail 1.25 are retained without fitting.
+
+Both numeric_v1.forecast and numeric_v1_1.forecast now invoke read_text between
+sampling and apply_text_signal. The text summary uses the actual completed
+draws' standard deviations. Text errors preserve numeric draws; explicit
+already-mapped hooks still work. Rationale writing appends doc_ids, timestamps,
+established/inferred status and the mapping ledger. Optional contract additions
+are tail_signs and branch_mixture with neutral defaults. Runtime openai==3.31.0
+was already pinned and remains pinned. The wheel includes text_config.json;
+evaluation artifacts remain outside the allowlisted Docker context.
+
+The strict B4 arm reads only card description and text.notes, retaining the
+inherited B4 v2 numeric volatility guard; it never reads corpus text or calls a
+model. Legacy notes_only still supports the corpus pre-pass explicitly. The
+inherited B4 rules had already seen practice results in Phase 3, so these are
+development measurements and not an untouched holdout.
+
+Replayed-label cache status: **0/88 artifacts available**. No cache directory
+exists in this workspace or the inspected sibling workspaces; the teammate's
+PR still lists the full dev sweep as unfinished. Requested the cache path or
+artifact link. No live provider requests were sent and no mock responses were
+used as accuracy evidence. Full-label lambda 0.5/1 means and caps are unavailable,
+not neutral-filled measurements. The runner accepts validated Phase 3 dev/replay
+per-unit artifacts and rejects mock, failed, mismatched and future-evidence rows.
+The mock Final service now supports both old per-unit and new flat request caches.
+
+Available 88-card comparison, official scorer and existing M0 normalization,
+2,000 draws, card-derived seeds:
+
+| arm | mean | median | caps |
+|---|---:|---:|---:|
+| numeric_v1.1 | 2.415744 | 1.365856 | 9 |
+| card-notes-only, lambda 0.5 | 2.378141 | 1.355453 | 9 |
+| cached labels, lambda 0.5 | unavailable | unavailable | unavailable |
+| cached labels, lambda 1 | unavailable | unavailable | unavailable |
+
+Paired year-block bootstrap (10,000 resamples, seed 20261015): mean delta
+-0.037603, 95% CI [-0.068127, -0.013183]. Family means: F1 0.841566→0.842977,
+F2 2.033922→1.974978, F3 1.277705→1.276660, F4 4.529173→4.459123. No capped
+cards were added or removed. Per-card deltas, family rows, source/input hashes,
+cap changes and exact decision are tracked under reports/phase4/.
+
+**Decision: provisionally select card-notes-only at lambda 0.5.** It satisfies
+the available-arm mean/cap rule; full LLM-label selection remains pending all
+88 cached labels. t2agent/text_config.json records the provisional choice.
+No new GHCR image, competition pack or submission upload has been published.
+Reproduce with `.venv/bin/python -m t2eval.phase4`; add `--labels-dir PATH` when
+the teammate's validated sweep artifacts arrive. This does not automatically
+change selection or publish an image. See docs/PHASE4_TEXT.md.
+
+Validation so far: 223 tests passed; 104/104 host admissibility checks passed;
+linux/amd64 image builds. The default candidate uses zero model requests.
+Container verification and its exact local image IDs are recorded below.
+
+
+A subsequent branch-rule regression check found rise-versus-hold labels (+1/0
+at 80/20) were incorrectly rescaled by the assumed 0.6-SD binary mean cap.
+Corrected this before any model-label scoring: fixed branch shifts now retain
++/-1 SD by sign; their natural mean bound is 1 SD, while opposing +/-1 branches
+still imply a 0.6-SD maximum. The protocol's correction appendix records why.
+Card-notes branch signs are zero, so this leaves its measured scores unchanged.
+
+Final Phase 4 verification: **224 tests passed** (22.81 s), **104/104** host
+admissibility (max 0.424 s). Final amd64 image
+`sha256:69a30bf26d5d6e18ed494ac80e806e717f140aac7ee15a666d2dc735faa7a546`
+matches all 26 runtime Python/JSON files and passes all 104 offline units with
+zero model requests, proxy mean 2.378141 and 9 caps (194.24 s ingestion).
+The prior card-notes image passes all 104 restricted units with zero requests
+(199.52 s); every forecast and metadata file matches the final offline run
+byte-for-byte. The final image additionally passes the restricted exemplar;
+a derived explicit-labels image passes the restricted canned House smoke in
+four requests and writes the mapping and evidence ledger. These canned labels
+are not accuracy measurements. Largest triplet: 424,862 bytes. See
+reports/phase4/VERIFICATION.md and verification.json for exact provenance,
+including the initial offline attempt invalidated by a local image retag.
+The new CI workflow is configured but has not run remotely.
+
+Checked GitHub release assets and Actions artifacts as well: no dev-label cache
+is published there, and the teammate branch has no newer commit. The remaining
+work is the two real cached-label ablations and final (non-provisional) ship
+choice. Changes are committed locally; no Phase 4 image, pack or submission
+upload has been published.
 ### Dev-model sweep and LLM-label ablation, 2026-10-15
 
 Full sweep of the 104 practice units against `nvidia/nemotron-3-super-120b-a12b` on integrate.api.nvidia.com (`scripts/
@@ -772,65 +932,119 @@ per unit), `.eval/llm_cache/` (449 replies keyed by request hash; the whole abla
   fall back to neutral on JSON failures and 29 % of units have vote agreement below 0.8, so a rerun with a fresh seed can move
   individual cards — the organisers' fresh-seed rerun check (P5) should be run on the final image.
 
-## Phase M — public-contract mock Final harness
+## Phase 5 preparation — 2026-10-16
 
-Started on a separate branch from main. Read the pinned organizer staging,
-output-folder, resource, House-admission and clock contracts. Reuse the existing
-teammate mock House canned response implementation. Plan and interpretation are
-recorded in reports/phase_m/PLAN.md. In particular, oversized successful output
-is no_output (not schema_invalid), scoring has a separate clock, and cached
-image pulls cannot be represented as cold-layer download measurements.
+Fetched and merged the teammate's `2d6601e` report (100/104 real-model labels;
+lambda 0.5 recommended against numeric_v1). The cache itself is still absent
+from local workspaces, all remote branches, Actions artifacts and release assets.
+Requested the per-unit labels and raw replies, including the four malformed
+response cases; the integrated numeric_v1.1 comparison remains required.
+Also requested a code license (none is declared in the repository) and optionally
+the public derived team alias. Never request or handle the Team Key.
 
-Implementation: `t2eval/mock_final.py`, `t2eval/mock_house_service.py`, and
-`make mock-final IMAGE=... UNITS=practice|exemplar|N NETWORK=none|restricted`.
-`practice` explicitly includes the exemplar (104 units). `COMPARE_IMAGE` runs a
-second digest against the same roster and seed policy. The runtime image,
-`numeric_config.json`, and frozen selection files are untouched.
+Added the precommitted Phase 5 protocol, `final-*` CI publication workflow,
+`t2eval.final_release` eight-sweep verifier, and `scripts/prepare_final.py` toolkit
+descriptor/preflight helper. All use the existing official scorer/harness and
+leave prior frozen numeric configurations untouched. The release manifest is
+explicitly pending and publication preflight rejects it. Final freeze covers
+runtime Python/JSON, Dockerfile, runtime requirements, .dockerignore and LICENSE.
 
-The input directory must pass the pinned official manifest verifier and a
-whole-tree file allowlist. The organizer's root panels are copied to panels/;
-only staged input and writable output are mounted into the solver. Restricted
-mode uses two internal Docker networks with a fixed-backend forward proxy,
-per-unit credentials/deadlines, and persistent atomic admission counts. The
-original `tests/mock_house.py` remains unchanged and supplies canned responses.
-Replay uses the teammate's exact ResponseCache hash format and preserves cached
-text, finish reason and usage. No real dev response cache was provided; replay
-is verified with a synthetic cache fixture, with no provider fallback.
+Found and corrected a deterministic-output defect: rationale files contained
+elapsed times plus completion-order-dependent request and warning lists. Runtime
+rationales now omit elapsed measurements and sort those lists before truncation;
+harness reports retain timing. No forecast values or mapping coefficients changed.
+Repeated offline and labels+canned exemplar runs have identical parquet, metadata
+and rationale bytes. The canned route sends four requests; offline sends zero.
 
-Independent coverage and plan audits caught and fixed unlisted input leakage,
-organizer faults incorrectly charged to images, and replay text modification.
-Additional checks cover token rotation, concurrent admission, cleanup, platform
-clock exhaustion, cold-pull timeout accounting, ARM-cache handling, and retrying
-a failed initial pull. The final local suite passed 139 tests (12 pre-existing
-M0 numeric warnings from adversarial fixtures). A dedicated GitHub Actions
-workflow tests the complete suite, all requested Docker failure labels, network
-probes, and numeric_v1 on 104 units in each mode.
+Validation: **241 tests passed**, 15 existing warnings; **104/104 host
+admissibility**; linux/amd64 candidate build succeeded. Independent coverage/plan
+audits also caught a missing .context creation in CI and gaps in freeze and
+orchestration tests; fixed and tested. Local image IDs and timing are recorded in
+`reports/phase5/preflight.json`, not represented as registry digests.
 
-This is an internal evaluation-tool addition; VERSION and published model/data
-release identities remain unchanged. CHANGELOG records it under Unreleased.
-All per-unit runtime artifacts stay in ignored .eval; only compact measurement
-reports are committed. No submission archive is packed or uploaded.
+Final publication, the four-mode 104-unit matrix with repeat/fresh-seed checks,
+and the actual descriptor remain pending the cache, selection and license.
+No final-* tag, GHCR final image, competition pack, or CodaBench upload was made.
+See `reports/phase5/STATUS.md` and `docs/FINAL_RELEASE.md` for the concrete handoff.
 
-Measured local results (public digest execution, 2000 image-default draws):
+Team handoff update: the user supplied **756**, recorded as the website team
+number, not descriptor `team_id`. The human command now uses `--team-number 756`;
+pack derives the public alias and seals locally. No Team Key was requested,
+stored or used. Cache and license inputs remain pending.
 
-| Image / network | Passed | House requests | Proxy mean (88) | Caps | Ingestion |
-|---|---:|---:|---:|---:|---:|
-| numeric_v1 / none | 104/104 | 0 | 2.435740611 | 9 | 145.07 s |
-| numeric_v1 / restricted | 104/104 | 0 | 2.435740611 | 9 | 159.89 s |
-| numeric_v1.1 / none | 104/104 | 0 | 2.415744063 | 9 | 157.31 s |
+## Independent pre-submission audit — 2026-10-16
 
-All 104 numeric_v1 output triplets and staged input fingerprints match byte for
-byte across network modes. Largest output tree: 418,931 bytes. The local CPU/
-memory caps were 4 CPUs / 6,645,681,356 bytes; all projections are below 21,600 s.
-All local images were cached, so measured registry pulls are not cold downloads.
-The local sweeps were measured while implementation was being finalized; the
-restricted report includes its exact source hashes and dirty-checkout flag.
-The dedicated Linux CI validates the final committed runner on all 104 units
-in both modes. See reports/phase_m/RESULTS.md and the compact JSON/CSV evidence.
+Auditor re-ran everything at `ee31323`; no runtime code, config or frozen selection was changed and nothing
+was packed or uploaded. Full report: [reports/audit/AUDIT.md](reports/audit/AUDIT.md) and the four-page PDF.
+**Verdict: GO WITH FIXES.** Upload the card-notes candidate (numeric_v1.1 + card-notes λ0.5, `models: []`)
+once these blockers are cleared: no final image/digest/submission.json (release pending), no LICENSE
+(descriptor requires SPDX), no grep score on any of the 7 PRs, and the candidate branch is unpushed. Keep
+public numeric_v1.1 `sha256:f3ec5167…c085c507` as the prepared fallback. Do not ship LLM labels: no response
+cache exists anywhere reachable, so their claimed gain is unreproducible.
 
-Final committed-code Docker verification reproduced container_crashed,
-resource_timeout, no_output (64 MiB + 1 byte), and schema_invalid, each at 8.0.
-All 27 network-probe assertions passed across canned/chaos/replay; admitted
-request counts were 25, 6, and 2 respectively. No Docker networks or containers
-from the harness remain after cleanup. Full logs and outputs are in
-.eval/mock-final/phase-m-{offline-comparison,restricted,verification-final}/.
+Reproduced: 241 tests; 104/104 admissibility; all 13 reported means within 5e-7 and per-card scores within
+1.8e-15 of the frozen CSVs (no difference > 0.002); C1 + held-out veto pass for v1.1; tails variance-normalized;
+card-notes clamps hold (drift 0, vol_mult ≥ 1). Mock Final (empty DOCKER_CONFIG) passed 104/104 in offline,
+canned, chaos and replay for the fallback digest (cold anonymous pull) and the locally built candidate:
+0 requests, byte-identical reruns, fresh-seed means 2.3795/2.3897 inside bootstrap CIs, about 190 s per 100
+units. An LLM-labels variant handled 65 injected House faults with neutral fallbacks and no crash.
+Warnings: the card-notes gain is partly in-sample; the monthly 2022 regression is unfixed (2.659 vs M0 0.842);
+caps never fell; EM transfer is unmeasured; the eval run id ignores TEXT_LAYER_MODE and lets runs overwrite
+each other. Audit scratch outputs are in `.context/audit/`.
+
+## Final release candidate — 2026-10-20 (stopped before pack)
+
+Shipped numeric_v1.1 + card-notes λ0.5 per the audit; no forecaster logic, numeric config, clamp, λ or
+text rule changed, and the LLM-label layer is not enabled. Merged origin/main (#5–#7; conflicts kept this
+branch's versions), added the MIT license (LICENSE, PEP 639 pyproject, README), and fixed the eval run
+identity to include text mode, lambda and House env (token presence only) plus runtime JSON/subpackage
+sources. Reruns in one work dir now use separate directories and reproduce 2.415744 / 2.378141 exactly.
+`text_config.json` is final with `house_calls: false`: the dispatch forces the text layer offline before any
+client exists. A unit test and an image-level listener (0 connections; positive control 2) confirm zero
+network attempts with `MODEL_*` set, even under a labels override. `release.json` is frozen; 243 tests.
+
+PR #9 opened. Tag `final-20261019-1` (commit `fd4f11a`) published via CI run 39366143060:
+`ghcr.io/hhwolf/agenthon-numeric-v1@sha256:a197cfe0e065f6ddef7696fa0ad261b0a31d08259769b5040fc1176a63428bed`.
+After pruning all images and build cache, the anonymous cold pull took 42.64 s (9/9 layers, 139.8 MB).
+`t2eval.final_release` passed all eight sweeps on that digest: 104/104 each, 0 requests, byte-identical
+same-seed reruns, fresh-seed means 2.382360/2.382383 inside CIs, and at most 242 s projected per 104 units
+including the cold pull. Audit seed variants reproduce 2.378141 / 2.379504 / 2.389690, with outputs
+byte-identical to the audited candidate. `submission.final.json` and `submission.fallback.json` (`f3ec5167…`)
+pass the toolkit 2.6.0 parser, schema and pack seal path without packing. All 17 digest sources are equal.
+Open: grep score on PR #9 (do not merge before 5); PR #8 conflicts with this release. Details:
+reports/release/RELEASE.md. Human packs `submission.final.json`; no zip was created.
+
+## Greptile review of PR #9 to 5/5 — 2026-10-20
+
+Greptile was enabled and triggered with `@greptileai`. Round 1 (`9668c63`) scored **4/5** with three P2
+findings, all resolved:
+
+1. **Image lacks its license** (runtime: Dockerfile/.dockerignore). Fixed in `f680ca6`: LICENSE is copied
+   to `/app/LICENSE` with the OCI `licenses=MIT` label, plus a CI smoke assertion and a test. Predicted
+   forecast impact was none (no `t2agent` file changed); a local build gave 312/312 identical files on
+   104 units versus the published `a197cfe0`.
+2. **Audit scripts cannot travel** (non-runtime). Fixed in `ffa67d1`: the root is derived from the script
+   path and runs are selected by saved metadata, not hash prefixes. Regenerated audit outputs are
+   byte-identical.
+3. **Label example stays offline** (non-runtime). Fixed in `ffa67d1`: the docs mark labels as unavailable
+   under `house_calls: false` and explain the separate experimental config needed.
+
+Round 2 (`ffa67d1`): 5/5 with (1) non-blocking. The runtime fix still shipped as a new image, per release
+policy. **Round 3 (`5061f0f`): 5/5, no findings.** No finding was disputed.
+
+The digest changed from `sha256:a197cfe0…63428bed` (`final-20261019-1`) to
+`ghcr.io/hhwolf/agenthon-numeric-v1@sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674`
+(`final-20261020-1`, `f680ca6`, CI 39382405566). Full re-verification:
+- CI: 244 tests, 104/104 admissibility.
+- Cold pull after pruning all images and build cache: 4.64 s, 10/10 layers downloaded (CDN warm; the first
+  digest took 42.64 s).
+- All eight `t2eval.final_release` sweeps: 104/104, 0 House requests, byte-identical same-seed reruns,
+  fresh-seed means inside each other's CI.
+- Audit seed variants: 2.378141 / 2.379504 / 2.389690.
+- Every output file is identical to the old digest (2,496/2,496 sweep files).
+- Image-level egress: 0 connections with `MODEL_*` and a labels override; the positive control made 2.
+- All 17 digest sources are equal. `submission.final.json` is updated and re-validated with toolkit 2.6.0
+  without packing; `submission.fallback.json` is unchanged.
+
+The old final digest stays public as a secondary fallback; no image or tag was deleted. PR #9 is not
+merged, PR #8 was not touched, and nothing was packed. Details: reports/release/RELEASE.md.

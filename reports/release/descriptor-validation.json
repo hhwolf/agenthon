@@ -1,0 +1,38 @@
+{
+ "toolkit": "2.6.0",
+ "final": {
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674",
+  "schema_version": "1.1.0",
+  "interface_version": "2.0",
+  "phase": "final",
+  "track": "forecasting",
+  "category": "api",
+  "models": [],
+  "license": "MIT",
+  "image_access": "public",
+  "make_descriptor": {
+   "sealed": false,
+   "toolkit_parser": "passed on in-memory validation alias only",
+   "json_schema": "passed on in-memory validation alias only",
+   "pending": "Human pack must derive team_id and seal; on-disk input is not a complete C5 descriptor"
+  },
+  "pack_seal_path": "passed (throwaway in-memory key; no zip written)",
+  "json_schema": "passed",
+  "c5_parser": "passed"
+ },
+ "fallback": {
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:f3ec5167b28f0172004a78e336d84a4ecd423d27da42d942693e51cfc085c507",
+  "schema_version": "1.1.0",
+  "interface_version": "2.0",
+  "phase": "final",
+  "track": "forecasting",
+  "category": "api",
+  "models": [],
+  "license": "MIT",
+  "image_access": "public",
+  "make_descriptor": "unchanged file",
+  "pack_seal_path": "passed (throwaway in-memory key; no zip written)",
+  "json_schema": "passed",
+  "c5_parser": "passed"
+ }
+}

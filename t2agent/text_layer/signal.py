@@ -45,7 +45,7 @@ def to_contract_evidence(items: list[RawEvidence]) -> tuple[Evidence, ...]:
 
 
 def clamp_scenarios(raw: RawSignal, assets: tuple[str, ...], has_established: bool,
-                    ledger: Ledger) -> tuple[list[Scenario], float]:
+                    ledger: Ledger, *, mean_limit: float = C.DRIFT_MEAN_LIMIT) -> tuple[list[Scenario], float]:
     """Apply the §5 clamps. Returns (scenarios, tail_mult)."""
     cands = [s for s in raw.scenarios if s.weight > 0]
     if not cands:
@@ -78,11 +78,11 @@ def clamp_scenarios(raw: RawSignal, assets: tuple[str, ...], has_established: bo
         drifts.append(d)
     for a in assets:
         mean = sum(w * d[a] for w, d in zip(weights, drifts))
-        if abs(mean) > C.DRIFT_MEAN_LIMIT:
-            factor = (C.DRIFT_MEAN_LIMIT - _ROUNDING_MARGIN) / abs(mean)
+        if abs(mean) > mean_limit + 1e-12:
+            factor = (mean_limit - _ROUNDING_MARGIN) / abs(mean)
             for d in drifts:
                 d[a] = round(d[a] * factor, _DRIFT_DECIMALS)
-            ledger.clamps.append(f"{a}: weighted mean drift {mean:+.3f} exceeds +/-{C.DRIFT_MEAN_LIMIT}; "
+            ledger.clamps.append(f"{a}: weighted mean drift {mean:+.3f} exceeds +/-{mean_limit}; "
                                  f"all scenario drifts for {a} rescaled by {factor:.3f}")
     vols: list[float] = []
     for s in cands:
@@ -114,8 +114,8 @@ def clamp_scenarios(raw: RawSignal, assets: tuple[str, ...], has_established: bo
         scenarios[heaviest] = Scenario(s.label, round(s.weight + residual, 6), s.drift_sd, s.vol_mult)
     for a in assets:  # defensive: the bound must hold exactly after all rounding
         mean = sum(s.weight * s.drift_sd[a] for s in scenarios)
-        if abs(mean) > C.DRIFT_MEAN_LIMIT:
-            factor = (C.DRIFT_MEAN_LIMIT - _ROUNDING_MARGIN) / abs(mean)
+        if abs(mean) > mean_limit + 1e-12:
+            factor = (mean_limit - _ROUNDING_MARGIN) / abs(mean)
             scenarios = [Scenario(s.label, s.weight, {**s.drift_sd, a: round(s.drift_sd[a] * factor, _DRIFT_DECIMALS)}, s.vol_mult)
                          for s in scenarios]
     return scenarios, round(tail, 4)
@@ -152,7 +152,7 @@ def rationale_labels(summary: NumericSummary, labels: dict, evidence: list[RawEv
     lines.append(f"As-of {summary.asof.isoformat()}; family {summary.family}; mode {labels.get('mode', ledger.mode)}; "
                  f"House requests used: {ledger.requests}"
                  + (f" ({ledger.cache_hits} served from the dev cache)" if ledger.cache_hits else "")
-                 + (f"; wall time {ledger.elapsed_s:.1f} s" if ledger.elapsed_s else "") + ".")
+                 + ".")
     if neutral_reason:
         lines += ["", f"**Neutral signal** — {neutral_reason}. The forecast is numeric-only."]
     lines += ["", "### Documents", ""]
@@ -160,8 +160,10 @@ def rationale_labels(summary: NumericSummary, labels: dict, evidence: list[RawEv
                  if ledger.docs_read else "No documents were sent to the model.")
     if ledger.docs_dropped:
         lines.append(f"Not sent (budget): {'; '.join(ledger.docs_dropped)}.")
-    if ledger.notes:
-        lines.append("Pipeline notes: " + " ".join(ledger.notes[:12]) + (" ..." if len(ledger.notes) > 12 else ""))
+    # Timing stays in the runtime/harness ledger, not deterministic deliverables.
+    notes = sorted(n for n in ledger.notes if not n.startswith("wall time "))
+    if notes:
+        lines.append("Pipeline notes: " + " ".join(notes[:12]) + (" ..." if len(notes) > 12 else ""))
     if ledger.prepass_lines:
         lines += ["", "### Deterministic pre-pass (card prose, corpus index, lexicons)", ""]
         lines += [f"- {l}" for l in ledger.prepass_lines]
@@ -198,9 +200,9 @@ def rationale_labels(summary: NumericSummary, labels: dict, evidence: list[RawEv
         lines += ["", f"Model summary: {labels['summary']}"]
     lines += ["", NUMERIC_PARAGRAPH_HEADER, "", NUMERIC_PARAGRAPH_UNMAPPED]
     lines.append("")
-    lines.append("Requests: " + (", ".join(
+    lines.append("Requests: " + (", ".join(sorted(
         f"{c.get('purpose')}={'cached' if c.get('cached') else c.get('status')}"
-        + (f"x{c.get('attempts')}" if (c.get('attempts') or 0) > 1 else "") for c in ledger.calls) or "none"))
+        + (f"x{c.get('attempts')}" if (c.get('attempts') or 0) > 1 else "") for c in ledger.calls)) or "none"))
     return "\n".join(lines).rstrip() + "\n"
 
 
