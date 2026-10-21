@@ -1074,3 +1074,29 @@ Pre-flight on `main` (evidence: reports/release/preflight/):
 Handoff: reports/release/UPLOAD_CHECKLIST.md. Caveats recorded there: the "Failed uploads are free" rule
 is documented for Development (Final allows one submission), and admin@agenthon.net comes from the team
 brief rather than the pinned docs.
+
+## Post-Final hardening of the text layer and Phase 3 report — 2026-10-21 (branch `aiden/post-final-hardening`, not for the frozen image)
+
+Nothing here touches the frozen `final-20261020-1` image, `text_config.json`, the numeric engines or the descriptors; the branch is
+a draft PR to be merged only after the Final results, or for a later round.
+
+- **B4 as the fallback inside hhwolf's dispatch.** When the model path fails on a unit whose corpus loaded (HTTP errors after
+  retries, JSON failures after the repairs, every label run failing, budget or clock exhausted), `read_text` returns the
+  deterministic card/corpus labels with `labels.mode = "notes_only_fallback"` and the failure in `fallback_reason`;
+  `text_overlay.apply_text_map` maps those and only those fallback signals (any other signal with a `fallback_reason` is still
+  neutralised, as before). Offline, a missing text directory or an empty corpus stay fully neutral.
+- **Bounded unit clock.** `TIME_BUDGET_S` 400 → 240 (request timeout 90 s, label calls 120 s, one label call instead of three
+  when fewer than 140 s remain): 104 stalled units cost 6.9 h of the 12 h platform clock, 150 cost 10 h. Measured live units
+  average ≈ 125 s, so typical units are unaffected; 4 of the 104 practice units (max 293 s) would now degrade instead of
+  running long.
+- **Second, compact repair.** A label call whose repair still returns no JSON gets one more attempt with 20 evidence items and
+  thinking off (the configuration that never overflowed the output cap on the dev endpoint); worst case 10 label-stage
+  requests, inside the 20 cap. This targets the 4 % of units that fell back on `ParseError` in the dev sweep.
+- Tests: 248 pass (new: fallback mapping and its neutral exceptions, clock guard, compact repair, clock bound invariant).
+- **Report:** `reports/phase3/RESULTS.md` + `Agenthon_Track2_Phase3_Text_Layer_Results.pdf` (five chapters: summary and decision
+  context, design, dev sweep, ablations, hardening/risks/reproduction; `pdf-pages.json` for the Chromium renderer,
+  `scripts/render_phase3_pdf.py` renders with matplotlib when that tool is absent).
+- **Decision context recorded:** the Phase 4 release report lists the LLM-label arms as "unavailable: missing validated cache";
+  the dev cache (449 replies) was never transferred before the release audit, so the LLM arm (−0.120 vs numeric_v1.1 at
+  λ = 0.5, caps 9 → 6) was unweighed rather than rejected. Replay bundle: `.eval/share/text_layer_dev_bundle_2026-10-19.tgz`.
+- Housekeeping: merged branches `aiden/text-layer` and `aiden/text-layer-phase3` deleted; PR #8 kept as a draft record.

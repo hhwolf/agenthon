@@ -212,7 +212,21 @@ class _Pipeline:
                 self.ledger.notes.append(f"labels run {k + 1}: invalid JSON ({str(exc)[:80]}); one repair requested (thinking off)")
             repaired = self.house.chat(repair_messages(messages, result.text, str(exc)), max_tokens=C.SYNTHESIS_MAX_OUTPUT_TOKENS,
                                        thinking=False, purpose=f"labels_{k + 1}_repair", timeout=C.SYNTHESIS_TIMEOUT_S, seed=seed)
-            return self._parse_labels(repaired.text, evidence)
+            try:
+                return self._parse_labels(repaired.text, evidence)
+            except ParseError as exc2:
+                if self.budget.limit - self.budget.used < 1:
+                    raise
+                # Second and last attempt: a compact prompt (fewer evidence lines) with thinking off, which is the
+                # configuration that has never overflowed the 4,000-token output cap on the dev endpoint.
+                shown = evidence[: C.COMPACT_EVIDENCE_ITEMS]
+                with self._lock:
+                    self.ledger.notes.append(f"labels run {k + 1}: repair still invalid ({str(exc2)[:60]}); "
+                                             f"compact retry with {len(shown)} evidence items (thinking off)")
+                compact = labels_messages(self.summary, shown, events[:6], disagreements[:4], self.ledger.prepass_lines, run_index=k)
+                second = self.house.chat(compact, max_tokens=C.SYNTHESIS_MAX_OUTPUT_TOKENS, thinking=False,
+                                         purpose=f"labels_{k + 1}_compact", timeout=C.SYNTHESIS_TIMEOUT_S, seed=seed)
+                return self._parse_labels(second.text, shown)
 
     def synthesize(self, evidence: list[RawEvidence], events: list[str], disagreements: list[str]) -> tuple[Labels, dict, dict]:
         remaining = self.budget.limit - self.budget.used
@@ -221,6 +235,10 @@ class _Pipeline:
         runs = max(1, min(self.n_runs, remaining // 2 if remaining >= 2 else 1))
         if runs < self.n_runs:
             self.ledger.notes.append(f"synthesis runs reduced to {runs} (budget remaining {remaining})")
+        time_left = self.deadline.remaining() - C.SAFETY_MARGIN_S
+        if runs > 1 and time_left < C.SYNTHESIS_TIMEOUT_S + C.SYNTHESIS_TIME_RESERVE_S:
+            self.ledger.notes.append(f"synthesis runs reduced to 1 ({time_left:.0f}s left on the unit clock)")
+            runs = 1
         results = _run_parallel([(lambda k=k: self._label_run(k, evidence, events, disagreements)) for k in range(runs)],
                                 C.MAX_PARALLEL_SYNTHESIS, collect_errors=True)
         good = [r for r in results if r is not None]
@@ -316,4 +334,16 @@ def read_text(unit_dir: Path | str, summary: NumericSummary, budget: CallBudget,
         if house is not None:
             ledger.calls = list(house.calls)
             ledger.cache_hits = sum(1 for c in house.calls if c.get("cached"))
-        return _neutral(summary, f"{type(exc).__name__}: {str(exc)[:300]}", used, ledger, pipeline.prepass if pipeline else None)
+        reason = f"{type(exc).__name__}: {str(exc)[:300]}"
+        prepass = pipeline.prepass if pipeline else None
+        if prepass is not None and pipeline.docs and mode == C.MODE_LABELS:
+            # B4 as the fallback: with a real corpus loaded, the deterministic labels still carry the card's setup
+            # when the model path fails. A missing or empty corpus stays neutral: something upstream is wrong.
+            try:
+                labels = labels_from_prepass(prepass, summary)
+                labels["mode"] = C.MODE_NOTES_ONLY_FALLBACK
+                labels["fallback_reason"] = reason
+                return _signal(summary, labels, [], ledger, used, fallback_reason=reason)
+            except Exception:  # noqa: BLE001
+                pass
+        return _neutral(summary, reason, used, ledger, prepass)

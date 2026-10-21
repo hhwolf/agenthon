@@ -5,6 +5,7 @@ import os
 
 from .contracts import NumericSummary, TextSignal
 from . import text_map as T
+from .text_layer import constants as C
 from .text_layer.parse import RawScenario, RawSignal
 from .text_layer.signal import (NUMERIC_PARAGRAPH_MAPPED, NUMERIC_PARAGRAPH_UNMAPPED,
                                 Ledger, clamp_scenarios, mapping_rationale)
@@ -69,14 +70,17 @@ def map_labels(labels, assets, *, lam=T.DEFAULT_LAMBDA, family=""):
 def apply_text_map(signal: TextSignal, summary: NumericSummary, lam=T.DEFAULT_LAMBDA):
     if not math.isfinite(lam) or not 0 <= lam <= 1:
         raise ValueError("lambda must be finite and in [0,1]")
-    if lam == 0 or signal.fallback_reason:
+    labels = signal.labels or {}
+    fallback_labels = labels.get("mode") == C.MODE_NOTES_ONLY_FALLBACK
+    if lam == 0 or (signal.fallback_reason and not fallback_labels):
         neutral = TextSignal.neutral(summary.assets, signal.fallback_reason)
         result = replace(signal, scenarios=neutral.scenarios, tail_mult=1., tail_signs={}, branch_mixture=False)
         return signal if result == signal else result
-    labels = signal.labels or {}
     if labels.get("mode") in (None, "neutral"):
         return signal
     raw, lines, signs, binary = map_labels(labels, summary.assets, lam=lam, family=summary.family)
+    if fallback_labels:
+        lines.append("model path failed; deterministic card/corpus labels used (notes_only_fallback)")
     ledger = Ledger()
     scenarios, tail = clamp_scenarios(raw, summary.assets, any(e.established for e in signal.evidence), ledger,
                                      mean_limit=T.BINARY_MEAN_DRIFT_LIMIT if binary else .5)
