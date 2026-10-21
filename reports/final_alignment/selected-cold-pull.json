@@ -1,0 +1,10 @@
+{
+  "image": "ghcr.io/hhwolf/agenthon-numeric-v1@sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674",
+  "image_id": "sha256:bcc0b8447470f129ffe005baf3df41ebd25847883ee4f8ce54697cf17d6248ef",
+  "seconds": 8.0201960420236,
+  "daemon": "disposable docker:27-dind, fresh tmpfs image store",
+  "initial_images": 0,
+  "anonymous": true,
+  "platform": "linux/amd64",
+  "no_existing_images_removed": true
+}

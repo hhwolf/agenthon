@@ -83,6 +83,17 @@ random walk, with the fallback named in the rationale. The existing writer
 creates all three files. Valid card metadata and writable storage are required.
 No text-model requests are made, and no competition pack/upload is run.
 
+## Final compatibility profile
+
+Pass `--forecaster numeric_alignment` to `forecast` to opt into the corrected
+target-date override: counted versus declared horizon must differ by a ratio
+strictly greater than 2. The rule also applies to M0 and wide-random-walk fallbacks.
+The default `numeric_v1_1` and its frozen config retain their original behavior.
+None of the 126 audited cards hits the exact boundary; their outputs are unchanged.
+The three research arms remain Python-only and failed to earn model promotion.
+See [the decision](../reports/final_alignment/RESULTS.md) and [reproduction commands](../reports/final_alignment/REPRODUCE.md)
+for the isolated current-toolkit audit. House stays disabled; the selected release is unchanged.
+
 ## Image publication
 
 Tags `numeric-v1.1-*` trigger `.github/workflows/numeric-v1-1-image.yml`:

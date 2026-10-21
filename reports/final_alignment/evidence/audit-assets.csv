@@ -1,0 +1,203 @@
+id,asset,panel,observations,first,last,asof,stale_calendar_days,monthly,value_unit,observation_periods,raw_duplicates
+t2-EXAMPLE-ust-curve-1m,UST_10Y,rates_daily.parquet,129,2024-01-02,2024-06-28,2024-06-28,0,False,percent_per_annum,{},False
+t2-EXAMPLE-ust-curve-1m,UST_2Y,rates_daily.parquet,129,2024-01-02,2024-06-28,2024-06-28,0,False,percent_per_annum,{},False
+t2-EXAMPLE-ust-curve-1m,UST_30Y,rates_daily.parquet,129,2024-01-02,2024-06-28,2024-06-28,0,False,percent_per_annum,{},False
+t2-EXAMPLE-ust-curve-1m,UST_5Y,rates_daily.parquet,129,2024-01-02,2024-06-28,2024-06-28,0,False,percent_per_annum,{},False
+t2-F1-ai-mom-2024,MOM,factors_daily.parquet,6142,2000-01-03,2024-05-31,2024-05-31,0,False,cumulative_log_return,{},False
+t2-F1-aud-on-hold-2016,AUD,g10_fx_daily.parquet,4232,2000-01-03,2016-11-01,2016-11-01,0,False,usd_per_aud,{},False
+t2-F1-cad-boc-2017,CAD,g10_fx_daily.parquet,4404,2000-01-03,2017-07-12,2017-07-12,0,False,cad_per_usd,{},False
+t2-F1-chf-highly-valued-2021,CHF,g10_fx_daily.parquet,5384,2000-01-03,2021-06-17,2021-06-17,0,False,chf_per_usd,{},False
+t2-F1-conflicting-texts-2024,UST_10Y,rates_daily.parquet,6116,2000-01-03,2024-06-12,2024-06-12,0,False,percent_per_annum,{},False
+t2-F1-considerable-period-2003,UST_10Y,rates_daily.parquet,903,2000-01-03,2003-08-12,2003-08-12,0,False,percent_per_annum,{},False
+t2-F1-conundrum-2005,UST_10Y,rates_daily.parquet,1283,2000-01-03,2005-02-18,2005-02-18,0,False,percent_per_annum,{},False
+t2-F1-cpi-glidepath-2023,CPI_ALL,macro_monthly.parquet,281,2000-01-01,2023-05-01,2023-07-12,72,True,cpi_index_1982_84_100 (current vintage; see notes),"{('CPI_ALL', 140): '2024-01', ('CPI_ALL', 160): '2024-02'}",False
+t2-F1-curve-ust1y-001-ps1,UST_1Y,rates_daily.parquet,4756,2000-01-03,2019-01-07,2019-01-07,0,False,percent_per_annum,{},False
+t2-F1-curve-ust3m-002-ps1,UST_3M,rates_daily.parquet,5361,2000-01-03,2021-06-07,2021-06-07,0,False,percent_per_annum,{},False
+t2-F1-dkk-peg-2019,DKK,g10_fx_daily.parquet,4809,2000-01-03,2019-03-01,2019-03-01,0,False,dkk_per_usd,{},False
+t2-F1-eur-range-2017,EUR,g10_fx_daily.parquet,4444,2000-01-03,2017-09-07,2017-09-07,0,False,usd_per_eur,{},False
+t2-F1-fed-put-2019,MKT,factors_daily.parquet,4885,2000-01-03,2019-06-04,2019-06-04,0,False,cumulative_log_return,{},False
+t2-F1-fx-eur-020-ps1,EUR,g10_fx_daily.parquet,2424,2000-01-03,2009-08-17,2009-08-17,0,False,usd_per_eur,{},False
+t2-F1-fx-inr-010-ps1,INR,em_fx_ecb_daily.parquet,1676,2009-01-02,2015-07-20,2015-07-20,0,False,inr_per_usd,{},False
+t2-F1-fx-krw-011-ps1,KRW,em_fx_ecb_daily.parquet,2111,2009-01-02,2017-03-27,2017-03-27,0,False,krw_per_usd,{},False
+t2-F1-fx-zar-009-ps1,ZAR,em_fx_ecb_daily.parquet,763,2009-01-02,2011-12-19,2011-12-19,0,False,zar_per_usd,{},False
+t2-F1-greater-confidence-2024,UST_2Y,rates_daily.parquet,6024,2000-01-03,2024-01-31,2024-01-31,0,False,percent_per_annum,{},False
+t2-F1-hawkish-cut-2024,UST_2Y,rates_daily.parquet,6245,2000-01-03,2024-12-18,2024-12-18,0,False,percent_per_annum,{},False
+t2-F1-jpy-ycc-flex-2018,JPY,g10_fx_daily.parquet,4668,2000-01-03,2018-07-31,2018-07-31,0,False,jpy_per_usd,{},False
+t2-F1-liftoff-telegraph-2015,UST_2Y,rates_daily.parquet,3960,2000-01-03,2015-10-28,2015-10-28,0,False,percent_per_annum,{},False
+t2-F1-measured-pace-2004,UST_2Y,rates_daily.parquet,1123,2000-01-03,2004-06-30,2004-06-30,0,False,percent_per_annum,{},False
+t2-F1-normalization-2017,UST_10Y,rates_daily.parquet,4366,2000-01-03,2017-06-14,2017-06-14,0,False,percent_per_annum,{},False
+t2-F1-patient-dropped-2015,UST_2Y,rates_daily.parquet,3804,2000-01-03,2015-03-18,2015-03-18,0,False,percent_per_annum,{},False
+t2-F1-pause-2006,UST_10Y,rates_daily.parquet,1650,2000-01-03,2006-08-08,2006-08-08,0,False,percent_per_annum,{},False
+t2-F1-pause-2006,UST_2Y,rates_daily.parquet,1650,2000-01-03,2006-08-08,2006-08-08,0,False,percent_per_annum,{},False
+t2-F1-qe3-end-2014,UST_10Y,rates_daily.parquet,3710,2000-01-03,2014-10-29,2014-10-29,0,False,percent_per_annum,{},False
+t2-F1-sahm-watch-2024,UNRATE,macro_monthly.parquet,294,2000-01-01,2024-06-01,2024-08-02,62,True,"percent (U-3, current vintage)","{('UNRATE', 145): '2025-01', ('UNRATE', 165): '2025-02'}",False
+t2-F1-third-cut-2019,UST_2Y,rates_daily.parquet,4961,2000-01-03,2019-10-30,2019-10-30,0,False,percent_per_annum,{},False
+t2-F1-ust-positioning-2018,UST_10Y,rates_daily.parquet,4691,2000-01-03,2018-09-28,2018-09-28,0,False,percent_per_annum,{},False
+t2-F2-abenomics-2012,JPY,g10_fx_daily.parquet,3249,2000-01-03,2012-11-30,2012-11-30,0,False,jpy_per_usd,{},False
+t2-F2-act-as-appropriate-2019,UST_2Y,rates_daily.parquet,4869,2000-01-03,2019-06-19,2019-06-19,0,False,percent_per_annum,{},False
+t2-F2-aud-taper-2013,AUD,g10_fx_daily.parquet,3370,2000-01-03,2013-05-24,2013-05-24,0,False,usd_per_aud,{},False
+t2-F2-boj-thin-signal-2014,JPY,g10_fx_daily.parquet,3726,2000-01-03,2014-10-24,2014-10-24,0,False,jpy_per_usd,{},False
+t2-F2-brl-transfer-2013,BRL,em_transfer_early.parquet,2110,1995-01-02,2013-05-24,2013-05-24,0,False,brl_per_usd,{},False
+t2-F2-cnh-stress-2015,CNY,em_transfer_early.parquet,2516,1995-07-31,2015-07-31,2015-07-31,0,False,cny_per_usd,{},False
+t2-F2-cnh-tradewar-2018,CNY,em_transfer_early.parquet,2521,1998-06-15,2018-06-15,2018-06-15,0,False,cny_per_usd,{},False
+t2-F2-considerable-removal-2004,UST_2Y,rates_daily.parquet,1019,2000-01-03,2004-01-30,2004-01-30,0,False,percent_per_annum,{},False
+t2-F2-credit-crunch-2007,UST_2Y,rates_daily.parquet,1909,2000-01-03,2007-08-17,2007-08-17,0,False,percent_per_annum,{},False
+t2-F2-curve-ust1y-003-ps1,UST_1Y,rates_daily.parquet,2830,2000-01-03,2011-04-25,2011-04-25,0,False,percent_per_annum,{},False
+t2-F2-curve-ust6m-004-ps1,UST_6M,rates_daily.parquet,5740,2000-01-03,2022-12-12,2022-12-12,0,False,percent_per_annum,{},False
+t2-F2-cut-sizing-2024,UST_10Y,rates_daily.parquet,6175,2000-01-03,2024-09-06,2024-09-06,0,False,percent_per_annum,{},False
+t2-F2-cut-sizing-2024,UST_2Y,rates_daily.parquet,6175,2000-01-03,2024-09-06,2024-09-06,0,False,percent_per_annum,{},False
+t2-F2-draghi-precommit-2014,EUR,g10_fx_daily.parquet,3624,2000-01-03,2014-05-30,2014-05-30,0,False,usd_per_eur,{},False
+t2-F2-ecb-qe-telegraph-2014,EUR,g10_fx_daily.parquet,3749,2000-01-03,2014-11-28,2014-11-28,0,False,usd_per_eur,{},False
+t2-F2-eur-energy-divergence-2022,EUR,g10_fx_daily.parquet,5643,2000-01-03,2022-06-30,2022-06-30,0,False,usd_per_eur,{},False
+t2-F2-fx-brl-012-ps1,BRL,em_fx_ecb_daily.parquet,2452,2009-01-02,2018-07-30,2018-07-30,0,False,brl_per_usd,{},False
+t2-F2-fx-eur-021-ps1,EUR,g10_fx_daily.parquet,3971,2000-01-03,2015-10-19,2015-10-19,0,False,usd_per_eur,{},False
+t2-F2-fx-krw-015-ps1,KRW,em_fx_ecb_daily.parquet,3123,2009-01-02,2021-03-15,2021-03-15,0,False,krw_per_usd,{},False
+t2-F2-fx-mxn-013-ps1,MXN,em_fx_ecb_daily.parquet,2681,2009-01-02,2019-06-24,2019-06-24,0,False,mxn_per_usd,{},False
+t2-F2-fx-zar-014-ps1,ZAR,em_fx_ecb_daily.parquet,2833,2009-01-02,2020-01-27,2020-01-27,0,False,zar_per_usd,{},False
+t2-F2-higher-for-longer-2023,UST_10Y,rates_daily.parquet,5934,2000-01-03,2023-09-20,2023-09-20,0,False,percent_per_annum,{},False
+t2-F2-inr-transfer-2013,INR,em_transfer_early.parquet,2517,1993-05-24,2013-05-24,2013-05-24,0,False,inr_per_usd,{},False
+t2-F2-nirp-paradox-2016,JPY,g10_fx_daily.parquet,4045,2000-01-03,2016-02-05,2016-02-05,0,False,jpy_per_usd,{},False
+t2-F2-opec-cad-2014,CAD,g10_fx_daily.parquet,3749,2000-01-03,2014-11-28,2014-11-28,0,False,cad_per_usd,{},False
+t2-F2-powell-pivot-2019,UST_2Y,rates_daily.parquet,4772,2000-01-03,2019-01-30,2019-01-30,0,False,percent_per_annum,{},False
+t2-F2-qe2-jackson-hole-2010,UST_10Y,rates_daily.parquet,2669,2000-01-03,2010-08-31,2010-08-31,0,False,percent_per_annum,{},False
+t2-F2-shunto-nirp-exit-2024,JPY,g10_fx_daily.parquet,6069,2000-01-03,2024-03-15,2024-03-15,0,False,jpy_per_usd,{},False
+t2-F2-some-pain-2022,UST_10Y,rates_daily.parquet,5668,2000-01-03,2022-08-26,2022-08-26,0,False,percent_per_annum,{},False
+t2-F2-taper-begins-2013,UST_10Y,rates_daily.parquet,3494,2000-01-03,2013-12-18,2013-12-18,0,False,percent_per_annum,{},False
+t2-F2-taper-testimony-2013,UST_10Y,rates_daily.parquet,3352,2000-01-03,2013-05-24,2013-05-24,0,False,percent_per_annum,{},False
+t2-F2-time-has-come-2024,UST_2Y,rates_daily.parquet,6166,2000-01-03,2024-08-23,2024-08-23,0,False,percent_per_annum,{},False
+t2-F2-trade-war-escalation-2019,UST_10Y,rates_daily.parquet,4900,2000-01-03,2019-08-02,2019-08-02,0,False,percent_per_annum,{},False
+t2-F2-trichet-alertness-2008,EUR,g10_fx_daily.parquet,2139,2000-01-03,2008-06-30,2008-06-30,0,False,usd_per_eur,{},False
+t2-F2-whatever-it-takes-2012,EUR,g10_fx_daily.parquet,3163,2000-01-03,2012-07-27,2012-07-27,0,False,usd_per_eur,{},False
+t2-F3-boj-ust-channel-2023,JPY,g10_fx_daily.parquet,5907,2000-01-03,2023-07-21,2023-07-21,0,False,percent_per_annum (UST_10Y); JPY-per-USD,{},False
+t2-F3-boj-ust-channel-2023,UST_10Y,rates_daily.parquet,5892,2000-01-03,2023-07-21,2023-07-21,0,False,percent_per_annum (UST_10Y); JPY-per-USD,{},False
+t2-F3-brexit-joint-2016,CHF,g10_fx_daily.parquet,4138,2000-01-03,2016-06-17,2016-06-17,0,False,"H.10 native quote (GBP,EUR: USD-per-ccy; CHF,JPY: ccy-per-USD)",{},False
+t2-F3-brexit-joint-2016,EUR,g10_fx_daily.parquet,4138,2000-01-03,2016-06-17,2016-06-17,0,False,"H.10 native quote (GBP,EUR: USD-per-ccy; CHF,JPY: ccy-per-USD)",{},False
+t2-F3-brexit-joint-2016,GBP,g10_fx_daily.parquet,4138,2000-01-03,2016-06-17,2016-06-17,0,False,"H.10 native quote (GBP,EUR: USD-per-ccy; CHF,JPY: ccy-per-USD)",{},False
+t2-F3-brexit-joint-2016,JPY,g10_fx_daily.parquet,4138,2000-01-03,2016-06-17,2016-06-17,0,False,"H.10 native quote (GBP,EUR: USD-per-ccy; CHF,JPY: ccy-per-USD)",{},False
+t2-F3-conundrum-joint-2005,UST_10Y,rates_daily.parquet,1283,2000-01-03,2005-02-18,2005-02-18,0,False,percent_per_annum,{},False
+t2-F3-conundrum-joint-2005,UST_2Y,rates_daily.parquet,1283,2000-01-03,2005-02-18,2005-02-18,0,False,percent_per_annum,{},False
+t2-F3-conundrum-joint-2005,UST_5Y,rates_daily.parquet,1283,2000-01-03,2005-02-18,2005-02-18,0,False,percent_per_annum,{},False
+t2-F3-conundrum-joint-2005,UST_7Y,rates_daily.parquet,1283,2000-01-03,2005-02-18,2005-02-18,0,False,percent_per_annum,{},False
+t2-F3-covid-curve-2020,UST_10Y,rates_daily.parquet,5037,2000-01-03,2020-02-21,2020-02-21,0,False,percent_per_annum,{},False
+t2-F3-covid-curve-2020,UST_2Y,rates_daily.parquet,5037,2000-01-03,2020-02-21,2020-02-21,0,False,percent_per_annum,{},False
+t2-F3-covid-curve-2020,UST_30Y,rates_daily.parquet,5037,2000-01-03,2020-02-21,2020-02-21,0,False,percent_per_annum,{},False
+t2-F3-covid-curve-2020,UST_5Y,rates_daily.parquet,5037,2000-01-03,2020-02-21,2020-02-21,0,False,percent_per_annum,{},False
+t2-F3-cpi-release-cross-2022,HML,factors_daily.parquet,5709,2000-01-03,2022-09-09,2022-09-09,0,False,cumulative_log_return,{},False
+t2-F3-cpi-release-cross-2022,MKT,factors_daily.parquet,5709,2000-01-03,2022-09-09,2022-09-09,0,False,cumulative_log_return,{},False
+t2-F3-curve-ust3m-ust6m-ust1y-006-ps1,UST_1Y,rates_daily.parquet,3741,2000-01-03,2014-12-15,2014-12-15,0,False,percent_per_annum,{},False
+t2-F3-curve-ust3m-ust6m-ust1y-006-ps1,UST_3M,rates_daily.parquet,3741,2000-01-03,2014-12-15,2014-12-15,0,False,percent_per_annum,{},False
+t2-F3-curve-ust3m-ust6m-ust1y-006-ps1,UST_6M,rates_daily.parquet,3741,2000-01-03,2014-12-15,2014-12-15,0,False,percent_per_annum,{},False
+t2-F3-curve-ust3m-ust6m-ust1y-ust2y-005-ps1,UST_1Y,rates_daily.parquet,2580,2000-01-03,2010-04-26,2010-04-26,0,False,percent_per_annum,{},False
+t2-F3-curve-ust3m-ust6m-ust1y-ust2y-005-ps1,UST_2Y,rates_daily.parquet,2580,2000-01-03,2010-04-26,2010-04-26,0,False,percent_per_annum,{},False
+t2-F3-curve-ust3m-ust6m-ust1y-ust2y-005-ps1,UST_3M,rates_daily.parquet,2580,2000-01-03,2010-04-26,2010-04-26,0,False,percent_per_annum,{},False
+t2-F3-curve-ust3m-ust6m-ust1y-ust2y-005-ps1,UST_6M,rates_daily.parquet,2580,2000-01-03,2010-04-26,2010-04-26,0,False,percent_per_annum,{},False
+t2-F3-divergence-2014,EUR,g10_fx_daily.parquet,3709,2000-01-03,2014-09-30,2014-09-30,0,False,percent_per_annum (UST_10Y); USD-per-EUR; JPY-per-USD,{},False
+t2-F3-divergence-2014,JPY,g10_fx_daily.parquet,3709,2000-01-03,2014-09-30,2014-09-30,0,False,percent_per_annum (UST_10Y); USD-per-EUR; JPY-per-USD,{},False
+t2-F3-divergence-2014,UST_10Y,rates_daily.parquet,3690,2000-01-03,2014-09-30,2014-09-30,0,False,percent_per_annum (UST_10Y); USD-per-EUR; JPY-per-USD,{},False
+t2-F3-dollar-squeeze-2020,AUD,g10_fx_daily.parquet,5069,2000-01-03,2020-03-13,2020-03-13,0,False,H.10 native quotes (see per-asset units table in data/PROVENANCE.md),{},False
+t2-F3-dollar-squeeze-2020,CAD,g10_fx_daily.parquet,5069,2000-01-03,2020-03-13,2020-03-13,0,False,H.10 native quotes (see per-asset units table in data/PROVENANCE.md),{},False
+t2-F3-dollar-squeeze-2020,CHF,g10_fx_daily.parquet,5069,2000-01-03,2020-03-13,2020-03-13,0,False,H.10 native quotes (see per-asset units table in data/PROVENANCE.md),{},False
+t2-F3-dollar-squeeze-2020,DKK,g10_fx_daily.parquet,5069,2000-01-03,2020-03-13,2020-03-13,0,False,H.10 native quotes (see per-asset units table in data/PROVENANCE.md),{},False
+t2-F3-dollar-squeeze-2020,EUR,g10_fx_daily.parquet,5069,2000-01-03,2020-03-13,2020-03-13,0,False,H.10 native quotes (see per-asset units table in data/PROVENANCE.md),{},False
+t2-F3-dollar-squeeze-2020,GBP,g10_fx_daily.parquet,5069,2000-01-03,2020-03-13,2020-03-13,0,False,H.10 native quotes (see per-asset units table in data/PROVENANCE.md),{},False
+t2-F3-dollar-squeeze-2020,JPY,g10_fx_daily.parquet,5069,2000-01-03,2020-03-13,2020-03-13,0,False,H.10 native quotes (see per-asset units table in data/PROVENANCE.md),{},False
+t2-F3-dollar-squeeze-2020,NOK,g10_fx_daily.parquet,5069,2000-01-03,2020-03-13,2020-03-13,0,False,H.10 native quotes (see per-asset units table in data/PROVENANCE.md),{},False
+t2-F3-dollar-squeeze-2020,NZD,g10_fx_daily.parquet,5069,2000-01-03,2020-03-13,2020-03-13,0,False,H.10 native quotes (see per-asset units table in data/PROVENANCE.md),{},False
+t2-F3-dollar-squeeze-2020,SEK,g10_fx_daily.parquet,5069,2000-01-03,2020-03-13,2020-03-13,0,False,H.10 native quotes (see per-asset units table in data/PROVENANCE.md),{},False
+t2-F3-dollar-vortex-2022,EUR,g10_fx_daily.parquet,5687,2000-01-03,2022-09-01,2022-09-01,0,False,"percent_per_annum (UST_2Y); H.10 native quote (EUR,GBP: USD-per-ccy; JPY: JPY-per-USD)",{},False
+t2-F3-dollar-vortex-2022,GBP,g10_fx_daily.parquet,5687,2000-01-03,2022-09-01,2022-09-01,0,False,"percent_per_annum (UST_2Y); H.10 native quote (EUR,GBP: USD-per-ccy; JPY: JPY-per-USD)",{},False
+t2-F3-dollar-vortex-2022,JPY,g10_fx_daily.parquet,5687,2000-01-03,2022-09-01,2022-09-01,0,False,"percent_per_annum (UST_2Y); H.10 native quote (EUR,GBP: USD-per-ccy; JPY: JPY-per-USD)",{},False
+t2-F3-dollar-vortex-2022,UST_2Y,rates_daily.parquet,5672,2000-01-03,2022-09-01,2022-09-01,0,False,"percent_per_annum (UST_2Y); H.10 native quote (EUR,GBP: USD-per-ccy; JPY: JPY-per-USD)",{},False
+t2-F3-dots-vs-oil-2014,UST_10Y,rates_daily.parquet,3743,2000-01-03,2014-12-17,2014-12-17,0,False,percent_per_annum,{},False
+t2-F3-dots-vs-oil-2014,UST_2Y,rates_daily.parquet,3743,2000-01-03,2014-12-17,2014-12-17,0,False,percent_per_annum,{},False
+t2-F3-dots-vs-oil-2014,UST_30Y,rates_daily.parquet,3743,2000-01-03,2014-12-17,2014-12-17,0,False,percent_per_annum,{},False
+t2-F3-election-2024-joint,EUR,g10_fx_daily.parquet,6228,2000-01-03,2024-10-31,2024-10-31,0,False,percent_per_annum (UST); USD-per-EUR; JPY-per-USD,{},False
+t2-F3-election-2024-joint,JPY,g10_fx_daily.parquet,6228,2000-01-03,2024-10-31,2024-10-31,0,False,percent_per_annum (UST); USD-per-EUR; JPY-per-USD,{},False
+t2-F3-election-2024-joint,UST_10Y,rates_daily.parquet,6213,2000-01-03,2024-10-31,2024-10-31,0,False,percent_per_annum (UST); USD-per-EUR; JPY-per-USD,{},False
+t2-F3-election-2024-joint,UST_2Y,rates_daily.parquet,6213,2000-01-03,2024-10-31,2024-10-31,0,False,percent_per_annum (UST); USD-per-EUR; JPY-per-USD,{},False
+t2-F3-em-transfer-joint-2013,BRL,em_transfer_early.parquet,2110,1995-01-02,2013-05-24,2013-05-24,0,False,inr_per_usd; brl_per_usd,{},False
+t2-F3-em-transfer-joint-2013,INR,em_transfer_early.parquet,2517,1993-05-24,2013-05-24,2013-05-24,0,False,inr_per_usd; brl_per_usd,{},False
+t2-F3-energy-escalation-fx-2022,CAD,g10_fx_daily.parquet,5552,2000-01-03,2022-02-18,2022-02-18,0,False,"H.10 native quotes (NOK,CAD,SEK: ccy-per-USD; EUR: USD-per-ccy)",{},False
+t2-F3-energy-escalation-fx-2022,EUR,g10_fx_daily.parquet,5552,2000-01-03,2022-02-18,2022-02-18,0,False,"H.10 native quotes (NOK,CAD,SEK: ccy-per-USD; EUR: USD-per-ccy)",{},False
+t2-F3-energy-escalation-fx-2022,NOK,g10_fx_daily.parquet,5552,2000-01-03,2022-02-18,2022-02-18,0,False,"H.10 native quotes (NOK,CAD,SEK: ccy-per-USD; EUR: USD-per-ccy)",{},False
+t2-F3-energy-escalation-fx-2022,SEK,g10_fx_daily.parquet,5552,2000-01-03,2022-02-18,2022-02-18,0,False,"H.10 native quotes (NOK,CAD,SEK: ccy-per-USD; EUR: USD-per-ccy)",{},False
+t2-F3-fiscal-risk-joint-2011,CHF,g10_fx_daily.parquet,2908,2000-01-03,2011-07-22,2011-07-22,0,False,"percent_per_annum (UST_10Y); CHF,JPY per USD",{},False
+t2-F3-fiscal-risk-joint-2011,JPY,g10_fx_daily.parquet,2908,2000-01-03,2011-07-22,2011-07-22,0,False,"percent_per_annum (UST_10Y); CHF,JPY per USD",{},False
+t2-F3-fiscal-risk-joint-2011,UST_10Y,rates_daily.parquet,2892,2000-01-03,2011-07-22,2011-07-22,0,False,"percent_per_annum (UST_10Y); CHF,JPY per USD",{},False
+t2-F3-front-loaded-hikes-2022,UST_10Y,rates_daily.parquet,5618,2000-01-03,2022-06-15,2022-06-15,0,False,percent_per_annum,{},False
+t2-F3-front-loaded-hikes-2022,UST_2Y,rates_daily.parquet,5618,2000-01-03,2022-06-15,2022-06-15,0,False,percent_per_annum,{},False
+t2-F3-front-loaded-hikes-2022,UST_30Y,rates_daily.parquet,5618,2000-01-03,2022-06-15,2022-06-15,0,False,percent_per_annum,{},False
+t2-F3-front-loaded-hikes-2022,UST_5Y,rates_daily.parquet,5618,2000-01-03,2022-06-15,2022-06-15,0,False,percent_per_annum,{},False
+t2-F3-funding-carry-fx-2024,AUD,g10_fx_daily.parquet,6161,2000-01-03,2024-07-26,2024-07-26,0,False,"H.10 native quote (JPY,CHF: ccy-per-USD; AUD,NZD: USD-per-ccy)",{},False
+t2-F3-funding-carry-fx-2024,CHF,g10_fx_daily.parquet,6161,2000-01-03,2024-07-26,2024-07-26,0,False,"H.10 native quote (JPY,CHF: ccy-per-USD; AUD,NZD: USD-per-ccy)",{},False
+t2-F3-funding-carry-fx-2024,JPY,g10_fx_daily.parquet,6161,2000-01-03,2024-07-26,2024-07-26,0,False,"H.10 native quote (JPY,CHF: ccy-per-USD; AUD,NZD: USD-per-ccy)",{},False
+t2-F3-funding-carry-fx-2024,NZD,g10_fx_daily.parquet,6161,2000-01-03,2024-07-26,2024-07-26,0,False,"H.10 native quote (JPY,CHF: ccy-per-USD; AUD,NZD: USD-per-ccy)",{},False
+t2-F3-fx-eur-jpy-chf-022-ps1,CHF,g10_fx_daily.parquet,2581,2000-01-03,2010-04-05,2010-04-05,0,False,usd_per_eur; jpy_per_usd; chf_per_usd,{},False
+t2-F3-fx-eur-jpy-chf-022-ps1,EUR,g10_fx_daily.parquet,2581,2000-01-03,2010-04-05,2010-04-05,0,False,usd_per_eur; jpy_per_usd; chf_per_usd,{},False
+t2-F3-fx-eur-jpy-chf-022-ps1,JPY,g10_fx_daily.parquet,2581,2000-01-03,2010-04-05,2010-04-05,0,False,usd_per_eur; jpy_per_usd; chf_per_usd,{},False
+t2-F3-fx-krw-inr-zar-017-ps1,INR,em_fx_ecb_daily.parquet,1300,2009-01-02,2014-01-27,2014-01-27,0,False,krw_per_usd; inr_per_usd; zar_per_usd,{},False
+t2-F3-fx-krw-inr-zar-017-ps1,KRW,em_fx_ecb_daily.parquet,1300,2009-01-02,2014-01-27,2014-01-27,0,False,krw_per_usd; inr_per_usd; zar_per_usd,{},False
+t2-F3-fx-krw-inr-zar-017-ps1,ZAR,em_fx_ecb_daily.parquet,1300,2009-01-02,2014-01-27,2014-01-27,0,False,krw_per_usd; inr_per_usd; zar_per_usd,{},False
+t2-F3-fx-mxn-brl-zar-016-ps1,BRL,em_fx_ecb_daily.parquet,154,2009-01-02,2009-08-10,2009-08-10,0,False,mxn_per_usd; brl_per_usd; zar_per_usd,{},False
+t2-F3-fx-mxn-brl-zar-016-ps1,MXN,em_fx_ecb_daily.parquet,154,2009-01-02,2009-08-10,2009-08-10,0,False,mxn_per_usd; brl_per_usd; zar_per_usd,{},False
+t2-F3-fx-mxn-brl-zar-016-ps1,ZAR,em_fx_ecb_daily.parquet,154,2009-01-02,2009-08-10,2009-08-10,0,False,mxn_per_usd; brl_per_usd; zar_per_usd,{},False
+t2-F3-hiking-year-curve-2018,UST_10Y,rates_daily.parquet,4616,2000-01-03,2018-06-13,2018-06-13,0,False,percent_per_annum,{},False
+t2-F3-hiking-year-curve-2018,UST_2Y,rates_daily.parquet,4616,2000-01-03,2018-06-13,2018-06-13,0,False,percent_per_annum,{},False
+t2-F3-hiking-year-curve-2018,UST_30Y,rates_daily.parquet,4616,2000-01-03,2018-06-13,2018-06-13,0,False,percent_per_annum,{},False
+t2-F3-hiking-year-curve-2018,UST_5Y,rates_daily.parquet,4616,2000-01-03,2018-06-13,2018-06-13,0,False,percent_per_annum,{},False
+t2-F3-inversion-persistence-2019,UST_10Y,rates_daily.parquet,4908,2000-01-03,2019-08-14,2019-08-14,0,False,percent_per_annum,{},False
+t2-F3-inversion-persistence-2019,UST_2Y,rates_daily.parquet,4908,2000-01-03,2019-08-14,2019-08-14,0,False,percent_per_annum,{},False
+t2-F3-rates-into-factors-2022,HML,factors_daily.parquet,5539,2000-01-03,2022-01-05,2022-01-05,0,False,cumulative_log_return,{},False
+t2-F3-rates-into-factors-2022,MOM,factors_daily.parquet,5539,2000-01-03,2022-01-05,2022-01-05,0,False,cumulative_log_return,{},False
+t2-F3-readout-calendar-factors-2020,HML,factors_daily.parquet,5242,2000-01-03,2020-10-30,2020-10-30,0,False,cumulative_log_return,{},False
+t2-F3-readout-calendar-factors-2020,MOM,factors_daily.parquet,5242,2000-01-03,2020-10-30,2020-10-30,0,False,cumulative_log_return,{},False
+t2-F3-readout-calendar-factors-2020,SMB,factors_daily.parquet,5242,2000-01-03,2020-10-30,2020-10-30,0,False,cumulative_log_return,{},False
+t2-F3-scandies-stress-2022,GBP,g10_fx_daily.parquet,5702,2000-01-03,2022-09-23,2022-09-23,0,False,"H.10 native quotes (SEK,NOK: ccy-per-USD; GBP: USD-per-ccy)",{},False
+t2-F3-scandies-stress-2022,NOK,g10_fx_daily.parquet,5702,2000-01-03,2022-09-23,2022-09-23,0,False,"H.10 native quotes (SEK,NOK: ccy-per-USD; GBP: USD-per-ccy)",{},False
+t2-F3-scandies-stress-2022,SEK,g10_fx_daily.parquet,5702,2000-01-03,2022-09-23,2022-09-23,0,False,"H.10 native quotes (SEK,NOK: ccy-per-USD; GBP: USD-per-ccy)",{},False
+t2-F3-sep-dots-curve-2023,UST_10Y,rates_daily.parquet,5935,2000-01-03,2023-09-21,2023-09-21,0,False,percent_per_annum,{},False
+t2-F3-sep-dots-curve-2023,UST_2Y,rates_daily.parquet,5935,2000-01-03,2023-09-21,2023-09-21,0,False,percent_per_annum,{},False
+t2-F3-sep-dots-curve-2023,UST_30Y,rates_daily.parquet,5935,2000-01-03,2023-09-21,2023-09-21,0,False,percent_per_annum,{},False
+t2-F3-sep-dots-curve-2023,UST_5Y,rates_daily.parquet,5935,2000-01-03,2023-09-21,2023-09-21,0,False,percent_per_annum,{},False
+t2-F3-taper-testimony-curve-2013,UST_10Y,rates_daily.parquet,3352,2000-01-03,2013-05-24,2013-05-24,0,False,percent_per_annum,{},False
+t2-F3-taper-testimony-curve-2013,UST_2Y,rates_daily.parquet,3352,2000-01-03,2013-05-24,2013-05-24,0,False,percent_per_annum,{},False
+t2-F3-taper-testimony-curve-2013,UST_30Y,rates_daily.parquet,3352,2000-01-03,2013-05-24,2013-05-24,0,False,percent_per_annum,{},False
+t2-F3-taper-testimony-curve-2013,UST_5Y,rates_daily.parquet,3352,2000-01-03,2013-05-24,2013-05-24,0,False,percent_per_annum,{},False
+t2-F4-aud-gfc-2008,AUD,g10_fx_daily.parquet,2191,2000-01-03,2008-09-12,2008-09-12,0,False,usd_per_aud,{},False
+t2-F4-chf-defended-floor-2015,CHF,g10_fx_daily.parquet,3764,2000-01-03,2014-12-19,2014-12-19,0,False,chf_per_usd,{},False
+t2-F4-china-stress-mkt-2015,MKT,factors_daily.parquet,3919,2000-01-03,2015-07-31,2015-07-31,0,False,cumulative_log_return,{},False
+t2-F4-covid-mkt-2020,MKT,factors_daily.parquet,5064,2000-01-03,2020-02-19,2020-02-19,0,False,cumulative_log_return,{},False
+t2-F4-covid-nfp-2020,NFP,macro_monthly.parquet,242,2000-01-01,2020-02-01,2020-03-31,59,True,"thousands of jobs (PAYEMS, as-published first-release vintage)","{('NFP', 21): '2020-04'}",False
+t2-F4-covid-rates-2020,UST_10Y,rates_daily.parquet,5033,2000-01-03,2020-02-14,2020-02-14,0,False,percent_per_annum,{},False
+t2-F4-cpi-friday-2022,UST_2Y,rates_daily.parquet,5607,2000-01-03,2022-05-31,2022-05-31,0,False,percent_per_annum,{},False
+t2-F4-cpi-vintage-2022,CPI_ALL,macro_monthly.parquet,268,2000-01-01,2022-04-01,2022-05-31,60,True,cpi_index_1982_84_100_vintage_2022_07_13,"{('CPI_ALL', 21): '2022-06'}",False
+t2-F4-curve-ust3m-008-ps1,UST_3M,rates_daily.parquet,4325,2000-01-03,2017-04-17,2017-04-17,0,False,percent_per_annum,{},False
+t2-F4-curve-ust6m-007-ps1,UST_6M,rates_daily.parquet,3464,2000-01-03,2013-11-04,2013-11-04,0,False,percent_per_annum,{},False
+t2-F4-eur-warnings-2022,EUR,g10_fx_daily.parquet,5552,2000-01-03,2022-02-18,2022-02-18,0,False,usd_per_eur,{},False
+t2-F4-factor-joint-credit-2007,HML,factors_daily.parquet,1904,2000-01-03,2007-07-31,2007-07-31,0,False,cumulative_log_return,{},False
+t2-F4-factor-joint-credit-2007,MOM,factors_daily.parquet,1904,2000-01-03,2007-07-31,2007-07-31,0,False,cumulative_log_return,{},False
+t2-F4-factor-joint-credit-2007,SMB,factors_daily.parquet,1904,2000-01-03,2007-07-31,2007-07-31,0,False,cumulative_log_return,{},False
+t2-F4-factor-stress-2008,MKT,factors_daily.parquet,2187,2000-01-03,2008-09-12,2008-09-12,0,False,cumulative_log_return,{},False
+t2-F4-factor-stress-2008,QMJ,factors_daily.parquet,2270,2000-01-03,2008-09-12,2008-09-12,0,False,cumulative_log_return,{},False
+t2-F4-funding-stress-10y-2008,UST_10Y,rates_daily.parquet,2177,2000-01-03,2008-09-12,2008-09-12,0,False,percent_per_annum,{},False
+t2-F4-funding-stress-2y-2008,UST_2Y,rates_daily.parquet,2177,2000-01-03,2008-09-12,2008-09-12,0,False,percent_per_annum,{},False
+t2-F4-fx-brl-019-ps1,BRL,em_fx_ecb_daily.parquet,2012,2009-01-02,2016-11-07,2016-11-07,0,False,brl_per_usd,{},False
+t2-F4-fx-mxn-018-ps1,MXN,em_fx_ecb_daily.parquet,989,2009-01-02,2012-11-05,2012-11-05,0,False,mxn_per_usd,{},False
+t2-F4-gbp-brexit-2016,GBP,g10_fx_daily.parquet,4125,2000-01-03,2016-05-31,2016-05-31,0,False,usd_per_gbp,{},False
+t2-F4-gbp-conference-2016,GBP,g10_fx_daily.parquet,4211,2000-01-03,2016-09-30,2016-09-30,0,False,usd_per_gbp,{},False
+t2-F4-hml-covid-2020,HML,factors_daily.parquet,5062,2000-01-03,2020-02-14,2020-02-14,0,False,cumulative_log_return,{},False
+t2-F4-jpy-carry-2007,JPY,g10_fx_daily.parquet,1899,2000-01-03,2007-07-20,2007-07-20,0,False,jpy_per_usd,{},False
+t2-F4-jpy-crowding-2024,JPY,g10_fx_daily.parquet,6164,2000-01-03,2024-07-31,2024-07-31,0,False,jpy_per_usd,{},False
+t2-F4-mkt-debt-ceiling-2011,MKT,factors_daily.parquet,2907,2000-01-03,2011-07-22,2011-07-22,0,False,cumulative_log_return,{},False
+t2-F4-mkt-new-year-2016,MKT,factors_daily.parquet,4025,2000-01-03,2015-12-31,2015-12-31,0,False,cumulative_log_return,{},False
+t2-F4-momentum-bank-stress-2009,MOM,factors_daily.parquet,2307,2000-01-03,2009-03-06,2009-03-06,0,False,cumulative_log_return,{},False
+t2-F4-nok-covid-2020,NOK,g10_fx_daily.parquet,5059,2000-01-03,2020-02-28,2020-02-28,0,False,nok_per_usd,{},False
+t2-F4-powell-december-2018,MKT,factors_daily.parquet,4760,2000-01-03,2018-11-30,2018-11-30,0,False,cumulative_log_return,{},False
+t2-F4-same-week-texts-2023,UST_2Y,rates_daily.parquet,5798,2000-01-03,2023-03-08,2023-03-08,0,False,percent_per_annum,{},False
+t2-F4-short-vol-2018,MKT,factors_daily.parquet,4546,2000-01-03,2018-01-26,2018-01-26,0,False,cumulative_log_return,{},False
+t2-F4-taper-warning-2013,UST_10Y,rates_daily.parquet,3334,2000-01-03,2013-04-30,2013-04-30,0,False,percent_per_annum,{},False
+t2-F4-ust-downgrade-watch-2011,UST_10Y,rates_daily.parquet,2892,2000-01-03,2011-07-22,2011-07-22,0,False,percent_per_annum,{},False
+t2-F4-ust10y-january-fomc-2009,UST_10Y,rates_daily.parquet,2271,2000-01-03,2009-01-30,2009-01-30,0,False,percent_per_annum,{},False
+t2-F4-ust10y-supply-2023,UST_10Y,rates_daily.parquet,5941,2000-01-03,2023-09-29,2023-09-29,0,False,percent_per_annum,{},False
+t2-F4-ust2y-december-fomc-2021,UST_2Y,rates_daily.parquet,5504,2000-01-03,2021-12-31,2021-12-31,0,False,percent_per_annum,{},False
+t2-F4-vaccine-timeline-2020,MOM,factors_daily.parquet,5242,2000-01-03,2020-10-30,2020-10-30,0,False,cumulative_log_return,{},False

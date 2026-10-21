@@ -1,0 +1,38 @@
+{
+  "winner": "B",
+  "development_pass": true,
+  "confirmation_mean_pass": false,
+  "model_decision": "NO-GO",
+  "compatibility_decision": "GO for opt-in boundary repair; keep selected release",
+  "confirmation_mean": 1.1150955958925328,
+  "release_confirmation_mean": 1.0967043000688939,
+  "no_new_confirmation_caps": true,
+  "regression_equal": true,
+  "confirmation_ci": {
+    "confirmation": {
+      "B": {
+        "ci95": [
+          -0.039604519753491274,
+          0.08830002328138771
+        ],
+        "delta": 0.018391295823639225,
+        "delta_without_best_week": 0.028697288202386213,
+        "most_helpful_week": "2021-W23",
+        "weeks": 22
+      },
+      "M0": {
+        "ci95": [
+          -0.05059588610167089,
+          0.1516909049048731
+        ],
+        "delta": 0.04320822283233066,
+        "delta_without_best_week": 0.0574963466955397,
+        "most_helpful_week": "2015-W43",
+        "weeks": 22
+      }
+    }
+  },
+  "selection_sha256": "55412ac57103f2332519afcc4016f13828f6b7e82a4d82fdc1239d4ecbb1882c",
+  "source_frozen_confirmation": false,
+  "provenance_audit": "guard-audit.json"
+}

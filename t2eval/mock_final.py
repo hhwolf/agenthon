@@ -428,7 +428,20 @@ def score_rows(rows, roster):
             row.update(normalize(verdict, divisors, len(model.mean)))
 
 
-def aggregate(rows, platform_clock=43200):
+def unit_source_revision(root):
+    """A standalone downloaded/staged unit tree need not have Git metadata."""
+    try:
+        tracked = subprocess.check_output(['git', '-C', str(root.resolve()), 'ls-files', '--', '*/card.toml'],
+                                          text=True, stderr=subprocess.DEVNULL).strip()
+        if not tracked:
+            return None
+        return subprocess.check_output(['git', '-C', str(root.resolve()), 'rev-parse', 'HEAD'],
+                                       text=True, stderr=subprocess.DEVNULL).strip()
+    except (subprocess.CalledProcessError, OSError):
+        return None
+
+
+def aggregate(rows, platform_clock=43200, projection_units=104):
     scores = [r["score"] for r in rows if r["score"] is not None]
     proxies = [r["score"] for r in rows if r.get("proxy_available") and r["score"] is not None]
     wall = sum(r["wall_seconds"] for r in rows)
@@ -441,7 +454,8 @@ def aggregate(rows, platform_clock=43200):
             "sum_unit_wall_seconds": wall, "mean_unit_wall_seconds": mean_time,
             "pull_seconds": sum(r["pull_seconds"] for r in rows),
             "projection_104_seconds": 104 * mean_time, "platform_clock_seconds": platform_clock,
-            "over_half_platform_clock": 104 * mean_time > platform_clock / 2,
+            "projection_units": projection_units, "projection_seconds": projection_units * mean_time,
+            "over_half_platform_clock": projection_units * mean_time > platform_clock / 2,
             "score_denominator": "resolved practice proxies plus all failures; successful unlabeled units excluded"}
 
 
@@ -494,13 +508,13 @@ def run_image(image, args, destination, roster, helper=None):
             restricted.__exit__(None, None, None)
     scoring_start = time.monotonic()
     score_rows(rows, roster)
-    summary = aggregate(rows, args.platform_clock)
+    summary = aggregate(rows, args.platform_clock, projection_units=len(selected))
     summary.update(image=image, network=args.network, house_mode=args.house_mode, limits=limits,
                    helper_image_id=helper, host={k: host[k] for k in ["NCPU", "MemTotal", "Architecture", "ServerVersion"]},
                    infrastructure_seconds=infra_seconds, ingestion_seconds=ingestion_seconds,
                    scoring_seconds=time.monotonic()-scoring_start, image_cached_before=bool(cached),
                    pull_policy=args.pull_policy, unit_timeout_seconds=args.timeout,
-                   vendor_commit=subprocess.check_output(["git", "-C", str(ROOT / "vendor/track2"), "rev-parse", "HEAD"], text=True).strip(),
+                   vendor_commit=unit_source_revision(args.units_root),
                    source_commit=source_commit, source_dirty=source_dirty, harness_source_sha256=SOURCE_HASHES)
     atomic_json(destination / "summary.json", summary)
     (destination / "cards.json").write_text(json.dumps(rows, indent=2, allow_nan=False) + "\n")
@@ -542,7 +556,7 @@ def parser():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--image", required=True)
     p.add_argument("--compare-image")
-    p.add_argument("--units", default="practice", help="all 104 supplied units, exemplar, or first N sorted units")
+    p.add_argument("--units", default="practice", help="all dynamically discovered supplied units, exemplar, or first N sorted units")
     p.add_argument("--units-root", type=Path, default=ROOT / "vendor/track2/units")
     p.add_argument("--network", choices=["none", "restricted"], default="none")
     p.add_argument("--house-mode", choices=["canned", "chaos", "replay"], default="canned")

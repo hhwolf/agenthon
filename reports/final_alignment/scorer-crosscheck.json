@@ -1,0 +1,109 @@
+{
+  "old": {
+    "common": "2.6.0",
+    "rows": [
+      {
+        "cells": 1,
+        "divisors": {
+          "marginal": 0.00580697763094723,
+          "joint": 1.0,
+          "tail": 0.0006679268566660003
+        },
+        "result": {
+          "score": 2.4620147711131173,
+          "unclipped": 2.4620147711131173,
+          "failed": false,
+          "normalized_marginal": 2.579062946346248,
+          "normalized_joint": 0.0,
+          "normalized_tail": 2.169394333030291
+        }
+      },
+      {
+        "cells": 2,
+        "divisors": {
+          "marginal": 0.28159934299936235,
+          "joint": 0.009769754945978093,
+          "tail": 0.03238995841940142
+        },
+        "result": {
+          "score": 2.955452150634998,
+          "unclipped": 2.955452150634998,
+          "failed": false,
+          "normalized_marginal": 2.5815942653796227,
+          "normalized_joint": 4.022294307322826,
+          "normalized_tail": 2.289833628741694
+        }
+      },
+      {
+        "cells": 8,
+        "divisors": {
+          "marginal": 0.28219653628741687,
+          "joint": 0.09329159789363828,
+          "tail": 0.032458648443896516
+        },
+        "result": {
+          "score": 1.2730265885485486,
+          "unclipped": 1.2730265885485486,
+          "failed": false,
+          "normalized_marginal": 1.4058240323442441,
+          "normalized_joint": 1.0943888234266763,
+          "normalized_tail": 1.2089896267421179
+        }
+      }
+    ]
+  },
+  "current": {
+    "common": "2.6.1",
+    "rows": [
+      {
+        "cells": 1,
+        "divisors": {
+          "marginal": 0.00580697763094723,
+          "joint": 1.0,
+          "tail": 0.0006679268566660003
+        },
+        "result": {
+          "score": 2.4620147711131173,
+          "unclipped": 2.4620147711131173,
+          "failed": false,
+          "normalized_marginal": 2.579062946346248,
+          "normalized_joint": 0.0,
+          "normalized_tail": 2.169394333030291
+        }
+      },
+      {
+        "cells": 2,
+        "divisors": {
+          "marginal": 0.28159934299936235,
+          "joint": 0.009769754945978093,
+          "tail": 0.03238995841940142
+        },
+        "result": {
+          "score": 2.955452150634998,
+          "unclipped": 2.955452150634998,
+          "failed": false,
+          "normalized_marginal": 2.5815942653796227,
+          "normalized_joint": 4.022294307322826,
+          "normalized_tail": 2.289833628741694
+        }
+      },
+      {
+        "cells": 8,
+        "divisors": {
+          "marginal": 0.28219653628741687,
+          "joint": 0.09329159789363828,
+          "tail": 0.032458648443896516
+        },
+        "result": {
+          "score": 1.2730265885485486,
+          "unclipped": 1.2730265885485486,
+          "failed": false,
+          "normalized_marginal": 1.4058240323442441,
+          "normalized_joint": 1.0943888234266763,
+          "normalized_tail": 1.2089896267421179
+        }
+      }
+    ]
+  },
+  "identical": true
+}

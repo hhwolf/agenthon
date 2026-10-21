@@ -88,6 +88,8 @@ Official references checked 2026-10-16:
 [descriptor](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/starter-packs/track2/SUBMISSION-DESCRIPTOR.md),
 [House identity](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/HOUSE-MODEL.md),
 [public image policy](https://github.com/Agenthon-2026/Agenthon2026-public/blob/main/docs/IMAGE-SUBMISSIONS.md).
-Evaluation remains pinned to toolkit 2.6.0 for comparison consistency; the
-organizer's current installation examples use 2.6.1. Do not silently change
-scoring versions during the release.
+Release evaluation remains pinned to toolkit 2.6.0 for comparison consistency.
+The separate [Final-alignment audit](../reports/final_alignment/RESULTS.md) uses
+toolkit 2.6.1 in an isolated environment and retains the selected release after
+confirmation rejects the model change. Do not silently change scoring versions
+or replace the selected digest during release verification.
