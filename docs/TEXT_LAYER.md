@@ -150,7 +150,9 @@ neutral with λ, then applies the clamps above. Notes-only labels (no LLM) come 
 - The model knows history. Prompts must state the as-of date, forbid post-as-of knowledge, and require
   `doc_id` citations for every claim. Claims without a citation are dropped.
 - Practice cards (2007–2024) are events the model may remember, so text gains measured on them are
-  optimistic. The sealed set is H2 2025 – Q2 2026.
+  optimistic. The current Final contract uses October 26, 2026 UST/FX inputs and October 27–30
+  targets (1–4 business days); monthly cards target releases in that window. See the
+  [pinned contract audit](../reports/final_alignment/RESULTS.md#current-organizer-contract).
 
 ## 8. Rationale
 

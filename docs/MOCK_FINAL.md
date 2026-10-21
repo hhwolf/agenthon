@@ -31,11 +31,14 @@ absent, the existing sibling-panel proxy builder runs automatically. Use
 The runtime image build context remains unchanged: evaluation code, labels,
 mock services, fixtures, and reports never enter the submission image.
 
-`UNITS=practice` selects all **104 supplied units**, including the exemplar.
+`UNITS=practice` discovers all supplied units, including the exemplar: **104** in
+the default release checkout or **126** in the isolated current checkout.
 `UNITS=exemplar` selects one; a positive integer selects the first N sorted unit
 directories. A request for more units than available is an error. `--units-root`
 overrides the public unit directory. `--proxy-roster` supplies a JSON roster in
 the existing evaluation format; relative realized paths resolve from this repo.
+Use the [Final-alignment reproduction guide](../reports/final_alignment/REPRODUCE.md)
+for the separate current-toolkit environment and `--units-root vendor/current/units`.
 
 ## Container execution and clock
 
@@ -170,8 +173,11 @@ submitted image itself prints, so inspect those before sharing.
 
 Summaries include status counts, requests, score denominators/means/caps, pull
 time, sequential ingestion time, scoring time, host limits and image identity.
-The 104-unit wall-time projection is flagged if it exceeds **21,600 seconds**,
-half the platform clock. `COMPARE_IMAGE` runs the two digests sequentially with
+The selected roster's unit count determines the wall-time projection; it is flagged
+if it exceeds **21,600 seconds**, half the platform clock. The legacy
+`projection_104_seconds` field remains available. `vendor_commit` records the selected
+input tree's Git revision, or null for standalone untracked inputs.
+`COMPARE_IMAGE` runs the two digests sequentially with
 the same unit roster, seed policy and network mode, and writes `COMPARISON.md`,
 `comparison.csv`, and `comparison.json` with paired score/time/request rows.
 

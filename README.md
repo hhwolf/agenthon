@@ -69,8 +69,12 @@ and official scoring against the local practice proxies. For example:
 make mock-final IMAGE=ghcr.io/hhwolf/agenthon-numeric-v1@sha256:25ffda44821a0493ba5ba69aeb570ec009a5e1081cd54d5e615fa3d51ac70a01 UNITS=practice NETWORK=restricted
 ```
 
-Here `practice` includes all 104 supplied units; `exemplar` and a positive count
-are also supported. `COMPARE_IMAGE=...` adds a second digest and paired reports.
+Here `practice` discovers all units in the selected input directory: 104 in the
+release checkout or 126 in the isolated current checkout. `exemplar` and a positive
+count are also supported. `COMPARE_IMAGE=...` adds a second digest and paired reports.
+The [Final-alignment comparison](reports/final_alignment/RESULTS.md) retains the
+verified release after three bounded experiments. Its [reproduction guide](reports/final_alignment/REPRODUCE.md)
+sets up the separate current-toolkit environment and expanded 126-unit checks.
 
 `backtest` generates **2,060 historical pseudo-cards** by default (20 for each
 practice template), then prints normalized score tables. `CARDS=...` changes the
@@ -150,6 +154,9 @@ realized values, practice unit IDs or lookup tables.
 The [final release guide](docs/FINAL_RELEASE.md) covers the `final-*` CI workflow,
 published-digest verification, and human October 23 packing/upload handoff.
 The published final digest, verification and descriptors are recorded in [the release report](reports/release/RELEASE.md).
+The explicit `--forecaster numeric_alignment` [compatibility profile](docs/NUMERIC_V1_1.md#final-compatibility-profile)
+repairs the exact horizon-ratio boundary through both numeric fallbacks. It leaves
+the default forecaster and selected image unchanged; no experimental model arm was promoted.
 
 ## License
 

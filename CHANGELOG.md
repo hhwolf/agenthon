@@ -9,7 +9,7 @@
 
 ### Fixed
 
-- Offer strict greater-than-two horizon interpretation through an explicit compatibility forecaster, preserving release defaults and both numeric fallback levels.
+- Offer strict greater-than-two horizon interpretation with `--forecaster numeric_alignment`, preserving release defaults and both numeric fallback levels.
 - Derive mock-Final provenance and clock projections from the selected input roster, including standalone non-Git input trees.
 - Correct Final upload guidance to two uploads at most, one per UTC day, with unknown remaining quota and operational-only check feedback.
 
