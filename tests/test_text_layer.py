@@ -279,7 +279,7 @@ def test_out_of_schema_model_output_is_contained(unit, server):
 def test_failed_calls_count_against_budget(unit, server):
     server.push(error(500), error(502))
     sig, budget = run(unit, server)
-    assert numeric_neutral(sig) and "HTTP 502" in sig.fallback_reason and sig.labels["mode"] == "neutral"
+    assert numeric_neutral(sig) and "HTTP 502" in sig.fallback_reason and sig.labels["mode"] == "notes_only_fallback"
     assert budget.used == sig.calls_used == len(server.requests) == 1 + C.MAX_RETRIES_PER_CALL
 
 
@@ -404,7 +404,8 @@ def test_all_synthesis_runs_failing_is_neutral(unit, server):
     server.push(ok(json.dumps(EXTRACTION)))
     sig, budget = run(unit, server)
     assert numeric_neutral(sig) and "every synthesis run failed" in sig.fallback_reason
-    assert budget.used == 1 + 2 * C.SYNTHESIS_RUNS
+    assert budget.used == 1 + 3 * C.SYNTHESIS_RUNS      # call + repair + compact retry per run, still <= the 20 cap
+    assert budget.used <= C.HARD_REQUEST_CAP and sig.labels["mode"] == "notes_only_fallback"
 
 
 def test_truncated_and_fenced_outputs_are_tolerated(unit, server):
@@ -811,3 +812,60 @@ def test_deadline_stops_the_pipeline_mid_way(unit, server, monkeypatch):
     assert budget.used == 1 and len(server.requests) == 1   # no label call was started after the deadline
     time.sleep(0.3)
     assert len(server.requests) == 1
+
+
+
+# --------------------------------------------------------------------------- #
+# Post-Final hardening (2026-10-21)
+# --------------------------------------------------------------------------- #
+
+def test_model_failure_falls_back_to_card_labels_and_overlay_maps_them(unit, server):
+    from t2agent.text_overlay import apply_text_map as overlay
+    server.push(error(500), error(502))
+    sig, budget = run(unit, server)
+    assert numeric_neutral(sig) and "HTTP 502" in sig.fallback_reason and budget.used == 2
+    L = sig.labels
+    assert L["mode"] == "notes_only_fallback" and L["event_in_horizon"] == "scheduled_binary" and L["fallback_reason"] == sig.fallback_reason
+    assert L["fallback_source"] == "card_notes_only" and L["prepass"]["n_docs"] == 0     # card prose only, like the frozen release
+    card_only = read_text(unit, make_summary(), CallBudget(), env=server.env(network="none"), mode="card_notes_only")
+    assert {k: L[k] for k in ("regime", "event_in_horizon", "disagreement", "assets", "branches")} == \
+           {k: card_only.labels[k] for k in ("regime", "event_in_horizon", "disagreement", "assets", "branches")}
+    mapped = overlay(sig, make_summary(), 0.5)
+    assert len(mapped.scenarios) == 2 and all(s.vol_mult > 1.0 for s in mapped.scenarios) and mapped.tail_mult > 1.0
+    assert "notes_only_fallback" in mapped.rationale_md
+    offline, _ = run(unit, server, env=server.env(network="none"))
+    assert offline.labels["mode"] == "neutral" and overlay(offline, make_summary(), 1.0) is offline
+    nowhere = read_text(unit.parent / "missing", make_summary(), CallBudget(), env=server.env())
+    assert nowhere.labels["mode"] == "neutral"
+    empty = unit.parent / "empty"
+    (empty / "text").mkdir(parents=True, exist_ok=True)
+    assert read_text(empty, make_summary(), CallBudget(), env=server.env()).labels["mode"] == "neutral"
+
+
+def test_short_unit_clock_runs_one_label_call(unit, server, monkeypatch):
+    monkeypatch.setattr(C, "SAFETY_MARGIN_S", 0.0)
+    monkeypatch.setattr(C, "MIN_REQUEST_TIMEOUT_S", 0.1)
+    sig, budget = run(unit, server, time_budget_s=C.SYNTHESIS_TIMEOUT_S + C.SYNTHESIS_TIME_RESERVE_S - 5)
+    assert sig.fallback_reason is None and sig.labels["runs"] == 1 and budget.used == 2
+    assert "left on the unit clock" in sig.rationale_md
+
+
+def test_second_compact_repair_recovers_a_label_run(unit, server, monkeypatch):
+    monkeypatch.setattr(C, "MAX_PARALLEL_SYNTHESIS", 1)
+    server.push(ok(json.dumps(EXTRACTION)), ok("prose, not JSON"), ok("still prose after the repair"))
+    sig, budget = run(unit, server)
+    assert sig.fallback_reason is None and sig.labels["runs"] == 3
+    assert budget.used == 1 + 3 + 2                       # extraction, run 1 (call + repair + compact), runs 2 and 3
+    flags = [b["chat_template_kwargs"]["enable_thinking"] for b in server.bodies()]
+    assert flags[1:4] == [True, False, False] and "compact retry" in sig.rationale_md
+    compact_prompt = server.bodies()[3]["messages"][1]["content"]
+    assert compact_prompt.count("\n[") <= C.COMPACT_EVIDENCE_ITEMS
+    server.push(ok(json.dumps(EXTRACTION)), ok("prose"), ok("prose"), ok("prose"))
+    monkeypatch.setattr(C, "SYNTHESIS_RUNS", 1)
+    sig2, budget2 = run(unit, server)
+    assert numeric_neutral(sig2) and sig2.labels["mode"] == "notes_only_fallback" and budget2.used == 4
+
+
+def test_unit_clock_is_bounded_for_the_platform_clock():
+    assert C.TIME_BUDGET_S <= 240 and 104 * C.TIME_BUDGET_S <= 0.6 * 43_200
+    assert C.REQUEST_TIMEOUT_S + C.SAFETY_MARGIN_S < C.TIME_BUDGET_S and C.SYNTHESIS_TIMEOUT_S < C.TIME_BUDGET_S

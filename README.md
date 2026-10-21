@@ -61,6 +61,8 @@ See [evaluation data](reports/EVALUATION_DATA.md) for its contents, checksums,
 and restoration commands.
 Release history is in [CHANGELOG.md](CHANGELOG.md).
 The text-layer contract and House model rules are in [docs/TEXT_LAYER.md](docs/TEXT_LAYER.md).
+The text layer's Phase 3/4 results (design, dev-model sweep, ablations, decision context) are in
+[reports/phase3/RESULTS.md](reports/phase3/RESULTS.md) and its PDF; render with `scripts/render_phase3_pdf.py`.
 The [mock Final harness](docs/MOCK_FINAL.md) runs immutable published image digests
 with organizer-style staging, restricted House networking, output-tree checks,
 and official scoring against the local practice proxies. For example:
