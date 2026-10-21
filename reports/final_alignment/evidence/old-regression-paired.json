@@ -1,0 +1,24 @@
+{
+  "regression": {
+    "B": {
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "delta": 0.0,
+      "delta_without_best_week": 0.0,
+      "most_helpful_week": "2003-W33",
+      "weeks": 75
+    },
+    "compatibility": {
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "delta": 0.0,
+      "delta_without_best_week": 0.0,
+      "most_helpful_week": "2003-W33",
+      "weeks": 75
+    }
+  }
+}

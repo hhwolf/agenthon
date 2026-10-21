@@ -1074,3 +1074,52 @@ Pre-flight on `main` (evidence: reports/release/preflight/):
 Handoff: reports/release/UPLOAD_CHECKLIST.md. Caveats recorded there: the "Failed uploads are free" rule
 is documented for Development (Final allows one submission), and admin@agenthon.net comes from the team
 brief rather than the pinned docs.
+
+## 2026-10-21 — Final alignment (isolated review branch)
+
+Supersedes the old Final submission-count assumption above. Current organizer source
+`3b51e16b3f7c0fa0e56bcba323c2bb5e81b8bd56` specifies two uploads, at most one per UTC day,
+later replacing earlier. Remaining attempts are unknown; check actual team history. Ranked
+UST/FX horizons are 1–4 business days, and Final FX uses ECB crosses. See the pinned sources
+and complete comparisons in [RESULTS.md](reports/final_alignment/RESULTS.md).
+
+- The exact selected image passes all 126 current inputs offline, with zero House requests,
+  numeric fallbacks or internal FHS fallbacks. Warm mean is 1.87670 s; a separate anonymous
+  cold pull into an empty disposable daemon takes 8.02020 s. No existing cache was pruned.
+- PLAN committed as `7a0e891` before new-answer access. The source-separated roster has 1,158
+  cards (738 development in 2011–2018, 420 report-only in 2019–2024), including 45 real-note
+  episodes, with 245 omissions. Confirmation target windows are excluded across assets.
+  No G10 substitution for EM or uncertified macro-vintage claims.
+- Three independent arms, 2,000 draws, seeds 1111/2222/3333. Development means: release
+  1.124426, A zero drift 1.126243, B variance blend 1.097721, C no card notes 1.124280.
+  B clears all development gates: −2.37497%, paired shared-week delta CI
+  [−0.036770, −0.016622], four caps per seed unchanged.
+- B frozen at `dc223e2`; first answer access was 2026-10-21 18:12:37 UTC. Official 22-card
+  confirmation means: release 1.096704, B 1.115096, M0 1.139913; all have zero caps.
+  B delta is +0.018391, 95% CI [−0.039605, +0.088300]. **Model NO-GO**: confirmation fails.
+  No runner-up, combination or post-answer tuning. The old 88-card three-seed mean is
+  2.388046 with nine caps per seed, identical for release/B/compatibility. The original
+  CRC32 reference is reproduced twice at 2.3781408196192846 with nine caps.
+- **Compatibility code GO; release replacement NO-GO.** Opt-in `numeric_alignment` fixes
+  the strict horizon override ratio >2 through both fallbacks; the release's >=2 default
+  remains. No supplied card hits the boundary, so all 126 host outputs/rationales match.
+  Regression tests cover both ratio directions and forced fallback behavior.
+- The mock harness records the actual selected upstream revision and dynamic roster count,
+  with null Git provenance for untracked input trees. The local amd64 compatibility image
+  passes **126/126 in all four modes**, with byte-identical outputs, zero requests and no
+  numeric or internal FHS fallbacks. Maximum wall time is 2.839 s; maximum output is 424,843
+  bytes. See [container checks](reports/final_alignment/CONTAINER_CHECKS.md).
+- Verification: **275/275 release-env tests** and **31/31 current-env alignment tests** pass.
+  The ten protected release files match their baseline hashes and `origin/main`.
+- Compact card/seed/horizon/component/coverage evidence, frozen gates, identities,
+  counterexamples and reproduction commands are under `reports/final_alignment/`.
+  Discarded setup corrections and the partial-run budget are disclosed; total scored work
+  remains below 19,100 and the predeclared 24,000 card-arm-seed budget.
+
+The selected digest `400fe710…0d674`, fallback images, descriptors, runtime pins and frozen
+configs remain unchanged. House stays disabled. PR #8 was not modified. No candidate image
+was published, nothing was packed or uploaded, and no Team Key was accessed.
+
+Stop boundary: prepare a reviewable PR, require exact-head review, and stop before merging
+or replacing the selected release. Review status belongs to the PR's actual head; no release
+publication or replacement descriptor is implied.

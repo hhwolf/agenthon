@@ -1,8 +1,15 @@
 # Track 2 Final — upload checklist (human only)
 
 Planned upload: **Friday 2026-10-23**. Hard deadline: **Sunday 2026-10-25 23:59 AoE**
-(= Monday 2026-10-26 11:59 UTC = 07:59 EDT). One final submission per team per track. If two Final
-submissions tie on score, the earlier upload wins, so upload early rather than late.
+(= Monday 2026-10-26 11:59 UTC = 07:59 EDT). Track 2 permits **up to two Final uploads,
+at most one per UTC day; the later upload replaces the earlier one**. A check run shows operational
+status, not accuracy. Ranked UST/FX horizons are October 27–30 (1–4 business days after October 26),
+with next-release monthly cards. Results are expected in early November.
+
+These corrections use [the organizer contract at 3b51e16](https://github.com/Agenthon-2026/track2-forecasting-public/blob/3b51e16b3f7c0fa0e56bcba323c2bb5e81b8bd56/SUBMISSION_CLI.md).
+**Remaining uploads are unknown:** inspect the team's actual CodaBench history before acting.
+The Final-alignment pass recommends retaining the selected image; its variance experiment is NO-GO.
+See [the comparison](../final_alignment/RESULTS.md).
 
 Final image (in `submission.final.json`):
 `ghcr.io/hhwolf/agenthon-numeric-v1@sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674`
@@ -11,6 +18,7 @@ Fallback (in `submission.fallback.json`):
 
 ## 1. Before packing (2 minutes)
 
+- [ ] Inspect the actual Final upload history and UTC date; record remaining attempts before any upload.
 - [ ] On macOS, Linux or WSL (not native Windows), `cd` to the repository root on `main` at `0baf535` or later.
 - [ ] Confirm the descriptor is the verified one:
       `shasum -a 256 submission.final.json` must print
@@ -46,8 +54,8 @@ Windows-specific file handling; both validate these descriptors (`reports/releas
 | Status | Meaning | Action |
 |---|---|---|
 | `Submitting` / `Running` | queued or being evaluated (the run can take hours on a 12-hour stage clock) | Wait. Do not re-upload. |
-| `Finished` / scored | evaluated | Record the status; nothing else to do. |
-| `Failed` | the platform could not run it | Does not consume an attempt (as the organizers state). **Diagnose first**: read the CodaBench log and check that the digest still pulls anonymously. Only then repack with `submission.fallback.json` (same command, `--descriptor submission.fallback.json`) and upload. The pinned docs state the "Failed is free" rule for Development; with one Final submission, confirm with admin@agenthon.net before resubmitting if there is any doubt. |
+| `Finished` / scored | operational check completed during upload window | Record the status. It does not reveal ranked accuracy or justify tuning. |
+| `Failed` | the platform could not run it | Diagnose from the log and verify anonymous digest access. The documented free-failure wording is in the Development-limits section; do not infer the remaining Final quota. Check actual Final history/current organizer guidance before any fallback upload. |
 | `Held` / `Cancelled` | stopped at organizer intake or by an admin | Do not re-upload. Contact **admin@agenthon.net** with the team number, upload time (UTC) and descriptor digest. Held/cancelled uploads count. |
 
 ## 5. After uploading
