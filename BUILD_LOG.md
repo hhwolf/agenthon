@@ -1109,7 +1109,7 @@ and complete comparisons in [RESULTS.md](reports/final_alignment/RESULTS.md).
   passes **126/126 in all four modes**, with byte-identical outputs, zero requests and no
   numeric or internal FHS fallbacks. Maximum wall time is 2.839 s; maximum output is 424,843
   bytes. See [container checks](reports/final_alignment/CONTAINER_CHECKS.md).
-- Verification: **275/275 release-env tests** and **31/31 current-env alignment tests** pass.
+- Verification: **279/279 release-env tests** and **35/35 current-env alignment tests** pass.
   The ten protected release files match their baseline hashes and `origin/main`.
 - Compact card/seed/horizon/component/coverage evidence, frozen gates, identities,
   counterexamples and reproduction commands are under `reports/final_alignment/`.
@@ -1123,3 +1123,12 @@ was published, nothing was packed or uploaded, and no Team Key was accessed.
 Stop boundary: prepare a reviewable PR, require exact-head review, and stop before merging
 or replacing the selected release. Review status belongs to the PR's actual head; no release
 publication or replacement descriptor is implied.
+
+Greptile review follow-up for PR #11: selection now rejects complete-card checkpoints unless
+they exactly match the declared development roster. Confirmation rejects changed executable
+sources/configs, dependencies or scorer before opening any answers. The recorded development
+roster is complete (738 IDs, 8,856 rows, no duplicate keys), but its wrapper hash differs from
+confirmation (`48d50743…` → `d14c6717…`). Configs, scorer and library versions match; the exact
+development wrapper source is not retained, so source-frozen confirmation is uncertified.
+The stronger guard would reject that original transition. This limitation is disclosed in
+RESULTS/guard-audit.json; original evidence and NO-GO are preserved, with no confirmation rerun.

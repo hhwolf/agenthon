@@ -48,9 +48,18 @@ def git(path):
     return subprocess.check_output(['git', '-C', str(path), 'rev-parse', 'HEAD'], text=True).strip()
 
 
-def identity(cases, seeds, arms, units_root, normalization='current'):
+def implementation_identity():
+    """Fingerprint executable model/scorer code, configuration and numeric libraries."""
     sources = {str(p.relative_to(ROOT)): sha(p) for folder in ('t2agent', 't2eval')
                for p in sorted((ROOT/folder).rglob('*')) if p.suffix in ('.py', '.json')}
+    return dict(sources=sources,
+                versions={n: importlib.metadata.version(n) for n in
+                          ('qfbench2-common', 'qfbench2-track-forecasting', 'numpy', 'pandas', 'scipy')},
+                scorer_sha256=sha(Path(scoring.__file__)))
+
+
+def identity(cases, seeds, arms, units_root, normalization='current'):
+    implementation = implementation_identity()
     inputs = {}
     directory_revisions = {}
     for case in cases:
@@ -63,13 +72,10 @@ def identity(cases, seeds, arms, units_root, normalization='current'):
         inputs[case['id']] = {str(p.relative_to(unit)): sha(p) for p in sorted(unit.rglob('*')) if p.is_file()}
         if case.get('realized'):
             inputs[case['id']]['reference_answer_sha256'] = sha(Path(case['realized']))
-    data = dict(normalization=normalization, sources=sources, inputs=inputs, input_directory_git_revisions=directory_revisions, roster=cases, seeds=seeds, arms=arms,
+    data = dict(**implementation, normalization=normalization, inputs=inputs, input_directory_git_revisions=directory_revisions, roster=cases, seeds=seeds, arms=arms,
                 draws=2000, seed_policy='explicit seeds; None means card CRC32 independent of environment',
                 text_policy='committed card_notes_only lambda0.5; C explicitly disables it', source_commit=git(ROOT), upstream_commit=git(units_root.parent),
                 upstream_commit_role="evaluation specification checkout, not necessarily the input source",
-                versions={n: importlib.metadata.version(n) for n in
-                          ('qfbench2-common', 'qfbench2-track-forecasting', 'numpy', 'pandas', 'scipy')},
-                scorer_sha256=sha(Path(scoring.__file__)),
                 configs={n: json.loads((ROOT/'t2agent'/n).read_text()) for n in
                          ('numeric_v1_1_config.json', 'text_config.json')})
     data['identity_sha256'] = hashlib.sha256(json.dumps(data, sort_keys=True, default=str).encode()).hexdigest()

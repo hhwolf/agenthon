@@ -9,6 +9,12 @@ experiment was tried. Keep the selected numeric_v1.1 + card-notes λ=0.5 image, 
 
 `ghcr.io/hhwolf/agenthon-numeric-v1@sha256:400fe71078d8f9e3e7859da3402ec7866a531760c14b1c0bc795e8e71db0d674`
 
+**Evidence limitation:** the selection/configs were frozen, but review found that the
+wrapper source hash changed before confirmation. The exact development wrapper was not
+retained, so the confirmation is not certified as source-frozen. The stricter guard now
+rejects this situation before answer access. This independently rules out model promotion;
+the original evidence is preserved and no confirmation rerun is made.
+
 Its fallback digests, release descriptors, runtime dependency pins and frozen numeric/text
 configs are unchanged; hashes are in [protected-files.json](protected-files.json). PR #8 was
 not modified. Nothing was packed or uploaded; no Team Key was accessed. This branch is based
@@ -128,8 +134,8 @@ edits were present during an earlier run.
 
 Review also hardened environment-independent seeds/text policy, per-card failure gates, exact
 seed rosters, input-source revision labels, and frozen-evidence validation before confirmation.
-The original runs had the declared environment and complete rosters; their scores and frozen
-decision are unchanged. Unexpected evaluation errors abort the comparison instead of silently
+The original runs had the declared environment and complete rosters; stored scores and the
+NO-GO decision remain unchanged. This does not certify an unchanged source implementation. Unexpected evaluation errors abort the comparison instead of silently
 dropping cases. Failure-gate counterexamples are exercised in tests, not claimed as live failures.
 
 Two development starts were discarded before inspecting model comparisons: generated regular
@@ -168,16 +174,25 @@ groups meet the ≥40-card/≥12-week representation threshold:
 | Fed H.10 G10 | 1.216745 | 1.169954 |
 | ECB EM | 0.990078 | 0.962410 |
 
-B was frozen at commit **dc223e2**, selection SHA-256
+B's selection and parameter choice were frozen at commit **dc223e2**, selection SHA-256
 `55412ac57103f2332519afcc4016f13828f6b7e82a4d82fdc1239d4ecbb1882c`.
 First official-answer access was logged at **2026-10-21 18:12:37 UTC**, after that commit.
 Only **M0, unchanged release and B** were evaluated on the 22 official cards.
+
+A later guard audit found a source mismatch between the development and confirmation
+identities: `t2agent/numeric_alignment.py` changed from `48d50743…` to `d14c6717…`.
+Configs, dependency versions and official scorer match. The confirmation wrapper was
+recovered and hash-verified from a review log; the exact development wrapper is not retained,
+so its change cannot be certified harmless. Evaluation-helper source hashes also changed.
+The original comparison would fail the new live-implementation guard. Treat the table below
+as the recorded comparison, **not a certified source-frozen confirmation**. No promotion or
+rerun follows from this audit. [Exact hashes and roster audit](guard-audit.json).
 
 | Official 22-card confirmation | Mean | Caps (each seed) | 90% coverage | 98% coverage |
 |---|---:|---|---:|---:|
 | M0 | 1.139913 | 0 / 0 / 0 | 88.68% | 100% |
 | Unchanged release | **1.096704** | 0 / 0 / 0 | 88.68% | 100% |
-| Frozen B | 1.115096 | 0 / 0 / 0 | 92.45% | 100% |
+| Selected B | 1.115096 | 0 / 0 / 0 | 92.45% | 100% |
 
 B's paired difference is **+0.018391** (95% week CI **[−0.039605, +0.088300]**), a **1.67696%**
 mean regression. The confirmation gate fails regardless of the wide interval. Group counts
@@ -221,8 +236,8 @@ release without a separate release decision. Its mock-Final matrix is recorded i
 CI tag/digest, anonymous pull, complete digest verification and matching candidate descriptor;
 never repoint existing tags or reuse the selected descriptor for different bytes.
 
-**Verification:** the complete release environment passes **275 tests** (15 existing NumPy
-matmul warnings), and the current environment passes all **31 alignment tests**. The final
+**Verification:** the complete release environment passes **279 tests** (15 existing NumPy
+matmul warnings), and the current environment passes all **35 alignment tests**. The final
 local amd64 image passes **126/126 in each of four modes**, with identical output triplets,
 zero requests, mean wall time 1.93–2.10 s and maximum 2.839 s. Runtime hashes match the tested
 image. All ten protected files match both their recorded hashes and `origin/main`.
@@ -230,7 +245,10 @@ image. All ten protected files match both their recorded hashes and `origin/main
 Tests cover strict/reverse horizon boundaries, both forced numeric fallbacks, config-load failure,
 lagged variance and joint PSD/marginals, unaffected outputs, deterministic short FHS paths, future-row
 exclusion, source isolation, reserved-window exclusion, official normalization, exact seed rosters,
-per-card failure/fallback gates, major-group and cap gates, immutable selection and one-shot confirmation.
+per-card failure/fallback gates, major-group and cap gates, immutable selection and one-shot confirmation. Selection additionally requires the exact
+declared development roster; confirmation checks the live model/evaluation sources, JSON
+configs, library versions and scorer fingerprint against the development identity before
+any answer access. Tests reject complete-card partial checkpoints and implementation drift.
 Two old CLI tests intentionally reject common 2.6.1; the complete release-env suite runs under 2.6.0,
 while the new alignment/current-scorer tests run separately under 2.6.1. No dependency guard was weakened.
 

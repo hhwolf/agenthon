@@ -10,6 +10,7 @@
 ### Fixed
 
 - Offer strict greater-than-two horizon interpretation with `--forecaster numeric_alignment`, preserving release defaults and both numeric fallback levels.
+- Reject incomplete development rosters and changed model/scorer fingerprints before confirmation; disclose the original wrapper-source mismatch without changing frozen evidence.
 - Derive mock-Final provenance and clock projections from the selected input roster, including standalone non-Git input trees.
 - Correct Final upload guidance to two uploads at most, one per UTC day, with unknown remaining quota and operational-only check feedback.
 

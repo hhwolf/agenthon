@@ -1,0 +1,36 @@
+{
+  "configs_equal": true,
+  "development_rows": 8856,
+  "duplicated_keys": 0,
+  "exact_development_roster": true,
+  "expected_development_cards": 738,
+  "limitation": "Exact development wrapper source was not retained; its effect cannot be certified from hashes alone. The original confirmation would fail the new implementation guard. No confirmation rerun or model promotion.",
+  "model_decision": "NO-GO",
+  "observed_development_cards": 738,
+  "original_selection_sha256": "55412ac57103f2332519afcc4016f13828f6b7e82a4d82fdc1239d4ecbb1882c",
+  "scorer_equal": true,
+  "source_changes": {
+    "t2agent/numeric_alignment.py": {
+      "confirmation": "d14c67176a4e8f2953d6814477dbc4a0c2f6ae59897bdfbe3d23ae0b4a02567c",
+      "development": "48d50743e0a3e20e7cb02fcf5b7dc314329a4c6d546bc4c19f10b6c29373bb54"
+    },
+    "t2eval/alignment_audit.py": {
+      "confirmation": "7288541cd86f9db8f0a7e5c477bd7cbe9241f2a8c9660ac5f1ccb894f496f96b",
+      "development": null
+    },
+    "t2eval/alignment_selection.py": {
+      "confirmation": "129c3342a1b27a12a363bd842c14068c3e82cf75d36fad3b863186b5a7be7910",
+      "development": null
+    },
+    "t2eval/final_alignment.py": {
+      "confirmation": "61824738c1e060f9ab409350a6cde503aa1ca8eb411355f38b77789e18c2517d",
+      "development": "62eacf7b3e8726a8d07443cf0b64422f0cf99246a3dcd0489a15a5e9d811a1b2"
+    },
+    "t2eval/mock_final.py": {
+      "confirmation": "420385443cbaff5c7ad3fec6c8558f9c326428c3232d6a5ec71060b0e334fa21",
+      "development": "071da08ddf441d38473bcfe7b7864d582da84a11ce51d92c31c603a20c6709aa"
+    }
+  },
+  "source_frozen_confirmation": false,
+  "versions_equal": true
+}

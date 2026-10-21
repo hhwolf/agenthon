@@ -58,16 +58,37 @@ if a directory exists. The tools refuse to overwrite selection or confirmation e
 
 Expected roster: **1,158** cases, development **738**, report-only **420**. Seeds are fixed at
 1111/2222/3333, 2,000 draws; the selection is **B**, followed by **NO-GO** on confirmation.
-No arm combinations are evaluated. The new code validates unique declared seeds and per-card
-new failures/fallbacks, including boundary rounding; these review hardenings leave the original
-frozen decision unchanged because those rows are complete and contain no failures/fallbacks.
+No arm combinations are evaluated. The new code validates unique declared seeds, the exact declared development roster, per-card
+new failures/fallbacks and boundary rounding. Before confirmation it also checks live source,
+config, dependency and scorer fingerprints against the development snapshot. Do not edit
+implementation files between development and confirmation; a mismatch aborts before answers.
+The original complete roster remains valid, but its wrapper-source drift would fail this new
+guard. The original artifacts and NO-GO decision are preserved; do not reuse them to rerun confirmation.
 
-Score snapshots retain the exact source hashes used by their workers. Later compatibility-fallback
-and reporting hardenings do not change the evaluated no-failure A/B/C distributions. Absolute
-paths in identities are local provenance; a different checkout path gives a different cache ID.
-The old three-seed regression uses old `b9c663d` inputs and the current `3b51e16`
-scorer/normalization; its original `upstream_commit` field names the evaluation checkout.
-The final reference recheck records input revisions explicitly. Scores should reproduce to numerical precision with the pinned libraries; runtimes vary by host.
+Score snapshots retain source hashes, but the development wrapper's source content was not
+retained and its hash differs from confirmation. [guard-audit.json](guard-audit.json) records
+this limitation. A fresh run of the final code is a versioned replication, not a certified
+reproduction of the original source-frozen model. No claim of identical original A/B/C
+forecasts is made. The old three-seed regression uses old `b9c663d` inputs and the current
+`3b51e16` scorer/normalization; its original `upstream_commit` names the evaluation checkout.
+Absolute paths affect cache IDs. Runtimes vary by host.
+
+The committed per-card scores reproduce the reported aggregates and uncertainty without
+reading any answers or making another forecast:
+
+```sh
+PYTHONPATH=. .venv-current/bin/python - <<'PYCODE'
+import gzip
+from pathlib import Path
+from t2eval.final_alignment import summarize
+for name in ['development', 'confirmation', 'old-reference', 'old-regression']:
+    output = Path('.context/recomputed-statistics')/name
+    output.mkdir(parents=True, exist_ok=True)
+    source = Path('reports/final_alignment/evidence')/(name+'-cards.csv.gz')
+    (output/'cards.csv').write_bytes(gzip.decompress(source.read_bytes()))
+    summarize(output)
+PYCODE
+```
 
 ## Published audit and opt-in compatibility image
 

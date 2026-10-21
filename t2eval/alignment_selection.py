@@ -9,14 +9,21 @@ import pandas as pd
 
 from t2agent.io import read_card, read_panels
 from t2eval.data import units
-from t2eval.final_alignment import SEEDS, dump, group_for, paired_ci, run, sha
+from t2eval.final_alignment import SEEDS, dump, group_for, implementation_identity, paired_ci, run, sha
 
 
 def select(directory, output):
     if output.exists():
         raise FileExistsError('Selection is frozen; never overwrite after confirmation')
+    declared=json.loads((directory/'identity.json').read_text()).get('roster', [])
+    declared_ids=[case['id'] for case in declared]
+    expected={case['id'] for case in declared if case['split']=='development'}
+    if not expected or len(declared_ids)!=len(set(declared_ids)):
+        raise ValueError('Invalid or duplicated declared development roster')
     df=pd.read_csv(directory/'cards.csv',keep_default_na=False)
     data=df.loc[df.split=='development'].copy()
+    if set(data.id)!=expected or any(df.loc[df.id.isin(expected), 'split']!='development'):
+        raise ValueError('Incomplete development roster: scores must match declared card IDs')
     if data.duplicated(['id','arm','seed']).any() or set(data.seed)!=set(SEEDS):
         raise ValueError('Incomplete or duplicated declared seeds')
     counts=data.groupby(['id','arm']).size().unstack('arm')
@@ -78,6 +85,10 @@ def confirm(root, frozen, out, development=None):
     if (selection.get('development_identity_sha256') != sha(development/'identity.json')
             or selection.get('development_scores_sha256') != sha(development/'cards.csv')):
         raise ValueError('Frozen development evidence hash mismatch')
+    recorded=json.loads((development/'identity.json').read_text())
+    current=implementation_identity()
+    if any(recorded.get(key)!=value for key,value in current.items()):
+        raise ValueError('Frozen model/scorer implementation mismatch; do not open confirmation answers')
     # Only this function reads newly published answer files; freeze is mandatory.
     cases=[]
     for unit in units(root):

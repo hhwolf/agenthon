@@ -131,11 +131,12 @@ def selection_data():
         for seed in research.SEEDS])
 
 
-def freeze(tmp_path, rows):
+def freeze(tmp_path, rows, declared=None):
     directory = tmp_path/'comparison'
     directory.mkdir(parents=True)
     rows.to_csv(directory/'cards.csv', index=False)
-    (directory/'identity.json').write_text('{"identity":"review-fixture"}')
+    declared = rows[['id','split']].drop_duplicates().to_dict('records') if declared is None else declared
+    (directory/'identity.json').write_text(json.dumps({'roster': declared}))
     output = tmp_path/'frozen.json'
     selection.select(directory, output)
     return json.loads(output.read_text())
@@ -150,6 +151,23 @@ def test_selection_checks_exact_declared_seed_set_and_complete_card_arms(tmp_pat
     rows = rows.loc[~((rows.id == 'card-0') & (rows.arm == 'B'))]
     with pytest.raises(ValueError, match='Incomplete|duplicated'):
         freeze(tmp_path/'missing', rows)
+
+
+@pytest.mark.parametrize('change', ['missing_card', 'extra_card', 'changed_split', 'duplicated_roster'])
+def test_selection_requires_every_declared_development_card(tmp_path, change):
+    rows = selection_data()
+    declared = rows[['id', 'split']].drop_duplicates().to_dict('records')
+    if change == 'missing_card':
+        rows = rows.loc[rows.id != 'card-0']  # Every remaining card still has all arms/seeds.
+    elif change == 'extra_card':
+        rows.loc[rows.id == 'card-0', 'id'] = 'undeclared-card'
+    elif change == 'changed_split':
+        rows.loc[rows.id == 'card-0', 'split'] = 'report_only'
+    else:
+        declared.append(declared[0])
+    with pytest.raises(ValueError, match='development roster'):
+        freeze(tmp_path, rows, declared)
+    assert not (tmp_path/'frozen.json').exists()
 
 
 def test_selection_rejects_new_failed_cards_even_with_same_failure_count(tmp_path):
@@ -360,7 +378,9 @@ def test_confirmation_is_one_shot_and_logs_before_reading_answers(tmp_path, monk
     monkeypatch.setattr(selection, 'read_panels', lambda *args: {'em_fx_ecb_daily.parquet': pd.DataFrame()})
     frozen = tmp_path/'frozen.json'
     development=tmp_path/'development';development.mkdir()
-    (development/'identity.json').write_text('{}');(development/'cards.csv').write_text('fixture')
+    implementation=research.implementation_identity()
+    (development/'identity.json').write_text(json.dumps(implementation))
+    (development/'cards.csv').write_text('fixture')
     frozen.write_text(json.dumps(dict(winner='B',confirmation_unopened=True,seeds=research.SEEDS,
         plan_sha256=research.sha(Path('reports/final_alignment/PLAN.md')),
         development_identity_sha256=research.sha(development/'identity.json'),
@@ -378,6 +398,16 @@ def test_confirmation_is_one_shot_and_logs_before_reading_answers(tmp_path, monk
         selection.confirm(root, frozen, out, development)
     (development/'cards.csv').write_text('fixture')
     assert not out.with_name(out.name+'-unblinding.json').exists()
+    # Drift in any executable source/config, dependency or scorer must fail before answer access.
+    for key, changed in [('sources', {'t2agent/numeric_v1_1_config.json': 'modified'}),
+                         ('versions', {'numpy': 'modified'}), ('scorer_sha256', 'modified')]:
+        live = {**implementation, key: changed}
+        monkeypatch.setattr(selection, 'implementation_identity', lambda live=live: live)
+        with pytest.raises(ValueError, match='model/scorer implementation mismatch'):
+            selection.confirm(root, frozen, out, development)
+        assert not out.with_name(out.name+'-unblinding.json').exists()
+        assert not out.exists()
+    monkeypatch.setattr(selection, 'implementation_identity', lambda: implementation)
     def fake_run(cases, destination, units_root, arms):
         log = json.loads((tmp_path/'confirmation-unblinding.json').read_text())
         assert log['frozen_selection_sha256'] == research.sha(frozen)
