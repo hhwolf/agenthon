@@ -337,12 +337,16 @@ def read_text(unit_dir: Path | str, summary: NumericSummary, budget: CallBudget,
         reason = f"{type(exc).__name__}: {str(exc)[:300]}"
         prepass = pipeline.prepass if pipeline else None
         if prepass is not None and pipeline.docs and mode == C.MODE_LABELS:
-            # B4 as the fallback: with a real corpus loaded, the deterministic labels still carry the card's setup
-            # when the model path fails. A missing or empty corpus stays neutral: something upstream is wrong.
+            # B4 as the fallback: when the model path fails on a unit whose corpus loaded, degrade to the card-only
+            # labels, i.e. exactly what the frozen card_notes_only release computes (2.378 on the practice proxies,
+            # versus 2.396 for corpus-wide notes-only labels). A missing or empty corpus stays neutral.
             try:
-                labels = labels_from_prepass(prepass, summary)
+                card_prepass = run_prepass(summary, [], {})
+                labels = labels_from_prepass(card_prepass, summary)
                 labels["mode"] = C.MODE_NOTES_ONLY_FALLBACK
                 labels["fallback_reason"] = reason
+                labels["fallback_source"] = "card_notes_only"
+                ledger.notes.append("model path failed; card-only pre-pass labels used (same rule as the card_notes_only mode)")
                 return _signal(summary, labels, [], ledger, used, fallback_reason=reason)
             except Exception:  # noqa: BLE001
                 pass

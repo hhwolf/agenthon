@@ -826,6 +826,10 @@ def test_model_failure_falls_back_to_card_labels_and_overlay_maps_them(unit, ser
     assert numeric_neutral(sig) and "HTTP 502" in sig.fallback_reason and budget.used == 2
     L = sig.labels
     assert L["mode"] == "notes_only_fallback" and L["event_in_horizon"] == "scheduled_binary" and L["fallback_reason"] == sig.fallback_reason
+    assert L["fallback_source"] == "card_notes_only" and L["prepass"]["n_docs"] == 0     # card prose only, like the frozen release
+    card_only = read_text(unit, make_summary(), CallBudget(), env=server.env(network="none"), mode="card_notes_only")
+    assert {k: L[k] for k in ("regime", "event_in_horizon", "disagreement", "assets", "branches")} == \
+           {k: card_only.labels[k] for k in ("regime", "event_in_horizon", "disagreement", "assets", "branches")}
     mapped = overlay(sig, make_summary(), 0.5)
     assert len(mapped.scenarios) == 2 and all(s.vol_mult > 1.0 for s in mapped.scenarios) and mapped.tail_mult > 1.0
     assert "notes_only_fallback" in mapped.rationale_md

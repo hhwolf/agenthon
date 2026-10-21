@@ -80,7 +80,7 @@ def apply_text_map(signal: TextSignal, summary: NumericSummary, lam=T.DEFAULT_LA
         return signal
     raw, lines, signs, binary = map_labels(labels, summary.assets, lam=lam, family=summary.family)
     if fallback_labels:
-        lines.append("model path failed; deterministic card/corpus labels used (notes_only_fallback)")
+        lines.append("model path failed; card-only pre-pass labels used (notes_only_fallback, the card_notes_only rule)")
     ledger = Ledger()
     scenarios, tail = clamp_scenarios(raw, summary.assets, any(e.established for e in signal.evidence), ledger,
                                      mean_limit=T.BINARY_MEAN_DRIFT_LIMIT if binary else .5)

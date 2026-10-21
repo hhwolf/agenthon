@@ -1082,7 +1082,8 @@ a draft PR to be merged only after the Final results, or for a later round.
 
 - **B4 as the fallback inside hhwolf's dispatch.** When the model path fails on a unit whose corpus loaded (HTTP errors after
   retries, JSON failures after the repairs, every label run failing, budget or clock exhausted), `read_text` returns the
-  deterministic card/corpus labels with `labels.mode = "notes_only_fallback"` and the failure in `fallback_reason`;
+  **card-only** pre-pass labels — the same rule as the frozen `card_notes_only` release (2.378 on practice; the corpus-wide
+  notes-only labels score 2.396) — with `labels.mode = "notes_only_fallback"` and the failure in `fallback_reason`;
   `text_overlay.apply_text_map` maps those and only those fallback signals (any other signal with a `fallback_reason` is still
   neutralised, as before). Offline, a missing text directory or an empty corpus stay fully neutral.
 - **Bounded unit clock.** `TIME_BUDGET_S` 400 → 240 (request timeout 90 s, label calls 120 s, one label call instead of three
